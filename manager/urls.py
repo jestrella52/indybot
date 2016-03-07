@@ -22,4 +22,8 @@ urlpatterns = [
     url(r'^resulttype/list/$', views.resultType_list, name='resultType_list'),
     url(r'^start/list/$', views.start_list, name='start_list'),
     url(r'^type/list/$', views.type_list, name='type_list'),
+
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'admin/login.html'}),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
+
 ]

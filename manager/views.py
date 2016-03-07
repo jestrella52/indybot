@@ -1,22 +1,22 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
 
 from .forms import CountryForm, DriverForm
 from .models import Country, Course, Driver, Race, Result, ResultType, Start, Type
 
+
+@login_required
 def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    template = loader.get_template('index.html')
+    context = {
+        'title': "IndyBot",
+    }
+    return HttpResponse(template.render(context, request))
 
-def country_edit(request, country_id):
-    return HttpResponse("You're looking at country %s." % country_id)
 
-def driver_edit(request, driver_id):
-    return HttpResponse("You're looking at driver %s." % driver_id)
-
-def start_edit(request, start_id):
-    return HttpResponse("You're looking at start %s." % start_id)
-
+@login_required
 def driver_list(request):
     driverList = Driver.objects.order_by('last', 'first')
     template = loader.get_template('driverList.html')
@@ -26,6 +26,8 @@ def driver_list(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
 def driver_list_active(request):
     driverList = Driver.objects.order_by('last', 'first').filter(active=1)
     template = loader.get_template('driverList.html')
@@ -35,6 +37,8 @@ def driver_list_active(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
 def driver_list_inactive(request):
     driverList = Driver.objects.order_by('last', 'first').filter(active=0)
     template = loader.get_template('driverList.html')
@@ -44,6 +48,8 @@ def driver_list_inactive(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
 def start_list(request):
     startList = Start.objects.order_by('id')
     template = loader.get_template('startList.html')
@@ -52,6 +58,8 @@ def start_list(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
 def type_list(request):
     typeList = Type.objects.order_by('id')
     template = loader.get_template('typeList.html')
@@ -60,6 +68,8 @@ def type_list(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
 def resultType_list(request):
     resultTypeList = ResultType.objects.order_by('id')
     template = loader.get_template('resultTypeList.html')
@@ -68,6 +78,8 @@ def resultType_list(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
 def country_list(request):
     countryList = Country.objects.order_by('name')
     template = loader.get_template('countryList.html')
@@ -76,6 +88,8 @@ def country_list(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
 def race_list(request):
     raceList = Race.objects.order_by('-green')
     template = loader.get_template('raceList.html')
@@ -85,6 +99,8 @@ def race_list(request):
     return HttpResponse(template.render(context, request))
     # return HttpResponse("You're looking at race %s." % race_id)
 
+
+@login_required
 def country_create(request):
     if request.method == "POST":
         form = CountryForm(request.POST)
@@ -101,6 +117,8 @@ def country_create(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
 def country_delete(request, country_id):
     try:
         country = Country.objects.get(id=country_id)
@@ -110,6 +128,7 @@ def country_delete(request, country_id):
         noop = ""
 
 
+@login_required
 def country_edit(request, country_id):
     country = get_object_or_404(Country, pk=country_id)
     if request.method == "POST":
@@ -128,6 +147,7 @@ def country_edit(request, country_id):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def driver_create(request):
     if request.method == "POST":
         form = DriverForm(request.POST)
@@ -145,6 +165,7 @@ def driver_create(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def driver_edit(request, driver_id):
     driver = get_object_or_404(Driver, pk=driver_id)
     if request.method == "POST":
@@ -163,6 +184,7 @@ def driver_edit(request, driver_id):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def driver_delete(request, driver_id):
     try:
         driver = Driver.objects.get(id=driver_id)
@@ -171,7 +193,7 @@ def driver_delete(request, driver_id):
     except:
         noop = ""
 
-
+@login_required
 def results_edit(request, race_id, resulttype_id):
 
     race = Race.objects.get(id=race_id)
@@ -208,6 +230,8 @@ def results_edit(request, race_id, resulttype_id):
 
     return HttpResponse(template.render(context, request))
 
+
+@login_required
 def results_update(request, race_id, resulttype_id):
     output = "<table>"
     output = output + "<tr><th>Position</th><th>Driver ID</th><th>ResultType</th><th>Race</th></tr>"
@@ -234,6 +258,8 @@ def results_update(request, race_id, resulttype_id):
 
     return HttpResponse(output)
 
+
+@login_required
 def circuit_list(request):
     circuitList = Course.objects.order_by('name')
     template = loader.get_template('circuitList.html')
