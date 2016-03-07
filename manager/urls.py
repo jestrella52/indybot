@@ -5,8 +5,6 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
 
-    # url(r'^results/(?P<race_id>[0-9]+)/$', views.raceQualResults, name='raceQualResults'),
-
     url(r'^circuit/list/$', views.circuit_list, name='circuit_list'),
     url(r'^circuit/create/$', views.circuit_create, name='circuit_create'),
     url(r'^circuit/(?P<circuit_id>[0-9]+)/edit/$', views.circuit_edit, name='circuit_edit'),
