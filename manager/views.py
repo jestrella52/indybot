@@ -122,7 +122,7 @@ def country_edit(request, country_id):
 
     template = loader.get_template('countryEdit.html')
     context = {
-        'title': "New Country",
+        'title': "Edit Country",
         'form': form,
     }
     return HttpResponse(template.render(context, request))
