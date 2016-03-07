@@ -3,7 +3,7 @@ from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 
-from .forms import CountryForm, DriverForm
+from .forms import CountryForm, CourseForm, DriverForm
 from .models import Country, Course, Driver, Race, Result, ResultType, Start, Type
 
 
@@ -146,6 +146,52 @@ def country_edit(request, country_id):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
+def circuit_create(request):
+    if request.method == "POST":
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            circuit = form.save()
+            return redirect('circuit_list')
+    else:
+        form = CourseForm()
+
+    template = loader.get_template('circuitEdit.html')
+    context = {
+        'title': "New Circuit",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def circuit_edit(request, circuit_id):
+    circuit = get_object_or_404(Course, pk=circuit_id)
+    if request.method == "POST":
+        form = CourseForm(request.POST, instance=circuit)
+        if form.is_valid():
+            circuit = form.save()
+            return redirect('circuit_list')
+    else:
+        form = CourseForm(instance=circuit)
+
+    template = loader.get_template('circuitEdit.html')
+    context = {
+        'title': "Edit Circuit",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def circuit_delete(request, circuit_id):
+    try:
+        circuit = Course.objects.get(id=circuit_id)
+        circuit.delete()
+        return redirect('circuit_list')
+    except:
+        noop = ""
 
 @login_required
 def driver_create(request):

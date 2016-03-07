@@ -10,12 +10,11 @@
             <th>Name</th>
             <th>Location</th>
             <th>Length</th>
-            <th>Turns</th>
+            <!-- <th>Turns</th> -->
             <th>Style</th>
             <th>Short Name</th>
-            <th>Record Holder</th>
             <th>Record Speed</th>
-            <th>Record Year</th>
+            <th>Record Holder</th>
             <th>Actions</th>
         </tr>
         {% for circuit in circuitList %}
@@ -23,13 +22,15 @@
             <td>{{ circuit.name }}</td>
             <td>{{ circuit.location }}</td>
             <td>{{ circuit.length }}</td>
-            <td>{{ circuit.turns }}</td>
+            <!-- <td>{{ circuit.turns }}</td> -->
             <td>{{ circuit.type }}</td>
             <td>{{ circuit.shortname }}</td>
-            <td>{{ circuit.fastdriver }}</td>
             <td>{{ circuit.fastlap }}</td>
-            <td>{{ circuit.fastyear }}</td>
-            <td><a href="/circuit/edit/{{ circuit.id }}">EDIT</a></td>
+            <td>{{ circuit.fastdriver }} ({{ circuit.fastyear }})</td>
+            <td>
+                <a class="btn btn-xs btn-info" href="/circuit/{{circuit.id}}/edit">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/circuit/{{circuit.id}}/delete">Delete</a>
+            </td>
         </tr>
         {% endfor %}
     </table>

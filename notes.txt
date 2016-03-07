@@ -5,3 +5,7 @@ Country delete
 Driver edit
 driver create
 driver delete
+
+circuit create
+circuit edit
+circuit delete
