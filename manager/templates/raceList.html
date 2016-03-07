@@ -1,0 +1,43 @@
+{% extends "include/base.html" %}
+
+{% block title %}All Races{% endblock %}
+
+{% block content %}
+
+{% if raceList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>Name</th>
+            <!-- <th>Circuit</th> -->
+            <!-- <th>Start</th> -->
+            <th>Row Size</th>
+            <th>Coverage</th>
+            <!-- <th>Green</th> -->
+            <th>Channel</th>
+            <th>Qual</th>
+            <th>Finish</th>
+            <th>URL</th>
+            <th>SubID</th>
+            <th>Actions</th>
+        </tr>
+        {% for race in raceList %}
+        <tr>
+            <td>{{ race.title }}</td>
+            <td>{{ race.rowsize }}</td>
+            <td>{{ race.coverage }}</td>
+            <td>{{ race.channel }}</td>
+            <td align="center"><a href=""><span class="glyphicon glyphicon-time" aria-hidden="true"></span></a></td>
+            <td align="center"><a href=""><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></a></td>
+            <td align="center"><a href="{{ race.url }}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
+            <td>{{ race.submission }}</td>
+            <td>
+                <a class="btn btn-xs btn-info" href="/app_dev.php/race/edit/{{race.id}}">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/app_dev.php/race/delete/{{race.id}}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No races created.</p>
+{% endif %}
+{% endblock %}

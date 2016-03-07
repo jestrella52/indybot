@@ -1,0 +1,28 @@
+{% extends "include/base.html" %}
+
+{% block title %}All Circuit Types{% endblock %}
+
+{% block content %}
+
+{% if typeList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Actions</th>
+        </tr>
+        {% for type in typeList %}
+        <tr>
+            <td>{{ type.id }}</td>
+            <td>{{ type.type }}</td>
+            <td>
+                <a class="btn btn-xs btn-info" href="/app_dev.php/race/edit/{{race.id}}">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/app_dev.php/race/delete/{{race.id}}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No circuit types created.</p>
+{% endif %}
+{% endblock %}

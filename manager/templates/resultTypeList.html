@@ -1,0 +1,28 @@
+{% extends "include/base.html" %}
+
+{% block title %}All Result Types{% endblock %}
+
+{% block content %}
+
+{% if startList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Actions</th>
+        </tr>
+        {% for resultType in resultTypeList %}
+        <tr>
+            <td>{{ resultType.id }}</td>
+            <td>{{ resultType.name }}</td>
+            <td>
+                <a class="btn btn-xs btn-info" href="/resulttype/edit/{{race.id}}">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/resulttype/delete/{{race.id}}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No starts created.</p>
+{% endif %}
+{% endblock %}

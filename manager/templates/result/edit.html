@@ -1,0 +1,31 @@
+{% extends "include/base.html" %}
+
+{% block title %}{{ resultTypeName }} Results for {{ race.title }}{% endblock %}
+
+{% block content %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<form action="{% url 'results_update' race.id resultTypeName.id %}" method="POST">
+{% csrf_token %}
+<table class="table table-striped table-bordered">
+    <tr><th>Position</th><th>Driver</th></tr>
+    {% for position, driverID in positions %}
+    <tr>
+        <td>{{ position }}</td>
+        <td>
+            <select name="driver_pos_{{ position }}">
+                <option value="0">-----SELECT-----</option>
+                {% for driver in activeDrivers %}
+                    {% if driver.id == driverID %}
+                    <option value="{{ driver.id }}" selected="selected">{{ driver.last }}, {{ driver.first }}</option>
+                    {% else %}
+                    <option value="{{ driver.id }}">{{ driver.last }}, {{ driver.first }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<input type="submit" value="Submit" />
+</form>
+{% endblock %}

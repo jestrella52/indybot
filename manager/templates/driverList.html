@@ -1,0 +1,56 @@
+{% extends "include/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+{% if driverList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>ID</th>
+            <th>Last</th>
+            <th>First</th>
+            <th>Country</th>
+            <th>Active?</th>
+            <th>Twitter</th>
+            <th>Number</th>
+            <th>Rookie Year</th>
+            <th>Actions</th>
+        </tr>
+        {% for driver in driverList %}
+        <tr>
+            <td>{{ driver.id }}</td>
+            <td>{{ driver.last }}</td>
+            <td>{{ driver.first }}</td>
+            <td>{{ driver.country }}</td>
+            <td align="center">
+                {% if driver.active %}
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                {% endif %}
+            </td>
+            <td>
+                {% if driver.twitter %}
+                    {{ driver.twitter }}
+                {% endif %}
+            </td>
+            <td>
+                {% if driver.number %}
+                    {{ driver.number }}
+                {% endif %}
+            </td>
+            <td>
+                {% if driver.rookie %}
+                    {{ driver.rookie }}
+                {% endif %}
+            </td>
+            <td>
+                <a class="btn btn-xs btn-info" href="/app_dev.php/race/edit/{{race.id}}">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/app_dev.php/race/delete/{{race.id}}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No drivers created.</p>
+{% endif %}
+{% endblock %}

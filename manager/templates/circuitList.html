@@ -1,0 +1,40 @@
+{% extends "include/base.html" %}
+
+{% block title %}All Circuits{% endblock %}
+
+{% block content %}
+
+{% if circuitList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Length</th>
+            <th>Turns</th>
+            <th>Style</th>
+            <th>Short Name</th>
+            <th>Record Holder</th>
+            <th>Record Speed</th>
+            <th>Record Year</th>
+            <th>Actions</th>
+        </tr>
+        {% for circuit in circuitList %}
+        <tr>
+            <td>{{ circuit.name }}</td>
+            <td>{{ circuit.location }}</td>
+            <td>{{ circuit.length }}</td>
+            <td>{{ circuit.turns }}</td>
+            <td>{{ circuit.type }}</td>
+            <td>{{ circuit.shortname }}</td>
+            <td>{{ circuit.fastdriver }}</td>
+            <td>{{ circuit.fastlap }}</td>
+            <td>{{ circuit.fastyear }}</td>
+            <td><a href="/circuit/edit/{{ circuit.id }}">EDIT</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No circuits created.</p>
+{% endif %}
+
+{% endblock %}

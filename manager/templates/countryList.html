@@ -1,0 +1,32 @@
+{% extends "include/base.html" %}
+
+{% block title %}All Countries{% endblock %}
+
+{% block content %}
+
+{% if countryList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>ISO</th>
+            <th>CC</th>
+            <th>Actions</th>
+        </tr>
+        {% for country in countryList %}
+        <tr>
+            <td>{{ country.id }}</td>
+            <td>{{ country.name }}</td>
+            <td>{{ country.iso }}</td>
+            <td>{{ country.code }}</td>
+            <td>
+                <a class="btn btn-xs btn-info" href="/app_dev.php/race/edit/{{race.id}}">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/app_dev.php/race/delete/{{race.id}}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No races created.</p>
+{% endif %}
+{% endblock %}
