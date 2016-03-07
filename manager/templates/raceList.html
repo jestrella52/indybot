@@ -26,13 +26,13 @@
             <td>{{ race.rowsize }}</td>
             <td>{{ race.coverage }}</td>
             <td>{{ race.channel }}</td>
-            <td align="center"><a href=""><span class="glyphicon glyphicon-time" aria-hidden="true"></span></a></td>
-            <td align="center"><a href=""><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></a></td>
+            <td align="center"><a href="/results/edit/{{race.id}}/1"><span class="glyphicon glyphicon-time" aria-hidden="true"></span></a></td>
+            <td align="center"><a href="/results/edit/{{race.id}}/2"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></a></td>
             <td align="center"><a href="{{ race.url }}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
             <td>{{ race.submission }}</td>
             <td>
-                <a class="btn btn-xs btn-info" href="/app_dev.php/race/edit/{{race.id}}">Edit</a>
-                <a class="btn btn-xs btn-danger" href="/app_dev.php/race/delete/{{race.id}}">Delete</a>
+                <a class="btn btn-xs btn-info" href="/race/{{race.id}}/edit">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/race/{{race.id}}/delete">Delete</a>
             </td>
         </tr>
         {% endfor %}

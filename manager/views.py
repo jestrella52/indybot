@@ -3,7 +3,7 @@ from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 
-from .forms import CountryForm, CourseForm, DriverForm
+from .forms import CountryForm, CourseForm, DriverForm, RaceForm
 from .models import Country, Course, Driver, Race, Result, ResultType, Start, Type
 
 
@@ -166,6 +166,43 @@ def circuit_create(request):
 
 
 @login_required
+def race_create(request):
+    if request.method == "POST":
+        form = RaceForm(request.POST)
+        if form.is_valid():
+            race = form.save()
+            return redirect('race_list')
+    else:
+        form = RaceForm()
+
+    template = loader.get_template('raceEdit.html')
+    context = {
+        'title': "New Race",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def race_edit(request, race_id):
+    race = get_object_or_404(Race, pk=race_id)
+    if request.method == "POST":
+        form = RaceForm(request.POST, instance=race)
+        if form.is_valid():
+            race = form.save()
+            return redirect('race_list')
+    else:
+        form = RaceForm(instance=race)
+
+    template = loader.get_template('raceEdit.html')
+    context = {
+        'title': "Edit Race",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def circuit_edit(request, circuit_id):
     circuit = get_object_or_404(Course, pk=circuit_id)
     if request.method == "POST":
@@ -192,6 +229,17 @@ def circuit_delete(request, circuit_id):
         return redirect('circuit_list')
     except:
         noop = ""
+
+
+@login_required
+def race_delete(request, race_id):
+    try:
+        race = Race.objects.get(id=race_id)
+        race.delete()
+        return redirect('race_list')
+    except:
+        noop = ""
+
 
 @login_required
 def driver_create(request):

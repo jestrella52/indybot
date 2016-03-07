@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Country, Course, Driver
+from .models import Country, Course, Driver, Race
 
 class CountryForm(forms.ModelForm):
 
@@ -21,3 +21,10 @@ class DriverForm(forms.ModelForm):
     class Meta:
         model = Driver
         fields = ('last', 'first', 'twitter', 'number', 'rookie', 'country', 'active')
+
+
+class RaceForm(forms.ModelForm):
+
+    class Meta:
+        model = Race
+        fields = ('title', 'coverage', 'green', 'channel', 'url', 'submission', 'rowsize', 'course', 'start')

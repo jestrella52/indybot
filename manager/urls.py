@@ -25,6 +25,9 @@ urlpatterns = [
     url(r'^driver/(?P<driver_id>[0-9]+)/delete/$', views.driver_delete, name='driver_delete'),
 
     url(r'^race/list/$', views.race_list, name='race_list'),
+    url(r'^race/create/$', views.race_create, name='race_create'),
+    url(r'^race/(?P<race_id>[0-9]+)/edit/$', views.race_edit, name='race_edit'),
+    url(r'^race/(?P<race_id>[0-9]+)/delete/$', views.race_delete, name='race_delete'),
 
     url(r'^results/edit/(?P<race_id>[0-9]+)/(?P<resulttype_id>[0-9]+)/$', views.results_edit, name='resultsEdit'),
     url(r'^results/update/(?P<race_id>[0-9]+)/(?P<resulttype_id>[0-9]+)/$', views.results_update, name='results_update'),
