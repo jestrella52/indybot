@@ -1,7 +1,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
+from .forms import CountryForm
 from .models import Country, Course, Driver, Race, Result, ResultType, Start, Type
 
 def index(request):
@@ -83,6 +84,49 @@ def race_list(request):
     }
     return HttpResponse(template.render(context, request))
     # return HttpResponse("You're looking at race %s." % race_id)
+
+def country_create(request):
+    if request.method == "POST":
+        form = CountryForm(request.POST)
+        if form.is_valid():
+            country = form.save()
+            return redirect('country_list')
+    else:
+        form = CountryForm()
+
+    template = loader.get_template('countryEdit.html')
+    context = {
+        'title': "New Country",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+def country_delete(request, country_id):
+    try:
+        country = Country.objects.get(id=country_id)
+        country.delete()
+        return redirect('country_list')
+    except:
+        noop = ""
+
+
+def country_edit(request, country_id):
+    country = get_object_or_404(Country, pk=country_id)
+    if request.method == "POST":
+        form = CountryForm(request.POST, instance=country)
+        if form.is_valid():
+            country = form.save()
+            return redirect('country_list')
+    else:
+        form = CountryForm(instance=country)
+
+    template = loader.get_template('countryEdit.html')
+    context = {
+        'title': "New Country",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
 
 def results_edit(request, race_id, resulttype_id):
 

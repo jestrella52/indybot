@@ -19,7 +19,7 @@ class Country(models.Model):
 class Driver(models.Model):
     last = models.CharField(max_length=20)
     first = models.CharField(max_length=20)
-    country = models.ForeignKey(Country)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT)
     active = models.BooleanField(default=False)
     twitter = models.CharField(max_length=30, blank=True, null=True)
     number = models.IntegerField(blank=True, null=True)
@@ -54,7 +54,7 @@ class Course(models.Model):
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
     type = models.ForeignKey(Type)
-    country = models.ForeignKey(Country)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT)
     length = models.FloatField()
     url = models.CharField(max_length=200)
     fastdriver = models.ForeignKey(Driver, blank=True, null=True)
