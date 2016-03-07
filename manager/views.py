@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import CountryForm
+from .forms import CountryForm, DriverForm
 from .models import Country, Course, Driver, Race, Result, ResultType, Start, Type
 
 def index(request):
@@ -126,6 +126,50 @@ def country_edit(request, country_id):
         'form': form,
     }
     return HttpResponse(template.render(context, request))
+
+
+def driver_create(request):
+    if request.method == "POST":
+        form = DriverForm(request.POST)
+        if form.is_valid():
+            driver = form.save()
+            return redirect('driver_list')
+    else:
+        form = DriverForm()
+
+    template = loader.get_template('driverEdit.html')
+    context = {
+        'title': "New Driver",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def driver_edit(request, driver_id):
+    driver = get_object_or_404(Driver, pk=driver_id)
+    if request.method == "POST":
+        form = DriverForm(request.POST, instance=driver)
+        if form.is_valid():
+            driver = form.save()
+            return redirect('driver_list')
+    else:
+        form = DriverForm(instance=driver)
+
+    template = loader.get_template('driverEdit.html')
+    context = {
+        'title': "Edit Driver",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def driver_delete(request, driver_id):
+    try:
+        driver = Driver.objects.get(id=driver_id)
+        driver.delete()
+        return redirect('driver_list')
+    except:
+        noop = ""
 
 
 def results_edit(request, race_id, resulttype_id):
