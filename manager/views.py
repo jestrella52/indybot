@@ -106,8 +106,6 @@ def race_list(request):
         if itemResults.filter(type_id=2).count() == 0:
             raceList[i].raceResultStyle = 'style="color:lightgrey"'
 
-        # raise FooException
-
     context = {
         'raceList': raceList,
     }

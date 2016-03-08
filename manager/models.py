@@ -106,3 +106,12 @@ class Result(models.Model):
 
     class Meta:
         db_table = "result"
+
+
+class Winner(models.Model):
+    driver = models.ForeignKey(Driver)
+    course = models.ForeignKey(Course)
+    year = models.IntegerField()
+
+    class Meta:
+        db_table = "winner"
