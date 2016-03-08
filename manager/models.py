@@ -11,6 +11,7 @@ class Country(models.Model):
 
     class Meta:
         db_table = "country"
+        ordering = ["name"]
     def __str__(self):
         return self.name
 
@@ -27,6 +28,7 @@ class Driver(models.Model):
 
     class Meta:
         db_table = "driver"
+        ordering = ["last", "first"]
     def __str__(self):
         return self.last + ", " + self.first
 
@@ -65,6 +67,7 @@ class Course(models.Model):
 
     class Meta:
         db_table = "course"
+        ordering = ["name"]
     def __str__(self):
         return self.name
 
