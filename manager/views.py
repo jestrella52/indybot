@@ -297,7 +297,7 @@ def results_edit(request, race_id, resulttype_id):
     positions = []
 
     try:
-        resultList = Result.objects.filter(race_id=race_id).order_by('position')
+        resultList = Result.objects.filter(race_id=race_id).filter(type_id=resulttype_id).order_by('position')
     except Result.DoesNotExist:
         resultList = None
 
