@@ -91,13 +91,27 @@ def country_list(request):
 
 @login_required
 def race_list(request):
+
     raceList = Race.objects.order_by('-green')
     template = loader.get_template('raceList.html')
+
+    for i in xrange(len(raceList)):
+        qualResultStyle = ''
+        raceResultStyle = ''
+
+        itemResults = Result.objects.filter(race_id=raceList[i].id)
+
+        if itemResults.filter(type_id=1).count() == 0:
+            raceList[i].qualResultStyle = 'style="color:lightgrey"'
+        if itemResults.filter(type_id=2).count() == 0:
+            raceList[i].raceResultStyle = 'style="color:lightgrey"'
+
+        # raise FooException
+
     context = {
         'raceList': raceList,
     }
     return HttpResponse(template.render(context, request))
-    # return HttpResponse("You're looking at race %s." % race_id)
 
 
 @login_required
@@ -292,7 +306,7 @@ def results_edit(request, race_id, resulttype_id):
 
     race = Race.objects.get(id=race_id)
     resultTypeName = ResultType.objects.get(id=resulttype_id)
-    activeDrivers = Driver.objects.filter(active=1).order_by('last', 'first')
+    activeDrivers = Driver.objects.order_by('last', 'first')
     driverPositions = []
     positions = []
 

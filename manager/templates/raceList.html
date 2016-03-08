@@ -13,19 +13,26 @@
             <th>Channel</th>
             <th>Qual</th>
             <th>Finish</th>
-            <th>URL</th>
             <th>SubID</th>
             <th>Actions</th>
         </tr>
         {% for race in raceList %}
         <tr>
-            <td>{{ race.title }}</td>
+            <td><a href="{{ race.url }}">{{ race.title }}</a></td>
             <td>{{ race.rowsize }}</td>
             <td>{{ race.coverage }}</td>
             <td>{{ race.channel }}</td>
-            <td align="center"><a href="/results/edit/{{race.id}}/1"><span class="glyphicon glyphicon-time" aria-hidden="true"></span></a></td>
-            <td align="center"><a href="/results/edit/{{race.id}}/2"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></a></td>
-            <td align="center"><a href="{{ race.url }}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
+            <td align="center">
+                <a href="/results/edit/{{race.id}}/1">
+                    <span class="glyphicon glyphicon-time" {{ race.qualResultStyle | safe }} aria-hidden="true"></span>
+                </a>
+            </td>
+            <td align="center">
+                <a href="/results/edit/{{race.id}}/2">
+                    <span class="glyphicon glyphicon-flag" {{ race.raceResultStyle | safe }} aria-hidden="true"></span>
+                </a>
+            </td>
+            <!-- <td align="center"><a href="{{ race.url }}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td> -->
             <td>{{ race.submission }}</td>
             <td>
                 <a class="btn btn-xs btn-info" href="/race/{{race.id}}/edit">Edit</a>
