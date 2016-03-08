@@ -13,7 +13,7 @@
         <td>{{ position }}</td>
         <td>
             <select name="driver_pos_{{ position }}">
-                <option value="0">-----SELECT-----</option>
+                <option value="0"> </option>
                 {% for driver in activeDrivers %}
                     {% if driver.id == driverID %}
                     <option value="{{ driver.id }}" selected="selected">{{ driver.last }}, {{ driver.first }}</option>
