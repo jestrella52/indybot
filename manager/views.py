@@ -91,8 +91,7 @@ def country_list(request):
 
 @login_required
 def race_list(request, season=None):
-
-
+    
     if season:
         raceList = Race.objects.order_by('green')
         raceList = raceList.filter(green__year = season)
