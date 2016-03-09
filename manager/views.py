@@ -92,10 +92,12 @@ def country_list(request):
 @login_required
 def race_list(request, season=None):
 
-    raceList = Race.objects.order_by('-green')
 
     if season:
+        raceList = Race.objects.order_by('green')
         raceList = raceList.filter(green__year = season)
+    else:
+        raceList = Race.objects.order_by('-green')
 
     template = loader.get_template('raceList.html')
 
