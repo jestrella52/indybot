@@ -19,7 +19,7 @@
         </tr>
         {% for circuit in circuitList %}
         <tr>
-            <td>{{ circuit.name }}</td>
+            <td><a href="{{ circuit.url }}">{{ circuit.name }}</a></td>
             <td>{{ circuit.location }}</td>
             <td>{{ circuit.length }}</td>
             <!-- <td>{{ circuit.turns }}</td> -->
