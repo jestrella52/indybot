@@ -358,6 +358,17 @@ def driver_delete(request, driver_id):
     except:
         noop = ""
 
+
+@login_required
+def post_delete(request, post_id):
+    try:
+        post = Post.objects.get(id=post_id)
+        post.delete()
+        return redirect('post_list')
+    except:
+        noop = ""
+
+
 @login_required
 def results_edit(request, race_id, resulttype_id):
 
