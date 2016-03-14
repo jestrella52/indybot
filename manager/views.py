@@ -1,3 +1,4 @@
+import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
@@ -152,6 +153,8 @@ def post_create(request):
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
+            post = form.save(commit=False)
+            post.modified_time = datetime.datetime.now()
             post = form.save()
             return redirect('post_list')
     else:
@@ -189,6 +192,27 @@ def country_edit(request, country_id):
     template = loader.get_template('countryEdit.html')
     context = {
         'title': "Edit Country",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def post_edit(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    if request.method == "POST":
+        form = CountryForm(request.POST, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.modified_time = datetime.datetime.now()
+            post = form.save()
+            return redirect('post_list')
+    else:
+        form = PostForm(instance=post)
+
+    template = loader.get_template('postEdit.html')
+    context = {
+        'title': "Edit Post",
         'form': form,
     }
     return HttpResponse(template.render(context, request))
