@@ -42,8 +42,9 @@ urlpatterns = [
     url(r'^post/(?P<post_id>[0-9]+)/edit/$', views.post_edit, name='post_edit'),
 
     url(r'^login$', views.login, name='login'),
-    # url(r'^logout$', views.logout, next_page='login'),
 
-    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
+    url(r'^password_change/$', 'django.contrib.auth.views.password_change', {'template_name': 'passwordChange.html'}),
+    url(r'^password_change_done/$', 'django.contrib.auth.views.password_change_done', {'template_name': 'passwordChangeDone.html'}, name='password_change_done'),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'template_name': 'logout.html'}),
 
 ]

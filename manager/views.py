@@ -434,6 +434,12 @@ def circuit_list(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
+def password_change_done():
+    template = loader.get_template('passwordChangeDone.html')
+    return HttpResponse(template.render(request))
+
+
 def login(request):
     _message = 'Please sign in'
     if request.method == 'POST':
