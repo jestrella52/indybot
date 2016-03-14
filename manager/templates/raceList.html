@@ -7,10 +7,9 @@
 {% if raceList %}
     <table class="table table-striped table-bordered">
         <tr>
-            <th>Name</th>
-            <th>Row Size</th>
-            <th>Coverage</th>
-            <th>Green</th>
+            <th>Race Title</th>
+            <th>Coverage Begins</th>
+            <th>Green Flag</th>
             <th>Channel</th>
             <th>Qual</th>
             <th>Finish</th>
@@ -20,7 +19,6 @@
         {% for race in raceList %}
         <tr>
             <td><a href="{{ race.url }}">{{ race.title }}</a></td>
-            <td>{{ race.rowsize }}</td>
             <td>{{ race.coverage }}</td>
             <td>{{ race.green }}</td>
             <td>{{ race.channel }}</td>
