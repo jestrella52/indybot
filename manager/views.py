@@ -201,7 +201,7 @@ def country_edit(request, country_id):
 def post_edit(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     if request.method == "POST":
-        form = CountryForm(request.POST, instance=post)
+        form = PostForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
             post.modified_time = datetime.datetime.now()

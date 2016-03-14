@@ -123,6 +123,7 @@ class Winner(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=300)
     body = models.TextField()
+    sticky = models.BooleanField(default=False)
     submission = models.CharField(max_length=10, blank=True, null=True)
     publish_time = models.DateTimeField(blank=False, null=False)
     modified_time = models.DateTimeField(blank=False, null=False)

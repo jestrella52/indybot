@@ -35,7 +35,7 @@ class PostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ('title', 'body', 'publish_time')
+        fields = ('title', 'body', 'sticky', 'publish_time')
         widgets = {
             'title': forms.TextInput(attrs={'size': 80}),
             'body': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
