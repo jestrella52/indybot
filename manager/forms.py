@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Country, Course, Driver, Race
+from .models import Country, Course, Driver, Post, Race
 
 class CountryForm(forms.ModelForm):
 
@@ -28,3 +28,14 @@ class RaceForm(forms.ModelForm):
     class Meta:
         model = Race
         fields = ('title', 'coverage', 'green', 'channel', 'url', 'submission', 'rowsize', 'course', 'start')
+
+
+class PostForm(forms.ModelForm):
+
+    class Meta:
+        model = Post
+        fields = ('title', 'body', 'publish_time')
+        widgets = {
+            'title': forms.TextInput(attrs={'size': 80}),
+            'body': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
+        }

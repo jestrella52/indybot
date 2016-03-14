@@ -1,10 +1,12 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth import (login as auth_login, authenticate)
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 
-from .forms import CountryForm, CourseForm, DriverForm, RaceForm
-from .models import Country, Course, Driver, Race, Result, ResultType, Start, Type
+from .forms import CountryForm, CourseForm, DriverForm, PostForm, RaceForm
+from .models import Country, Course, Driver, Post, Race, Result, ResultType, Start, Type
 
 
 @login_required
@@ -90,8 +92,18 @@ def country_list(request):
 
 
 @login_required
+def post_list(request):
+    postList = Post.objects.order_by('publish_time')
+    template = loader.get_template('postList.html')
+    context = {
+        'postList': postList,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def race_list(request, season=None):
-    
+
     if season:
         raceList = Race.objects.order_by('green')
         raceList = raceList.filter(green__year = season)
@@ -130,6 +142,24 @@ def country_create(request):
     template = loader.get_template('countryEdit.html')
     context = {
         'title': "New Country",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def post_create(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save()
+            return redirect('post_list')
+    else:
+        form = PostForm()
+
+    template = loader.get_template('postEdit.html')
+    context = {
+        'title': "New Post",
         'form': form,
     }
     return HttpResponse(template.render(context, request))
@@ -377,4 +407,24 @@ def circuit_list(request):
     context = {
         'circuitList': circuitList,
     }
+    return HttpResponse(template.render(context, request))
+
+
+def login(request):
+    _message = 'Please sign in'
+    if request.method == 'POST':
+        _username = request.POST['username']
+        _password = request.POST['password']
+        user = authenticate(username=_username, password=_password)
+        if user is not None:
+            if user.is_active:
+                auth_login(request, user)
+                return HttpResponseRedirect(reverse('index'))
+            else:
+                _message = 'Your account is not activated'
+        else:
+            _message = 'Invalid login, please try again.'
+
+    template = loader.get_template('login.html')
+    context = {'message': _message}
     return HttpResponse(template.render(context, request))

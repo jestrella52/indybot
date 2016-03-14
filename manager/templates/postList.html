@@ -1,0 +1,32 @@
+{% extends "include/base.html" %}
+
+{% block title %}All Posts{% endblock %}
+
+{% block content %}
+
+{% if postList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Sub ID</th>
+            <th>Publish At</th>
+            <th>Actions</th>
+        </tr>
+        {% for post in postList %}
+        <tr>
+            <td>{{ post.id }}</td>
+            <td>{{ post.title }}</td>
+            <td>{{ post.submission }}</td>
+            <td>{{ post.publish_time }}</td>
+            <td>
+                <a class="btn btn-xs btn-info" href="/post/{{post.id}}/edit">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/post/{{post.id}}/delete">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No posts created.</p>
+{% endif %}
+{% endblock %}

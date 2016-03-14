@@ -118,3 +118,16 @@ class Winner(models.Model):
 
     class Meta:
         db_table = "winner"
+
+
+class Post(models.Model):
+    title = models.CharField(max_length=300)
+    body = models.TextField()
+    submission = models.CharField(max_length=10, blank=True, null=True)
+    publish_time = models.DateTimeField(blank=False, null=False)
+    modified_time = models.DateTimeField(blank=False, null=False)
+
+    class Meta:
+        db_table = "post"
+    def __str__(self):
+        return self.title
