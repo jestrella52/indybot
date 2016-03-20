@@ -74,6 +74,12 @@
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account <span class="caret"</span></a>
                 <ul class="dropdown-menu" role="menu">
+                    {% if user.is_superuser %}
+                    <li><p class="navbar-text">Account Mappings</p></li>
+                        <li><a href="/redditaccount/list">List</a></li>
+                        <li><a href="/redditaccount/create">Create</a></li>
+                    <li role="separator" class="divider"></li>
+                    {% endif %}
                     <li><a href="/password_change">Change Password</a></li>
                     <li><a href="/logout">Logout</a></li>
                 </ul>

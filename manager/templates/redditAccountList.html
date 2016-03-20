@@ -1,0 +1,30 @@
+{% extends "include/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+{% if redditAccountList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>ID</th>
+            <th>Django User</th>
+            <th>Reddit Handle</th>
+            <th>Actions</th>
+        </tr>
+        {% for redditAccount in redditAccountList %}
+        <tr>
+            <td>{{ redditAccount.id }}</td>
+            <td>{{ redditAccount.owner }}</td>
+            <td>{{ redditAccount.handle }}</td>
+            <td>
+                <a class="btn btn-xs btn-info" href="/redditaccount/{{redditAccount.id}}/edit">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/redditaccount/{{redditAccount.id}}/delete">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No reddit account mappings created.  <a href="/redditaccount/create">Create one now</a>?</p>
+{% endif %}
+{% endblock %}

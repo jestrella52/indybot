@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
 
 @python_2_unicode_compatible
@@ -120,6 +121,16 @@ class Winner(models.Model):
         db_table = "winner"
 
 
+class RedditAccount(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
+    handle = models.CharField(max_length=20)
+
+    class Meta:
+        db_table = "redditaccount"
+    def __str__(self):
+        return self.handle
+
+
 class Post(models.Model):
     title = models.CharField(max_length=300)
     body = models.TextField()
@@ -127,6 +138,7 @@ class Post(models.Model):
     submission = models.CharField(max_length=10, blank=True, null=True)
     publish_time = models.DateTimeField(blank=False, null=False)
     modified_time = models.DateTimeField(blank=False, null=False)
+    author = models.ForeignKey(RedditAccount, blank=True, null=True)
 
     class Meta:
         db_table = "post"

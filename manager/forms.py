@@ -1,7 +1,8 @@
 from django import forms
 from bootstrap3_datetime.widgets import DateTimePicker
+from django.contrib.auth.models import User
 
-from .models import Country, Course, Driver, Post, Race
+from .models import Country, Course, Driver, Post, Race, RedditAccount
 
 class CountryForm(forms.ModelForm):
 
@@ -29,6 +30,13 @@ class RaceForm(forms.ModelForm):
     class Meta:
         model = Race
         fields = ('title', 'coverage', 'green', 'channel', 'url', 'submission', 'rowsize', 'course', 'start')
+
+
+class RedditAccountForm(forms.ModelForm):
+
+    class Meta:
+        model = RedditAccount
+        fields = ('handle', 'owner')
 
 
 class PostForm(forms.ModelForm):

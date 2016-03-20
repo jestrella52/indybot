@@ -4,10 +4,11 @@ from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import (login as auth_login, authenticate)
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse
 
-from .forms import CountryForm, CourseForm, DriverForm, PostForm, RaceForm
-from .models import Country, Course, Driver, Post, Race, Result, ResultType, Start, Type
+from .forms import CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm
+from .models import Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Start, Type
 
 
 @login_required
@@ -330,6 +331,24 @@ def driver_create(request):
     return HttpResponse(template.render(context, request))
 
 
+@staff_member_required
+def redditAccount_create(request):
+    if request.method == "POST":
+        form = RedditAccountForm(request.POST)
+        if form.is_valid():
+            redditAccount = form.save()
+            return redirect('redditAccount_list')
+    else:
+        form = RedditAccountForm()
+
+    template = loader.get_template('redditAccountEdit.html')
+    context = {
+        'title': "New Reddit Account Mapping",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
 @login_required
 def driver_edit(request, driver_id):
     driver = get_object_or_404(Driver, pk=driver_id)
@@ -347,6 +366,34 @@ def driver_edit(request, driver_id):
         'form': form,
     }
     return HttpResponse(template.render(context, request))
+
+@staff_member_required
+def redditAccount_edit(request, redditaccount_id):
+    redditAccount = get_object_or_404(RedditAccount, pk=redditaccount_id)
+    if request.method == "POST":
+        form = RedditAccountForm(request.POST, instance=redditAccount)
+        if form.is_valid():
+            redditAccount = form.save()
+            return redirect('redditAccount_list')
+    else:
+        form = RedditAccountForm(instance=redditAccount)
+
+    template = loader.get_template('redditAccountEdit.html')
+    context = {
+        'title': "Edit Reddit Account Mapping",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@staff_member_required
+def redditAccount_delete(request, redditaccount_id):
+    try:
+        redditAccount = RedditAccount.objects.get(id=redditaccount_id)
+        redditAccount.delete()
+        return redirect('redditAccount_list')
+    except:
+        noop = ""
 
 
 @login_required
@@ -441,6 +488,16 @@ def circuit_list(request):
     template = loader.get_template('circuitList.html')
     context = {
         'circuitList': circuitList,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@staff_member_required
+def redditAccount_list(request):
+    redditAccountList = RedditAccount.objects.order_by('handle')
+    template = loader.get_template('redditAccountList.html')
+    context = {
+        'redditAccountList': redditAccountList,
     }
     return HttpResponse(template.render(context, request))
 

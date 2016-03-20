@@ -28,6 +28,11 @@ urlpatterns = [
     url(r'^race/(?P<race_id>[0-9]+)/edit/$', views.race_edit, name='race_edit'),
     url(r'^race/(?P<race_id>[0-9]+)/delete/$', views.race_delete, name='race_delete'),
 
+    url(r'^redditaccount/list/$', views.redditAccount_list, name='redditAccount_list'),
+    url(r'^redditaccount/create/$', views.redditAccount_create, name='redditAccount_create'),
+    url(r'^redditaccount/(?P<redditaccount_id>[0-9]+)/edit/$', views.redditAccount_edit, name='redditAccount_edit'),
+    url(r'^redditaccount/(?P<redditaccount_id>[0-9]+)/delete/$', views.redditAccount_delete, name='redditAccount_delete'),
+
     url(r'^results/edit/(?P<race_id>[0-9]+)/(?P<resulttype_id>[0-9]+)/$', views.results_edit, name='resultsEdit'),
     url(r'^results/update/(?P<race_id>[0-9]+)/(?P<resulttype_id>[0-9]+)/$', views.results_update, name='results_update'),
 
