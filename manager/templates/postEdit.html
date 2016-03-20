@@ -22,6 +22,12 @@
         <label class="form-control-label col-md-2">Sticky this post?</label>
         <div class = "col-md-4">{{ form.sticky }}</div>
     </div>
+    {% if user.is_superuser %}
+    <div class="form-group row">
+        <label class="form-control-label col-md-2">Author:</label>
+        <div class = "col-md-4">{{ form.author }}</div>
+    </div>
+    {% endif %}
     <input type="submit" value="Submit" class="save btn btn-default"/>
 </form>
 {% endblock %}
