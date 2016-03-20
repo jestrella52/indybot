@@ -2,3 +2,4 @@
 *.pyc
 __pycache__
 .fuse_*
+._expandrive
