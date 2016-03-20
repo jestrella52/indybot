@@ -138,6 +138,7 @@ class Post(models.Model):
     submission = models.CharField(max_length=10, blank=True, null=True)
     publish_time = models.DateTimeField(blank=False, null=False)
     modified_time = models.DateTimeField(blank=False, null=False)
+    credit = models.BooleanField(default=True)
     author = models.ForeignKey(RedditAccount)
 
     class Meta:
