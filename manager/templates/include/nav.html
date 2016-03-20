@@ -75,6 +75,8 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account <span class="caret"</span></a>
                 <ul class="dropdown-menu" role="menu">
                     {% if user.is_superuser %}
+                    <li><a href="/admin">Admin Site</a></li>
+                    <li role="separator" class="divider"></li>
                     <li><p class="navbar-text">Account Mappings</p></li>
                         <li><a href="/redditaccount/list">List</a></li>
                         <li><a href="/redditaccount/create">Create</a></li>
