@@ -26,7 +26,9 @@
                 {% if race.practice %}
                     {% if race.subpractice %}<font color="#bbbbbb">{% endif %}
                     {% if race.practice|date:"H:i:s" == "23:59:59" %}<font color="#FF0000">{% endif %}
+                    {% if race.urlpractice %}<a href="{{race.urlpractice}}">{% endif %}
                     {{ race.practice|date:"m/d H:i" }}
+                    {% if race.urlpractice %}</a>{% endif %}
                     {% if race.practice|date:"H:i:s" == "23:59:59" %}</font>{% endif %}
                     {% if race.subpractice %}</font>{% endif %}
                 {% endif %}
@@ -34,7 +36,9 @@
             <td>
                 {% if race.coverage %}
                     {% if race.submission %}<font color="#bbbbbb">{% endif %}
+                    {% if race.urlrace %}<a href="{{race.urlrace}}">{% endif %}
                     {{ race.coverage|date:"m/d H:i" }}
+                    {% if race.urlrace %}</a>{% endif %}
                     {% if race.submission %}</font>{% endif %}
                 {% endif %}
             </td>
@@ -49,7 +53,9 @@
                 {% if race.endcoverage %}
                     {% if race.subpostrace %}<font color="#bbbbbb">{% endif %}
                     {% if race.endcoverage|date:"H:i:s" == "23:59:59" %}<font color="#FF0000">{% endif %}
+                    {% if race.urlpostrace %}<a href="{{race.urlpostrace}}">{% endif %}
                     {{ race.endcoverage|date:"m/d H:i" }}
+                    {% if race.urlpostrace %}</a>{% endif %}
                     {% if race.endcoverage|date:"H:i:s" == "23:59:59" %}</font>{% endif %}
                     {% if race.subpostrace %}</font>{% endif %}
                 {% endif %}
