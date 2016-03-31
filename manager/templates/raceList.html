@@ -25,7 +25,9 @@
             <td>
                 {% if race.practice %}
                     {% if race.subpractice %}<font color="#bbbbbb">{% endif %}
+                    {% if race.practice|date:"H:i:s" == "23:59:59" %}<font color="#FF0000">{% endif %}
                     {{ race.practice|date:"m/d H:i" }}
+                    {% if race.practice|date:"H:i:s" == "23:59:59" %}</font>{% endif %}
                     {% if race.subpractice %}</font>{% endif %}
                 {% endif %}
             </td>
@@ -46,7 +48,9 @@
             <td>
                 {% if race.endcoverage %}
                     {% if race.subpostrace %}<font color="#bbbbbb">{% endif %}
+                    {% if race.endcoverage|date:"H:i:s" == "23:59:59" %}<font color="#FF0000">{% endif %}
                     {{ race.endcoverage|date:"m/d H:i" }}
+                    {% if race.endcoverage|date:"H:i:s" == "23:59:59" %}</font>{% endif %}
                     {% if race.subpostrace %}</font>{% endif %}
                 {% endif %}
             </td>
