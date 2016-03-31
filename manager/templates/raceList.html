@@ -8,19 +8,22 @@
     <table class="table table-striped table-bordered">
         <tr>
             <th>Race Title</th>
+            <th>Practice Begins</th>
             <th>Coverage Begins</th>
             <th>Green Flag</th>
+            <th>Coverage Ends</th>
             <th>Channel</th>
             <th>Qual</th>
             <th>Finish</th>
-            <th>SubID</th>
             <th>Actions</th>
         </tr>
         {% for race in raceList %}
         <tr>
             <td><a href="{{ race.url }}">{{ race.title }}</a></td>
+            <td>{% if race.practice %}{{ race.practice }}{% endif %}</td>
             <td>{{ race.coverage }}</td>
             <td>{{ race.green }}</td>
+            <td>{% if race.endcoverage %}{{ race.endcoverage }}{% endif %}</td>
             <td>{{ race.channel }}</td>
             <td align="center">
                 <a href="/results/edit/{{race.id}}/1">
@@ -33,7 +36,6 @@
                 </a>
             </td>
             <!-- <td align="center"><a href="{{ race.url }}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td> -->
-            <td>{{ race.submission }}</td>
             <td>
                 <a class="btn btn-xs btn-info" href="/race/{{race.id}}/edit">Edit</a>
                 <a class="btn btn-xs btn-danger" href="/race/{{race.id}}/delete">Delete</a>

@@ -29,7 +29,7 @@ class RaceForm(forms.ModelForm):
 
     class Meta:
         model = Race
-        fields = ('title', 'coverage', 'green', 'channel', 'url', 'submission', 'rowsize', 'course', 'start')
+        fields = ('title', 'practice', 'coverage', 'green', 'endcoverage', 'channel', 'url', 'submission', 'subpractice', 'subpostrace', 'rowsize', 'course', 'start')
 
 
 class RedditAccountForm(forms.ModelForm):
@@ -48,3 +48,12 @@ class PostForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'size': 80}),
             'body': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
         }
+
+    def __init__(self, *args, **kwargs):
+        published = kwargs.pop('published', None)
+        user = kwargs.pop('user', None)
+        super(PostForm, self).__init__(*args, **kwargs)
+        if not user.is_staff:
+            self.fields['author'].required = False
+            self.fields['author'].widget.attrs['disabled'] = 'disabled'
+            self.fields['author'].widget = forms.HiddenInput()

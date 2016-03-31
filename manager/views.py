@@ -151,19 +151,46 @@ def country_create(request):
 
 @login_required
 def post_create(request):
+    author = get_object_or_404(RedditAccount, owner_id=request.user.id)
     if request.method == "POST":
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, user=request.user, initial={'author': author.id})
         if form.is_valid():
             post = form.save(commit=False)
             post.modified_time = datetime.datetime.now()
+            if not request.user.is_staff:
+                post.author_id = author.id
             post = form.save()
             return redirect('post_list')
     else:
-        form = PostForm()
+        form = PostForm(user=request.user, initial={'author': author})
 
     template = loader.get_template('postEdit.html')
     context = {
         'title': "New Post",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def post_edit(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    author = get_object_or_404(RedditAccount, owner_id=request.user.id)
+    if request.method == "POST":
+        form = PostForm(request.POST, user=request.user, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.modified_time = datetime.datetime.now()
+            if not request.user.is_staff:
+                post.author_id = author.id
+            post = form.save()
+            return redirect('post_list')
+    else:
+        form = PostForm(user=request.user, instance=post)
+
+    template = loader.get_template('postEdit.html')
+    context = {
+        'title': "Edit Post",
         'form': form,
     }
     return HttpResponse(template.render(context, request))
@@ -193,27 +220,6 @@ def country_edit(request, country_id):
     template = loader.get_template('countryEdit.html')
     context = {
         'title': "Edit Country",
-        'form': form,
-    }
-    return HttpResponse(template.render(context, request))
-
-
-@login_required
-def post_edit(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.modified_time = datetime.datetime.now()
-            post = form.save()
-            return redirect('post_list')
-    else:
-        form = PostForm(instance=post)
-
-    template = loader.get_template('postEdit.html')
-    context = {
-        'title': "Edit Post",
         'form': form,
     }
     return HttpResponse(template.render(context, request))

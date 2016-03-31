@@ -3,7 +3,6 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 <form method="POST" class="post-form">
     {% csrf_token %}
     <div class="form-group row">
@@ -22,7 +21,7 @@
         <label class="form-control-label col-md-2">Sticky this post?</label>
         <div class = "col-md-4">{{ form.sticky }}</div>
     </div>
-    {% if user.is_superuser %}
+    {% if user.is_staff %}
     <div class="form-group row">
         <label class="form-control-label col-md-2">Author:</label>
         <div class = "col-md-4">{{ form.author }}</div>
