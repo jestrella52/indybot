@@ -10,9 +10,9 @@
             <th>Year</th>
             <th>Title</th>
             <th>Practice</th>
-            <th>Coverage</th>
-            <th>Green</th>
-            <th>Ends</th>
+            <th>Race</th>
+            <!-- <th>Green</th> -->
+            <th>Post-race</th>
             <th>TV</th>
             <th>Qual</th>
             <th>Finish</th>
@@ -36,13 +36,13 @@
                     {% if race.submission %}</font>{% endif %}
                 {% endif %}
             </td>
-            <td>
-                {% if race.coverage %}
+            <!-- <td>
+                {% if race.green %}
                     {% if race.submission %}<font color="#bbbbbb">{% endif %}
                     {{ race.green|date:"m/d H:i" }}
                     {% if race.submission %}</font>{% endif %}
                 {% endif %}
-            </td>
+            </td> -->
             <td>
                 {% if race.endcoverage %}
                     {% if race.subpostrace %}<font color="#bbbbbb">{% endif %}
