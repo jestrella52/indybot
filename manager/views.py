@@ -1,4 +1,13 @@
 import datetime
+import pycurl
+import shutil
+import praw
+import sys
+import re
+import os
+
+from PIL import Image
+
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
@@ -9,6 +18,14 @@ from django.core.urlresolvers import reverse
 
 from .forms import CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm
 from .models import Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Start, Type
+
+
+class Page:
+	def __init__(self):
+		self.contents = ''
+
+	def body_callback(self, buf):
+		self.contents = self.contents + buf
 
 
 @login_required
@@ -523,6 +540,137 @@ def redditAccount_list(request):
 def password_change_done():
     template = loader.get_template('passwordChangeDone.html')
     return HttpResponse(template.render(request))
+
+
+@login_required
+def liveries_regenerate(request):
+
+    offline 	= False
+    image_dir	= "liveries"
+    width		= 189
+    height		= 42
+    sprite_rows = 11
+    sprite_cols = 9
+
+    message = ""
+
+    for i in xrange(1, 99):
+        shutil.copy("blank.png", image_dir + "/" + str(i) + ".png")
+
+    c = pycurl.Curl()
+    page = Page()
+    c.setopt(pycurl.URL, "http://www.indycar.com/Drivers")
+    c.setopt(c.WRITEFUNCTION, page.body_callback)
+    c.perform()
+    c.close()
+
+    driverURLBase = "http://www.indycar.com/Series/IndyCar-Series/"
+    driverURLName = []
+
+    lines = page.contents.split('\n')
+    driverLinkPattern = re.compile('^\s+\<a href=\"/Series/IndyCar-Series/([a-zA-Z\-]+)\"')
+    liveryURLPattern = re.compile('^\s+\<img src=\"(http://[a-z0-9]+\.cloudfront\.net/~/media/IndyCar/Cars/2016/IndyCar-Series/Liveries/\w+/[0-9a-zA-Z\-]+\.png)')
+
+    for line in lines:
+    	match = driverLinkPattern.match(line)
+    	if match:
+    		driverURLName.append(match.group(1))
+
+    for name in driverURLName:
+    	message += "Checking:" + name + " - " + driverURLBase + name + "\n"
+    	c = pycurl.Curl()
+    	page = Page()
+    	c.setopt(pycurl.URL, driverURLBase + name)
+    	c.setopt(c.WRITEFUNCTION, page.body_callback)
+    	c.perform()
+    	c.close()
+
+    	lines = page.contents.split('\n')
+    	for line in lines:
+    		match = liveryURLPattern.match(line)
+    		if match:
+    			filename = match.group(1).rsplit('/', -1)[-1]
+    			filename = re.sub('[-_].*\png', '.png', filename)
+
+    			fp = open(image_dir + "/" + filename, "wb")
+    			c2 = pycurl.Curl()
+    			c2.setopt(pycurl.URL, match.group(1) + "?h=42")
+    			c2.setopt(c.WRITEDATA, fp)
+    			c2.perform()
+    			c2.close()
+    			fp.close()
+
+        message += "Filename: " + filename + "\n"
+
+    dirList=sorted(os.listdir(image_dir))
+    # dirList = sorted(dirList, key=lambda x: (int(re.sub('\D','',x)),x))
+
+    message += ", ".join(dirList)
+
+    images = [Image.open(image_dir + "/" + fname) for fname in dirList]
+    master_width = width * sprite_cols
+    master_height = height * sprite_rows
+
+    master = Image.new(mode='RGBA', size=(master_width, master_height), color=(0,0,0,0))
+
+    try:
+    	for y in xrange(0, sprite_rows):
+    		for x in xrange(0, sprite_cols):
+    			master.paste(images[ (y*sprite_cols) + x ], (x*width,y*height))
+    except:
+    	x = "This is horrible code."
+
+    master.save('./static/liveries.png')
+
+    return redirect('liveries_show')
+
+
+@login_required
+def liveries_upload(request):
+
+    subreddits	= ["indycar", "badgerballs"]
+    user_agent	= ("/r/IndyCar Livery bot v0.9.1 by /u/Badgerballs")
+    message = ""
+
+    r = praw.Reddit(user_agent=user_agent)
+    r.refresh_access_information()
+    if r.user == None:
+        message += "Failed to log in. Something went wrong!<br>"
+    else:
+        message += "Logged in to reddit as " + str(r.user)
+
+    for sub in subreddits:
+    	r.upload_image(sub, "./static/liveries.png", "liveries")
+    	sub = r.get_subreddit(sub)
+        css = r.get_stylesheet(sub)['stylesheet']
+        r.set_stylesheet(sub, css)
+        settings = sub.get_settings()
+        # message += ", ".join(sub.get_settings())
+        message += "  ---  Updated /r/" + str(sub)
+
+    template = loader.get_template('liveriesShow.html')
+    context = {
+        'title': "Current Liveries",
+        'message': message,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+
+@login_required
+def liveries_show(request):
+
+    filename = "./static/liveries.png"
+
+    if os.path.isfile(filename):
+        message = "Liveries spritesheet last generated: " + str(datetime.datetime.fromtimestamp(os.path.getmtime(filename)))
+
+    template = loader.get_template('liveriesShow.html')
+    context = {
+        'title': "Current Liveries",
+        'message': message
+    }
+    return HttpResponse(template.render(context, request))
 
 
 def login(request):

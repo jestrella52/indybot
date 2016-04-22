@@ -22,6 +22,10 @@ urlpatterns = [
     url(r'^driver/(?P<driver_id>[0-9]+)/edit/$', views.driver_edit, name='driver_edit'),
     url(r'^driver/(?P<driver_id>[0-9]+)/delete/$', views.driver_delete, name='driver_delete'),
 
+    url(r'^liveries/regenerate/$', views.liveries_regenerate, name='liveries_regenerate'),
+    url(r'^liveries/show/$', views.liveries_show, name='liveries_show'),
+    url(r'^liveries/upload/$', views.liveries_upload, name='liveries_upload'),
+
     url(r'^race/list/$', views.race_list, name='race_list'),
     url(r'^race/list/season/(?P<season>[0-9]{4})$', views.race_list, name='race_list'),
     url(r'^race/create/$', views.race_create, name='race_create'),

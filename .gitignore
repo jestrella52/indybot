@@ -3,3 +3,6 @@
 __pycache__
 .fuse_*
 ._expandrive
+static/liveries.png
+liveries
+logs
