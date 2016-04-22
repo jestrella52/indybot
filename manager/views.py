@@ -104,6 +104,17 @@ def post_list(request):
 
 
 @login_required
+def post_list_pending(request):
+    postList = Post.objects.order_by('publish_time')
+    postList = postList.filter(publish_time__gt=datetime.datetime.now())
+    template = loader.get_template('postList.html')
+    context = {
+        'postList': postList,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def race_list(request, season=None):
 
     if season:
