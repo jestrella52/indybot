@@ -455,7 +455,7 @@ def results_edit(request, race_id, resulttype_id):
 
     race = Race.objects.get(id=race_id)
     resultTypeName = ResultType.objects.get(id=resulttype_id)
-    activeDrivers = Driver.objects.order_by('last', 'first')
+    activeDrivers = Driver.objects.order_by('last', 'first').filter(active=1)
     driverPositions = []
     positions = []
 
