@@ -26,7 +26,9 @@ class Driver(models.Model):
     twitter = models.CharField(max_length=30, blank=True, null=True)
     number = models.IntegerField(blank=True, null=True)
     rookie = models.IntegerField(blank=True, null=True)
-
+    dob = models.DateField(blank=True, null=True)
+    died = models.DateField(blank=True, null=True)
+    
     class Meta:
         db_table = "driver"
         ordering = ["last", "first"]

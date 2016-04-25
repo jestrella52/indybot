@@ -22,7 +22,7 @@ class DriverForm(forms.ModelForm):
 
     class Meta:
         model = Driver
-        fields = ('last', 'first', 'twitter', 'number', 'rookie', 'country', 'active')
+        fields = ('last', 'first', 'dob', 'died', 'twitter', 'number', 'rookie', 'country', 'active')
 
 
 class RaceForm(forms.ModelForm):
