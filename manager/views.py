@@ -517,7 +517,7 @@ def results_update(request, race_id, resulttype_id):
             #     item.
             # newItem = Result.objects.update_or_create(driver_id=driver, defaults={'type_id': resultType.id, 'race_id': race.id, 'position': position})
 
-    return HttpResponse(output)
+    return redirect('race_list')
 
 
 @login_required
