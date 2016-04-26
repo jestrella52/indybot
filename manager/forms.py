@@ -29,7 +29,7 @@ class RaceForm(forms.ModelForm):
 
     class Meta:
         model = Race
-        fields = ('title', 'practice', 'coverage', 'green', 'endcoverage', 'channel', 'url', 'submission', 'subpractice', 'subpostrace', 'rowsize', 'course', 'start')
+        fields = ('title', 'practice', 'coverage', 'green', 'endcoverage', 'channel', 'url', 'urlrr', 'submission', 'subpractice', 'subpostrace', 'rowsize', 'course', 'start')
 
 
 class RedditAccountForm(forms.ModelForm):

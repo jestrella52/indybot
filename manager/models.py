@@ -28,7 +28,7 @@ class Driver(models.Model):
     rookie = models.IntegerField(blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     died = models.DateField(blank=True, null=True)
-    
+
     class Meta:
         db_table = "driver"
         ordering = ["last", "first"]
@@ -84,6 +84,7 @@ class Race(models.Model):
     endcoverage = models.DateTimeField(blank=True, null=True)
     channel = models.CharField(max_length=10, blank=True, null=True)
     url = models.CharField(max_length=100, blank=True, null=True)
+    urlrr = models.CharField(max_length=100, blank=True, null=True)
     submission = models.CharField(max_length=10, blank=True, null=True)
     subpractice = models.CharField(max_length=10, blank=True, null=True)
     subpostrace = models.CharField(max_length=10, blank=True, null=True)
