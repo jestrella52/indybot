@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap3_datetime',
+    'crispy_forms',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -130,3 +131,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
