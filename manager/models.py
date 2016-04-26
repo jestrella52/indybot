@@ -93,6 +93,14 @@ class Race(models.Model):
     urlpostrace = models.CharField(max_length=200, blank=True, null=True)
     grid = models.CharField(max_length=150, blank=True, null=True)
     rowsize = models.IntegerField(default=2)
+    laps = models.IntegerField(blank=True, null=True)
+    yellowflags = models.IntegerField(blank=True, null=True)
+    yellowlaps = models.IntegerField(blank=True, null=True)
+    duration = models.IntegerField(blank=True, null=True)
+    speedavg = models.FloatField(blank=True, null=True)
+    speedpole = models.FloatField(blank=True, null=True)
+    leadchanges = models.FloatField(blank=True, null=True)
+    margin = models.FloatField(blank=True, null=True)
     start = models.ForeignKey(Start)
 
     class Meta:
