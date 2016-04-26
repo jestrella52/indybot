@@ -99,7 +99,7 @@ class Race(models.Model):
     duration = models.IntegerField(blank=True, null=True)
     speedavg = models.FloatField(blank=True, null=True)
     speedpole = models.FloatField(blank=True, null=True)
-    leadchanges = models.FloatField(blank=True, null=True)
+    leadchanges = models.IntegerField(blank=True, null=True)
     margin = models.FloatField(blank=True, null=True)
     start = models.ForeignKey(Start)
 
