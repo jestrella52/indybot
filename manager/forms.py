@@ -2,7 +2,7 @@ from django import forms
 from bootstrap3_datetime.widgets import DateTimePicker
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, Row
+from crispy_forms.layout import Fieldset, Layout, Row, Submit
 from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, PrependedText, TabHolder, Tab
 
 from .models import Country, Course, Driver, Post, Race, RedditAccount
@@ -40,6 +40,7 @@ class CourseForm(forms.ModelForm):
                 Div(Field('fastdriver'), css_class="col-md-4"),
                 Div(Field('fastyear'), css_class="col-md-4"),
             ),
+            Submit('submit', u'Submit', css_class='btn btn-success'),
         )
 
     class Meta:
@@ -75,7 +76,8 @@ class DriverForm(forms.ModelForm):
                 Div(Field('died', placeholder="YYYY-MM-DD"), css_class="col-md-3"),
                 css_class="row"
             ),
-            Div(Div(Field('active'), css_class="col-md-3"), css_class="row")
+            Div(Div(Field('active'), css_class="col-md-3"), css_class="row"),
+            Submit('submit', u'Submit', css_class='btn btn-success'),
         )
     class Meta:
         model = Driver
@@ -165,7 +167,8 @@ class RaceForm(forms.ModelForm):
                     ),
                     css_class="fade"
                 )
-            )
+            ),
+            Submit('submit', u'Submit', css_class='btn btn-success'),
         )
 
     class Meta:
