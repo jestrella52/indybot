@@ -3,7 +3,7 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Row
-from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, TabHolder, Tab
+from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, PrependedText, TabHolder, Tab
 
 from .models import Country, Course, Driver, Post, Race, RedditAccount
 
@@ -22,11 +22,40 @@ class CourseForm(forms.ModelForm):
 
 
 class DriverForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(DriverForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-horizontal'
 
+        self.helper.layout = Layout(
+            Div(
+                Div(Field('last'), css_class="col-md-3"),
+                Div(Field('first'), css_class="col-md-3"),
+                Div(Field('country'), css_class="col-md-3"),
+                Div(PrependedText('twitter', "@"), css_class="col-md-3"),
+                css_class="row"
+            ),
+            Div(
+                Div(Field('rookie'), css_class="col-md-3"),
+                Div(Field('number'), css_class="col-md-3"),
+                Div(Field('dob', placeholder="YYYY-MM-DD"), css_class="col-md-3"),
+                Div(Field('died', placeholder="YYYY-MM-DD"), css_class="col-md-3"),
+                css_class="row"
+            ),
+            Div(Div(Field('active'), css_class="col-md-3"), css_class="row")
+        )
     class Meta:
         model = Driver
         fields = ('last', 'first', 'dob', 'died', 'twitter', 'number', 'rookie', 'country', 'active')
-
+        labels = {
+            'last': "Last Name",
+            'first': "First Name",
+            'dob': "Born",
+            'died': "Died",
+            'twitter': "Twitter Handle",
+            'rookie': "Rookie Year",
+            'active': "Active?"
+        }
 
 class RaceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
