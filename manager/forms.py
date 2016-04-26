@@ -15,11 +15,44 @@ class CountryForm(forms.ModelForm):
 
 
 class CourseForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CourseForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-horizontal'
+
+        self.helper.layout = Layout(
+            Div(
+                Div(Field('name'), css_class="col-md-3"),
+                Div(Field('location'), css_class="col-md-3"),
+                Div(Field('country'), css_class="col-md-3"),
+                Div(Field('gps'), css_class="col-md-3"),
+                css_class="row"
+            ),
+            Div(
+                Div(AppendedText('length', "mi."), css_class="col-md-2"),
+                Div(Field('type'), css_class="col-md-2"),
+                Div(Field('shortname'), css_class="col-md-2"),
+                Div(Field('url'), css_class="col-md-6"),
+                css_class="row"
+            ),
+            Fieldset("Track Record",
+                Div(AppendedText('fastlap', "mph"), css_class="col-md-4"),
+                Div(Field('fastdriver'), css_class="col-md-4"),
+                Div(Field('fastyear'), css_class="col-md-4"),
+            ),
+        )
 
     class Meta:
         model = Course
         fields = ('name', 'location', 'length', 'url', 'fastyear', 'fastlap', 'fastdriver', 'gps', 'shortname', 'country', 'type')
-
+        labels = {
+            'url': "Circuit URL",
+            'fastyear': "Year",
+            'fastlap': "Speed",
+            'fastdriver': "Driver",
+            'gps': "GPS Coordinates",
+            'shortname': "Short Name"
+        }
 
 class DriverForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
