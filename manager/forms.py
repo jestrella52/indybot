@@ -5,13 +5,20 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Row, Submit
 from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, PrependedText, TabHolder, Tab
 
-from .models import Country, Course, Driver, Post, Race, RedditAccount
+from .models import Country, Course, Driver, Post, Race, RedditAccount, Season
 
 class CountryForm(forms.ModelForm):
 
     class Meta:
         model = Country
         fields = ('name', 'code', 'iso')
+
+
+class SeasonForm(forms.ModelForm):
+
+    class Meta:
+        model = Season
+        fields = ('year', 'seriesname')
 
 
 class CourseForm(forms.ModelForm):
@@ -102,9 +109,10 @@ class RaceForm(forms.ModelForm):
             TabHolder(
                 Tab('Pre-Race Information',
                     Div(
-                        Div(Field('title'), css_class="col-md-4"),
-                        Div(Field('course'), css_class="col-md-4"),
-                        Div(Field('url'), css_class="col-md-4"),
+                        Div(Field('season'), css_class="col-md-3"),
+                        Div(Field('title'), css_class="col-md-3"),
+                        Div(Field('course'), css_class="col-md-3"),
+                        Div(Field('url'), css_class="col-md-3"),
                         css_class="row"
                     ),
                     Div(
@@ -173,7 +181,7 @@ class RaceForm(forms.ModelForm):
 
     class Meta:
         model = Race
-        fields = ('title', 'laps', 'practice', 'coverage', 'green', 'endcoverage', 'channel', 'url', 'urlrr', 'submission', 'subpractice', 'subpostrace', 'urlrace', 'urlpractice', 'urlpostrace', 'rowsize', 'course', 'start', 'yellowflags', 'yellowlaps', 'duration', 'speedavg', 'speedpole', 'leadchanges', 'margin')
+        fields = ('season', 'title', 'laps', 'practice', 'coverage', 'green', 'endcoverage', 'channel', 'url', 'urlrr', 'submission', 'subpractice', 'subpostrace', 'urlrace', 'urlpractice', 'urlpostrace', 'rowsize', 'course', 'start', 'yellowflags', 'yellowlaps', 'duration', 'speedavg', 'speedpole', 'leadchanges', 'margin')
         labels = {
             'laps': "Number of Laps",
             'practice': "First Practice Starts",

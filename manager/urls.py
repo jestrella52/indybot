@@ -42,6 +42,11 @@ urlpatterns = [
 
     url(r'^resulttype/list/$', views.resultType_list, name='resultType_list'),
 
+    url(r'^season/list/$', views.season_list, name='season_list'),
+    url(r'^season/create/$', views.season_create, name='season_create'),
+    url(r'^season/(?P<season_id>[0-9]+)/edit/$', views.season_edit, name='season_edit'),
+    url(r'^season/(?P<season_id>[0-9]+)/delete/$', views.season_delete, name='season_delete'),
+
     url(r'^start/list/$', views.start_list, name='start_list'),
 
     url(r'^type/list/$', views.type_list, name='type_list'),

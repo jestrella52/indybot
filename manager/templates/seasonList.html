@@ -1,0 +1,28 @@
+{% extends "include/base.html" %}
+
+{% block title %}All Seasons{% endblock %}
+
+{% block content %}
+
+{% if seasonList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>Year</th>
+            <th>Series Name</th>
+            <th>Actions</th>
+        </tr>
+        {% for season in seasonList %}
+        <tr>
+            <td>{{ season.year }}</td>
+            <td>{{ season.seriesname }}</td>
+            <td>
+                <a class="btn btn-xs btn-info" href="/season/{{season.id}}/edit">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/season/{{season.id}}/delete">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No seasons created.</p>
+{% endif %}
+{% endblock %}

@@ -36,6 +36,16 @@ class Driver(models.Model):
         return self.last + ", " + self.first
 
 
+class Season(models.Model):
+    year = models.IntegerField()
+    seriesname = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = "season"
+    def __str__(self):
+        return str(self.year)
+
+
 class Start(models.Model):
     type = models.CharField(max_length=10)
 
@@ -102,6 +112,7 @@ class Race(models.Model):
     leadchanges = models.IntegerField(blank=True, null=True)
     margin = models.FloatField(blank=True, null=True)
     start = models.ForeignKey(Start)
+    season = models.ForeignKey(Season, on_delete=models.PROTECT, null=True)
 
     class Meta:
         db_table = "race"

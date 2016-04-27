@@ -16,8 +16,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse
 
-from .forms import CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm
-from .models import Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Start, Type
+from .forms import CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm
+from .models import Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
 
 
 class Page:
@@ -111,6 +111,16 @@ def country_list(request):
 
 
 @login_required
+def season_list(request):
+	seasonList = Season.objects.order_by('year')
+	template = loader.get_template('seasonList.html')
+	context = {
+		'seasonList': seasonList,
+	}
+	return HttpResponse(template.render(context, request))
+
+
+@login_required
 def post_list(request):
     postList = Post.objects.order_by('publish_time')
     template = loader.get_template('postList.html')
@@ -178,6 +188,24 @@ def country_create(request):
 
 
 @login_required
+def season_create(request):
+    if request.method == "POST":
+        form = SeasonForm(request.POST)
+        if form.is_valid():
+            season = form.save()
+            return redirect('season_list')
+    else:
+        form = SeasonForm()
+
+    template = loader.get_template('seasonEdit.html')
+    context = {
+        'title': "New Season",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def post_create(request):
     author = get_object_or_404(RedditAccount, owner_id=request.user.id)
     if request.method == "POST":
@@ -235,6 +263,16 @@ def country_delete(request, country_id):
 
 
 @login_required
+def season_delete(request, season_id):
+    try:
+        season = Season.objects.get(id=season_id)
+        season.delete()
+        return redirect('season_list')
+    except:
+        noop = ""
+
+
+@login_required
 def country_edit(request, country_id):
     country = get_object_or_404(Country, pk=country_id)
     if request.method == "POST":
@@ -248,6 +286,25 @@ def country_edit(request, country_id):
     template = loader.get_template('countryEdit.html')
     context = {
         'title': "Edit Country",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def season_edit(request, season_id):
+    season = get_object_or_404(Season, pk=season_id)
+    if request.method == "POST":
+        form = SeasonForm(request.POST, instance=season)
+        if form.is_valid():
+            season = form.save()
+            return redirect('season_list')
+    else:
+        form = SeasonForm(instance=season)
+
+    template = loader.get_template('seasonEdit.html')
+    context = {
+        'title': "Edit Season",
         'form': form,
     }
     return HttpResponse(template.render(context, request))

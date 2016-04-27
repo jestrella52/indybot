@@ -1,0 +1,12 @@
+{% extends "include/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<form method="POST" class="season-form">
+{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit" class="save btn btn-default"/>
+</form>
+{% endblock %}
