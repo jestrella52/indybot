@@ -130,9 +130,7 @@ class ResultType(models.Model):
 
 
 class Result(models.Model):
-    # course = models.ForeignKey(Course, null=True)
     race = models.ForeignKey(Race, null=True)
-    # races = models.ManyToManyField(Race, related_name='results')
     type = models.ForeignKey(ResultType)
     driver = models.ForeignKey(Driver)
     position = models.IntegerField()
