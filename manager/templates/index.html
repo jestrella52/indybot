@@ -5,15 +5,53 @@
 {% block content %}
 
 <div class="jumbotron">
-  <h1>Welcome!</h1>
-  <p>You're now logged in to IndyBot's brain, simple though it may be.
-      <br><hr><br>
-      <h2>Be careful in here!</h2>
-
-  <div class="alert alert-danger" role="alert">
-With great power comes great responsibility, etc.  Lots of things don't have confirmation boxes so if you click "Delete" on something, it's going bye-bye.  So... just don't unless you're absolutely sure you know what you're doing.  And even then, stop and think about it first. =)  Confirmation dialogs are on my to-do list, but I just haven't gotten there yet.
-</div>
-</p>
+    <h1>Welcome!</h1>
+    <p>You're now logged in to IndyBot's brain, simple though it may be.</p>
+    <div class="alert alert-danger" role="alert"><strong>BE CAREFUL!</STRONG>&nbsp; &nbsp;With great power comes great responsibility, etc.  Lots of things don't have confirmation boxes so if you click "Delete" on something, it's going bye-bye.  So... just don't unless you're absolutely sure you know what you're doing.  And even then, stop and think about it first. =)  Confirmation dialogs are on my to-do list, but I just haven't gotten there yet.</div>
+    <hr>
+    <h2>Database Statistics</h2>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Circuits</h3>
+                </div>
+                <div class="panel-body" align="center">
+                    <h1>{{ circuitList|length }}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Races</h3>
+                </div>
+                <div class="panel-body" align="center">
+                    <h1>{{ raceList|length }}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Drivers</h3>
+                </div>
+                <div class="panel-body" align="center">
+                    <h1>{{ driverList|length }}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Seasons</h3>
+                </div>
+                <div class="panel-body" align="center">
+                    <h1>{{ seasonList|length }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

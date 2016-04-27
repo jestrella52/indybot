@@ -30,9 +30,20 @@ class Page:
 
 @login_required
 def index(request):
+    circuitList = Course.objects.order_by('id')
+    countryList = Country.objects.order_by('id')
+    driverList = Driver.objects.order_by('id')
+    raceList = Race.objects.order_by('id')
+    seasonList = Season.objects.order_by('id')
+
     template = loader.get_template('index.html')
     context = {
         'title': "IndyBot",
+        'driverList': driverList,
+        'circuitList': circuitList,
+        'raceList': raceList,
+        'seasonList': seasonList,
+        'countryList': countryList,
     }
     return HttpResponse(template.render(context, request))
 
