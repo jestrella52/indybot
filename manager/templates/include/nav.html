@@ -12,10 +12,13 @@
         </li>
         <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Races <span class="caret"></span></a>
-            <ul class="dropdown-menu" role="menu">
-                <li><a href="/race/list/season/2016">List 2016 Season</a></li>
+            <ul class="dropdown-menu multi-level" role="menu">
                 <li><a href="/race/list">List All</a></li>
                 <li><a href="/race/create">Create</a></li>
+                <li role="separator" class="divider"></li>
+                {% for season in seasons %}
+                <li><a href="/race/list/season/{{season.id}}">{{season}} Season</a></li>
+                {% endfor %}
             </ul>
         </li>
         <li class="dropdown">

@@ -159,7 +159,7 @@ def race_list(request, season=None):
 
     if season:
         raceList = Race.objects.order_by('green')
-        raceList = raceList.filter(green__year = season)
+        raceList = raceList.filter(season = season)
     else:
         raceList = Race.objects.order_by('-green')
 
