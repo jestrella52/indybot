@@ -35,6 +35,7 @@ def index(request):
     driverList = Driver.objects.order_by('id')
     raceList = Race.objects.order_by('id')
     seasonList = Season.objects.order_by('id')
+    postList = Post.objects.order_by('id')
 
     template = loader.get_template('index.html')
     context = {
@@ -44,6 +45,7 @@ def index(request):
         'raceList': raceList,
         'seasonList': seasonList,
         'countryList': countryList,
+        'postList': postList,
     }
     return HttpResponse(template.render(context, request))
 
