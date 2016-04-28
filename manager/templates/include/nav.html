@@ -18,9 +18,15 @@
                 <li role="separator" class="divider"></li>
                 {% load key %}
                 {% for season in seasons %}
-                    {% if seasonRaceCount|key:season.id > 0 %}
-                        <li><a href="/race/list/season/{{season.id}}">{{season}} Season <span float=right class="badge">{{ seasonRaceCount|key:season.id }}</span></a></li>
+                    <li><a href="/race/list/season/{{season.id}}">{{season}} Season
+                    {% if seasonRaceCount|key:season.id == 0 %}
+                        <span float=right class="label label-default">{{ seasonRaceCount|key:season.id }}</span>
+                    {% elif seasonRaceCount|key:season.id == season.races %}
+                        <span float=right class="label label-success">{{ seasonRaceCount|key:season.id }}</span>
+                    {% else %}
+                        <span float=right class="label label-danger">{{ seasonRaceCount|key:season.id }}</span>
                     {% endif %}
+                    </a></li>
                 {% endfor %}
             </ul>
         </li>
