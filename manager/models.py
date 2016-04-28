@@ -39,7 +39,8 @@ class Driver(models.Model):
 class Season(models.Model):
     year = models.IntegerField()
     seriesname = models.CharField(max_length=100)
-
+    races = models.IntegerField()
+    
     class Meta:
         db_table = "season"
     def __str__(self):
