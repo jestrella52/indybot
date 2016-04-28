@@ -36,6 +36,8 @@ def index(request):
     raceList = Race.objects.order_by('id')
     seasonList = Season.objects.order_by('id')
     postList = Post.objects.order_by('id')
+    resultQualCount = Result.objects.filter(type_id=1).count()
+    resultRaceCount = Result.objects.filter(type_id=2).count()
 
     template = loader.get_template('index.html')
     context = {
@@ -46,6 +48,8 @@ def index(request):
         'seasonList': seasonList,
         'countryList': countryList,
         'postList': postList,
+        'resultQualCount': resultQualCount,
+        'resultRaceCount': resultRaceCount,
     }
     return HttpResponse(template.render(context, request))
 
