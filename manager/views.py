@@ -547,8 +547,6 @@ def results_edit(request, race_id, resulttype_id):
             driverPositions.append(resultList[i-1].driver_id)
         except IndexError:
             driverPositions.append(0)
-    # for r in resultList:
-    #     driverPositions.append(r.driver_id)
 
     positionNumbers = range(1,34)
 
@@ -587,9 +585,6 @@ def results_update(request, race_id, resulttype_id):
             except Result.DoesNotExist:
                 r = Result(type_id=resultType.id, race_id=race.id, position=position, driver_id=driver)
                 r.save()
-            # if item.driver_id != driver:
-            #     item.
-            # newItem = Result.objects.update_or_create(driver_id=driver, defaults={'type_id': resultType.id, 'race_id': race.id, 'position': position})
 
     return redirect('race_list')
 
@@ -681,7 +676,6 @@ def liveries_regenerate(request):
         message += "Filename: " + filename + "\n"
 
     dirList=sorted(os.listdir(image_dir))
-    # dirList = sorted(dirList, key=lambda x: (int(re.sub('\D','',x)),x))
 
     message += ", ".join(dirList)
 
@@ -723,7 +717,6 @@ def liveries_upload(request):
         css = r.get_stylesheet(sub)['stylesheet']
         r.set_stylesheet(sub, css)
         settings = sub.get_settings()
-        # message += ", ".join(sub.get_settings())
         message += "  ---  Updated /r/" + str(sub)
 
     template = loader.get_template('liveriesShow.html')
