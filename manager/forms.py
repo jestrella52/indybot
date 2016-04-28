@@ -29,7 +29,7 @@ class CourseForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Div(
-                Div(Field('name'), css_class="col-md-3"),
+                Div(Field('name', autofocus=True), css_class="col-md-3"),
                 Div(Field('location'), css_class="col-md-3"),
                 Div(Field('country'), css_class="col-md-3"),
                 Div(Field('gps'), css_class="col-md-3"),
@@ -70,7 +70,7 @@ class DriverForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Div(
-                Div(Field('last'), css_class="col-md-3"),
+                Div(Field('last', autofocus=True), css_class="col-md-3"),
                 Div(Field('first'), css_class="col-md-3"),
                 Div(Field('country'), css_class="col-md-3"),
                 Div(PrependedText('twitter', "@"), css_class="col-md-3"),
@@ -109,7 +109,7 @@ class RaceForm(forms.ModelForm):
             TabHolder(
                 Tab('Pre-Race Information',
                     Div(
-                        Div(Field('season'), css_class="col-md-3"),
+                        Div(Field('season', autofocus=True), css_class="col-md-3"),
                         Div(Field('title'), css_class="col-md-3"),
                         Div(Field('course'), css_class="col-md-3"),
                         Div(Field('url'), css_class="col-md-3"),
