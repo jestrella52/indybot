@@ -3,6 +3,7 @@
 {% block title %}{{ resultTypeName }} Results for {{ race.title }}{% endblock %}
 
 {% block content %}
+<h3><span class="label label-default">{{ resultTypeName }}</span> Results for {{ race.title }}</h3>
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 <form action="{% url 'results_update' race.id resultTypeName.id %}" method="POST">
 {% csrf_token %}
