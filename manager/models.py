@@ -40,7 +40,7 @@ class Season(models.Model):
     year = models.IntegerField()
     seriesname = models.CharField(max_length=100)
     races = models.IntegerField()
-    
+
     class Meta:
         db_table = "season"
     def __str__(self):
@@ -93,7 +93,7 @@ class Race(models.Model):
     coverage = models.DateTimeField(blank=True, null=True)
     green = models.DateTimeField(blank=True, null=True)
     endcoverage = models.DateTimeField(blank=True, null=True)
-    channel = models.CharField(max_length=10, blank=True, null=True)
+    channel = models.CharField(max_length=15, blank=True, null=True)
     url = models.CharField(max_length=100, blank=True, null=True)
     urlrr = models.CharField(max_length=100, blank=True, null=True)
     submission = models.CharField(max_length=10, blank=True, null=True)
