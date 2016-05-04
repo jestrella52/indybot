@@ -40,6 +40,10 @@ class Season(models.Model):
     year = models.IntegerField()
     seriesname = models.CharField(max_length=100)
     races = models.IntegerField()
+    champion = models.ForeignKey(Driver, related_name="season_champion", blank=True, null=True)
+    rookie = models.ForeignKey(Driver, related_name="season_rookie", blank=True, null=True)
+    fanfav = models.ForeignKey(Driver, related_name="season_fanfav", blank=True, null=True)
+
 
     class Meta:
         db_table = "season"

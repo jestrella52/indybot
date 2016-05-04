@@ -10,6 +10,9 @@
             <th>Year</th>
             <th>Series Name</th>
             <th>Races</th>
+            <th>Champion</th>
+            <th>Rookie of the Year</th>
+            <th>Fan Favorite</th>
             <th>Actions</th>
         </tr>
         {% for season in seasonList %}
@@ -17,6 +20,9 @@
             <td>{{ season.year }}</td>
             <td>{{ season.seriesname }}</td>
             <td>{{ season.races }}</td>
+            <td>{{ season.champion }}</td>
+            <td>{{ season.rookie }}</td>
+            <td>{{ season.fanfav }}</td>
             <td>
                 <a class="btn btn-xs btn-info" href="/season/{{season.id}}/edit">Edit</a>
                 <a class="btn btn-xs btn-danger" href="/season/{{season.id}}/delete">Delete</a>
