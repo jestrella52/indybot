@@ -125,6 +125,26 @@ class Race(models.Model):
         return self.title
 
 
+class Caution(models.Model):
+    race = models.ForeignKey(Race, on_delete=models.PROTECT)
+    reason = models.CharField(max_length=30)
+    startLap = models.IntegerField()
+    endLap = models.IntegerField()
+
+    class Meta:
+        db_table = "caution"
+        ordering = ["race"]
+
+
+class CautionDriver(models.Model):
+    caution = models.ForeignKey(Caution, on_delete=models.PROTECT)
+    driver = models.ForeignKey(Driver, on_delete=models.PROTECT)
+
+    class Meta:
+        db_table = "caution_driver"
+        ordering = ["caution"]
+
+
 class ResultType(models.Model):
     name = models.CharField(max_length=20)
 
