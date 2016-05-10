@@ -1,3 +1,10 @@
+{% if request.get_host == "localhost:8080" %}
+<div class="progress">
+  <div class="progress-bar progress-bar-danger progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+      DEVELOPMENT INSTANCE
+  </div>
+</div>
+{% endif %}
 <nav class="navbar navbar-inverse">
     <div class="navbar-header">
         <a href="/" class="navbar-brand">
