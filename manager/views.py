@@ -17,7 +17,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse
 
 from .forms import CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm
-from .models import Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
+from .models import Caution, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
 
 
 class Page:
@@ -38,6 +38,7 @@ def index(request):
     postList = Post.objects.order_by('id')
     resultQualCount = Result.objects.filter(type_id=1).count()
     resultRaceCount = Result.objects.filter(type_id=2).count()
+    cautionCount = Caution.objects.count()
 
     template = loader.get_template('index.html')
     context = {
@@ -50,6 +51,7 @@ def index(request):
         'postList': postList,
         'resultQualCount': resultQualCount,
         'resultRaceCount': resultRaceCount,
+        'cautionCount': cautionCount,
     }
     return HttpResponse(template.render(context, request))
 

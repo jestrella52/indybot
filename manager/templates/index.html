@@ -66,20 +66,20 @@
         <div class="col-md-3">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Qualifying Results</h3>
+                    <h3 class="panel-title">Results</h3>
                 </div>
                 <div class="panel-body" align="center">
-                    <h2>{{ resultQualCount }}</h2>
+                    <h2>{{ resultQualCount|add:resultRaceCount }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Race Results</h3>
+                    <h3 class="panel-title">Caution Periods</h3>
                 </div>
                 <div class="panel-body" align="center">
-                    <h2>{{ resultRaceCount }}</h2>
+                    <h2>{{ cautionCount }}</h2>
                 </div>
             </div>
         </div>
