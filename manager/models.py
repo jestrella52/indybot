@@ -128,12 +128,23 @@ class Race(models.Model):
 class Caution(models.Model):
     race = models.ForeignKey(Race, on_delete=models.PROTECT)
     reason = models.CharField(max_length=30)
+    description = models.CharField(max_length=30, blank=True, null=True)
     startLap = models.IntegerField()
     endLap = models.IntegerField()
 
     class Meta:
         db_table = "caution"
         ordering = ["race"]
+
+
+class CautionReason(models.Model):
+    reason = models.CharField(max_length=30, unique=True)
+
+    class Meta:
+        db_table = "caution_reason"
+        ordering = ["reason"]
+    def __str__(self):
+        return self.reason
 
 
 class CautionDriver(models.Model):
