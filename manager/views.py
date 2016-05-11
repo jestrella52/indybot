@@ -737,6 +737,8 @@ def liveries_show(request):
 
     if os.path.isfile(filename):
         message = "Liveries spritesheet last generated: " + str(datetime.datetime.fromtimestamp(os.path.getmtime(filename)))
+    else:
+        message = "No liveries spritesheet found.  Please generate one."
 
     template = loader.get_template('liveriesShow.html')
     context = {
