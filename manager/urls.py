@@ -1,4 +1,6 @@
 from django.conf.urls import url
+from django.contrib import auth
+from django.contrib.auth import views as auth_views
 
 from . import views
 
@@ -58,8 +60,8 @@ urlpatterns = [
     url(r'^post/(?P<post_id>[0-9]+)/delete/$', views.post_delete, name='post_delete'),
 
     url(r'^login$', views.login, name='login'),
-    url(r'^logout$', 'django.contrib.auth.views.logout', {'template_name': 'logout.html'}),
+    url(r'^logout$', auth_views.logout, {'template_name': 'logout.html'}),
 
-    url(r'^password_change/$', 'django.contrib.auth.views.password_change', {'template_name': 'passwordChange.html'}),
-    url(r'^password_change_done/$', 'django.contrib.auth.views.password_change_done', {'template_name': 'passwordChangeDone.html'}, name='password_change_done'),
+    url(r'^password_change/$', auth_views.password_change, {'template_name': 'passwordChange.html'}),
+    url(r'^password_change_done/$', auth_views.password_change_done, {'template_name': 'passwordChangeDone.html'}, name='password_change_done'),
 ]
