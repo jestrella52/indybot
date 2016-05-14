@@ -1,31 +1,32 @@
 import datetime
-import pycurl
-import shutil
+import time
 import praw
+import json
 import sys
 import re
 import os
 
 from PIL import Image
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import (login as auth_login, authenticate)
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
+
+from django.shortcuts import render_to_response
+
+
+from celery import states
+from celery.result import AsyncResult
+
+from manager.tasks import GenerateLiveriesTask
 
 from .forms import CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm
 from .models import Caution, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
-
-
-class Page:
-	def __init__(self):
-		self.contents = ''
-
-	def body_callback(self, buf):
-		self.contents = self.contents + buf
 
 
 @login_required
@@ -618,88 +619,6 @@ def password_change_done():
 
 
 @login_required
-def liveries_regenerate(request):
-
-    offline 	= False
-    image_dir	= "liveries"
-    width		= 189
-    height		= 42
-    sprite_rows = 11
-    sprite_cols = 9
-
-    message = ""
-
-    for i in xrange(1, 99):
-        shutil.copy("blank.png", image_dir + "/" + str(i) + ".png")
-
-    c = pycurl.Curl()
-    page = Page()
-    c.setopt(pycurl.URL, "http://www.indycar.com/Drivers")
-    c.setopt(c.WRITEFUNCTION, page.body_callback)
-    c.perform()
-    c.close()
-
-    driverURLBase = "http://www.indycar.com/Series/IndyCar-Series/"
-    driverURLName = []
-
-    lines = page.contents.split('\n')
-    driverLinkPattern = re.compile('^\s+\<a href=\"/Series/IndyCar-Series/([a-zA-Z\-]+)\"')
-    liveryURLPattern = re.compile('^\s+\<img src=\"(http://[a-z0-9]+\.cloudfront\.net/~/media/IndyCar/Cars/2016/IndyCar-Series/Liveries/\w+/[0-9a-zA-Z\-]+\.png)')
-
-    for line in lines:
-    	match = driverLinkPattern.match(line)
-    	if match:
-    		driverURLName.append(match.group(1))
-
-    for name in driverURLName:
-    	message += "Checking:" + name + " - " + driverURLBase + name + "\n"
-    	c = pycurl.Curl()
-    	page = Page()
-    	c.setopt(pycurl.URL, driverURLBase + name)
-    	c.setopt(c.WRITEFUNCTION, page.body_callback)
-    	c.perform()
-    	c.close()
-
-    	lines = page.contents.split('\n')
-    	for line in lines:
-    		match = liveryURLPattern.match(line)
-    		if match:
-    			filename = match.group(1).rsplit('/', -1)[-1]
-    			filename = re.sub('[-_].*\png', '.png', filename)
-
-    			fp = open(image_dir + "/" + filename, "wb")
-    			c2 = pycurl.Curl()
-    			c2.setopt(pycurl.URL, match.group(1) + "?h=42")
-    			c2.setopt(c.WRITEDATA, fp)
-    			c2.perform()
-    			c2.close()
-    			fp.close()
-
-        message += "Filename: " + filename + "\n"
-
-    dirList=sorted(os.listdir(image_dir))
-
-    message += ", ".join(dirList)
-
-    images = [Image.open(image_dir + "/" + fname) for fname in dirList]
-    master_width = width * sprite_cols
-    master_height = height * sprite_rows
-
-    master = Image.new(mode='RGBA', size=(master_width, master_height), color=(0,0,0,0))
-
-    try:
-    	for y in xrange(0, sprite_rows):
-    		for x in xrange(0, sprite_cols):
-    			master.paste(images[ (y*sprite_cols) + x ], (x*width,y*height))
-    except:
-    	x = "This is horrible code."
-
-    master.save('./static/liveries.png')
-
-    return redirect('liveries_show')
-
-
-@login_required
 def liveries_upload(request):
 
     subreddits	= ["indycar", "badgerballs"]
@@ -746,6 +665,36 @@ def liveries_show(request):
         'message': message
     }
     return HttpResponse(template.render(context, request))
+
+
+@login_required
+def liveries_regenerate(request):
+
+    ts = str(time.time())
+    result = GenerateLiveriesTask.delay_or_fail(stamp=ts)
+
+    return render_to_response(
+        'liveriesShow.html',
+        {
+            'task_id': result.task_id,
+            'message': "Regenerating Liveries Spritesheet..."
+        },
+    )
+
+
+@csrf_exempt
+def task(request, task_id):
+
+    """Returns task status and result in JSON format."""
+    result = AsyncResult(task_id)
+    state, retval = result.state, result.result
+    response_data = {'id': task_id, 'status': state, 'result': retval}
+    if state in states.EXCEPTION_STATES:
+        traceback = result.traceback
+        response_data.update({'result': safe_repr(retval),
+                              'exc': get_full_cls_name(retval.__class__),
+                              'traceback': traceback})
+    return JsonResponse({'task': response_data})
 
 
 def login(request):

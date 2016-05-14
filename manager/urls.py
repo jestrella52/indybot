@@ -51,6 +51,8 @@ urlpatterns = [
 
     url(r'^start/list/$', views.start_list, name='start_list'),
 
+    url(r'^task/(?P<task_id>[0-9a-f\-]+)/status/', views.task, name='task'),
+
     url(r'^type/list/$', views.type_list, name='type_list'),
 
     url(r'^post/list/$', views.post_list, name='post_list'),

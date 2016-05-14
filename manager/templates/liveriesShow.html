@@ -1,17 +1,67 @@
 {% extends "include/base.html" %}
+{% load staticfiles %}
 
 {% block title %}Liveries{% endblock %}
 
 {% block content %}
-
-<div class="alert alert-info" role="alert">
-{{ message }}
-</div>
-
-<div class="jumbotron">
-    <div class="container">
-        <img width=100% src="/static/liveries.png">
+<div id="alert_container">
+    <div id="alert" class="alert alert-info" role="alert">
+        <div id="alert_text">{{ message }}</div>
+        <div id="progress_container" hidden>
+            <div class="progress">
+                <div id="progress_bar" class="active progress-bar progress-bar-striped" style="width: 0%;"></div>
+            </div>
+        </div>
     </div>
 </div>
 
+<div style="display: none;" id="jobtastic-task" data-task-id="{{ task_id }}"></div>
+
+<img id="liveries" width=100% src="/static/liveries.png">
+
+<script src="{% static "js/jquery-celery/celery.js" %}"></script>
+<script>
+    $(document).ready(function() {
+        var taskId = $("#jobtastic-task").data("task-id");
+        var $alertBox = $('#alert');
+        var $alertText = $('#alert_text');
+
+        if(taskId) {
+            document.getElementById("alert").className = "alert alert-warning";
+            document.getElementById("alert_text").innerHTML = "<strong>Full Course Yellow!</strong> &nbsp; Regenerating Livery Spritesheet...";
+            $("#progress_container").fadeIn();
+        } else {
+            $("#alert").hide();
+            $("#alert_text").hide();
+        }
+        // $alertText.empty().append(taskId); // WORKS
+
+        function error() {
+            document.getElementById("alert").className = "alert alert-danger";
+            document.getElementById("alert_text").innerHTML = "<strong>Oops!</strong> There was an error generating the spritesheet.";
+        };
+
+        $.fn.djcelery({
+            task_id: taskId,
+            check_interval: 500,
+            on_success: function (task) {
+                $("#progress_bar").width('100%').delay(1000).addClass("progress-bar-success");//.removeClass("progress-bar-info");
+                $("#alert").delay(1000).addClass("alert-success").removeClass("alert-warning");
+                $("#alert_text").delay(300).html("<strong>Success!</strong> &nbsp; New Spritesheet Generated!")
+                $("#progress_container").delay(3000).fadeOut();
+                $("#liveries").attr("src", $("#liveries").attr("src")+"?timestamp=" + new Date().getTime());
+            },
+            on_failure: error,
+            on_error: error,
+            on_other: function(task) {
+                console.log("t.s: " + task);
+                if (task.status == "PROGRESS") {
+                    var complete_percentage = Math.round(task.result.progress_percent * 100) / 100;
+                    console.log("percent: " + complete_percentage);
+                    $("#progress_bar").width(complete_percentage + '%');
+                };
+            }
+        });
+    });
+</script>
 {% endblock %}
