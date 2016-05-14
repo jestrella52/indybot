@@ -1,11 +1,1 @@
-ALL LIST VIEWS Done
-Country create
-Country delete
-
-Driver edit
-driver create
-driver delete
-
-circuit create
-circuit edit
-circuit delete
+celery --purge -A manager.tasks worker --loglevel=INFO --without-mingle
