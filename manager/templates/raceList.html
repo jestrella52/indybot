@@ -18,6 +18,7 @@
             <th>TV</th>
             <th>Qual</th>
             <th>Finish</th>
+            <th>FCY</th>
             <th>Actions</th>
         </tr>
         {% for race in raceList %}
@@ -73,10 +74,14 @@
                 </a>
             </td>
             <!-- <td align="center"><a href="{{ race.url }}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td> -->
-            <td>
+            <td align=center>
                 {% if race.in_the_past %}
-                    <a class="btn btn-xs btn-warning" href="/race/{{race.id}}/caution/edit">Cautions</a>
+                <a href="/race/{{race.id}}/caution/edit">
+                    <span class="glyphicon glyphicon-exclamation-sign"></span>
+                </a>
                 {% endif %}
+            </td>
+            <td>
                 <a class="btn btn-xs btn-info" href="/race/{{race.id}}/edit">Edit</a>
                 <a class="btn btn-xs btn-danger" href="/race/{{race.id}}/delete">Delete</a>
             </td>
