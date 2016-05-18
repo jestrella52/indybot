@@ -5,7 +5,6 @@ from django.forms.models import BaseInlineFormSet, inlineformset_factory, ModelF
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Row, Submit
 from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, PrependedText, TabHolder, Tab
-from .crispy import Formset
 from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Season
 
 
