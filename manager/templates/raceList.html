@@ -3,7 +3,10 @@
 {% block title %}All Races{% endblock %}
 
 {% block content %}
-
+{% if seasonObj %}
+<div class="panel panel-primary">
+    <div class="panel-heading"><strong>{{seasonObj.year}} {{ seasonObj.seriesname }} Races</strong></div>
+{% endif %}
 {% if raceList %}
     <table class="table table-striped table-bordered">
         <tr>
@@ -71,13 +74,18 @@
             </td>
             <!-- <td align="center"><a href="{{ race.url }}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td> -->
             <td>
-                <a class="btn btn-xs btn-warning" href="/race/{{race.id}}/caution/edit">Cautions</a>
+                {% if race.in_the_past %}
+                    <a class="btn btn-xs btn-warning" href="/race/{{race.id}}/caution/edit">Cautions</a>
+                {% endif %}
                 <a class="btn btn-xs btn-info" href="/race/{{race.id}}/edit">Edit</a>
                 <a class="btn btn-xs btn-danger" href="/race/{{race.id}}/delete">Delete</a>
             </td>
         </tr>
         {% endfor %}
     </table>
+    {% if seasonObj %}
+</div>
+{% endif %}
 {% else %}
     <p>No races created.</p>
 {% endif %}

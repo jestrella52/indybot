@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+from datetime import date
+
 from django.db import models
 from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
@@ -118,6 +120,12 @@ class Race(models.Model):
     margin = models.FloatField(blank=True, null=True)
     start = models.ForeignKey(Start)
     season = models.ForeignKey(Season, on_delete=models.PROTECT, null=True)
+
+    @property
+    def in_the_past(self):
+        if date.today() >= self.green.date():
+            return True
+        return False
 
     class Meta:
         db_table = "race"

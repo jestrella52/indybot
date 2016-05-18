@@ -222,9 +222,12 @@ def post_list_pending(request):
 @login_required
 def race_list(request, season=None):
 
+    seasonObj = None
+    
     if season:
         raceList = Race.objects.order_by('green')
         raceList = raceList.filter(season = season)
+        seasonObj= Season.objects.get(id=season)
     else:
         raceList = Race.objects.order_by('-green')
 
@@ -243,6 +246,7 @@ def race_list(request, season=None):
 
     context = {
         'raceList': raceList,
+        'seasonObj': seasonObj,
     }
     return HttpResponse(template.render(context, request))
 
