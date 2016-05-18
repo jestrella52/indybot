@@ -14,7 +14,14 @@
 {% for caution in form %}
 {{ caution.id }}
 <div class="panel panel-primary caution-formset">
-<div class="panel-heading">Caution #{{forloop.counter}}</div>
+<div class="panel-heading">
+    Caution #{{forloop.counter}}
+    <div class="pull-right">
+        {% if caution.id.value %}
+            <a class="btn btn-sm btn-danger" href="/caution/{{caution.id.value}}/race/{{caution.race.value}}/delete"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+        {% endif %}
+    </div>
+</div>
     <div class="panel-body">
     <div class="col-md-2">
         <div id="div_id_startLap" class="form-group">
@@ -63,7 +70,14 @@
         {{ caution.nested.management_form }}
         <ul>
             {% for cautiondriver in caution.nested %}
-                <li>{{ cautiondriver.driver }} {{ cautiondriver.id }}</li>
+                <li>
+                    {{ cautiondriver.driver }}
+                    {{ cautiondriver.id }}
+                    {{ cautiondriver.caution }}
+                    {% if cautiondriver.driver.value %}
+                        <a class="btn btn-xs btn-danger" href="/cautiondriver/{{ cautiondriver.id.value }}/race/{{ caution.race.value }}/delete"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
     </div>

@@ -32,6 +32,11 @@ from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, CountryF
 from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
 
 
+def logit(message):
+    with open("/tmp/bot.log", "a") as myfile:
+        myfile.write(message)
+
+
 def nestedformset_factory(parent_model, model, nested_formset,
                           form=BaseNestedModelForm,
                           formset=BaseNestedFormset, fk_name=None,
@@ -479,6 +484,28 @@ def race_delete(request, race_id):
 
 
 @login_required
+def cautiondriver_delete(request, cautiondriver_id, race_id):
+    try:
+        cautiondriver = CautionDriver.objects.get(id=cautiondriver_id)
+        cautiondriver.delete()
+        return redirect('/race/' + str(race_id) + '/caution/edit/')
+    except:
+        noop = ""
+
+
+@login_required
+def caution_delete(request, caution_id, race_id):
+    try:
+        cautiondrivers = CautionDriver.objects.get(caution=caution_id)
+        cautiondrivers.delete()
+        caution = Caution.objects.get(id=caution_id)
+        caution.delete()
+        return redirect('/race/' + str(race_id) + '/caution/edit/')
+    except:
+        noop = ""
+
+
+@login_required
 def driver_create(request):
     if request.method == "POST":
         form = DriverForm(request.POST)
@@ -535,6 +562,7 @@ def driver_edit(request, driver_id):
 
 class EditCautionsView(UpdateView):
     model = Race
+    fields = '__all__'
 
     def get_template_names(self):
         return ['cautionEdit.html']

@@ -7,9 +7,8 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
 
-    url(r'^race/(?P<pk>[0-9]+)/caution/edit/$', views.EditCautionsView.as_view(), name='caution_edit'),
-    # url(r'^caution/(?P<race_id>[0-9]+)/edit/$', views.caution_edit, name='caution_edit'),
-    # url(r'^caution/(?P<race_id>[0-9]+)/drivers/edit/$', views.cautiondrivers_edit, name='cautiondrivers_edit'),
+    url(r'^caution/(?P<caution_id>[0-9]+)/race/(?P<race_id>[0-9]+)/delete$', views.caution_delete, name='caution_delete'),
+    url(r'^cautiondriver/(?P<cautiondriver_id>[0-9]+)/race/(?P<race_id>[0-9]+)/delete$', views.cautiondriver_delete, name='cautiondriver_delete'),
 
     url(r'^circuit/list/$', views.circuit_list, name='circuit_list'),
     url(r'^circuit/create/$', views.circuit_create, name='circuit_create'),
@@ -34,6 +33,7 @@ urlpatterns = [
 
     url(r'^race/list/$', views.race_list, name='race_list'),
     url(r'^race/list/season/(?P<season>[0-9]+)$', views.race_list, name='race_list'),
+    url(r'^race/(?P<pk>[0-9]+)/caution/edit/$', views.EditCautionsView.as_view(), name='caution_edit'),
     url(r'^race/create/$', views.race_create, name='race_create'),
     url(r'^race/(?P<race_id>[0-9]+)/edit/$', views.race_edit, name='race_edit'),
     url(r'^race/(?P<race_id>[0-9]+)/delete/$', views.race_delete, name='race_delete'),
