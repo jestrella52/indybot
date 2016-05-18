@@ -1,0 +1,87 @@
+{% extends "include/base.html" %}
+{% load staticfiles %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<!-- <form method="POST" class="caution-form"> -->
+<form action="{% url 'caution_edit' pk=race.id %}" class="form-horizontal" method="POST">
+{% csrf_token %}
+
+{{ form.management_form }}
+
+{% for caution in form %}
+{{ caution.id }}
+<div class="panel panel-primary caution-formset">
+<div class="panel-heading">Caution #{{forloop.counter}}</div>
+    <div class="panel-body">
+    <div class="col-md-2">
+        <div id="div_id_startLap" class="form-group">
+            <label for="id_startLap" class="control-label requiredField">
+                Start Lap
+                <span class="asteriskField">*</span>
+            </label>
+            <div class="controls">
+                {{ caution.startLap }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div id="div_id_endLap" class="form-group">
+            <label for="id_endLap" class="control-label requiredField">
+                End Lap
+                <span class="asteriskField">*</span>
+            </label>
+            <div class="controls">
+                {{ caution.endLap }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div id="div_id_reason" class="form-group">
+            <label for="id_reason" class="control-label requiredField">
+                Reason
+                <span class="asteriskField">*</span>
+            </label>
+            <div class="controls">
+                {{ caution.reason }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div id="div_id_description" class="form-group">
+            <label for="id_description" class="control-label">
+                Description
+            </label>
+            <div class="controls">
+                {{ caution.description }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        {{ caution.nested.management_form }}
+        <ul>
+            {% for cautiondriver in caution.nested %}
+                <li>{{ cautiondriver.driver }} {{ cautiondriver.id }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    </div>
+</div>
+
+
+{% endfor %}
+
+<input type="submit" value="Submit" class="save btn btn-default"/>
+</form>
+
+<script src="{% static 'path_to/jquery.formset.js' %}"></script>
+<script>
+    $('.caution-formset').formset({
+        addText: 'add link',
+        deleteText: 'remove'
+    });
+</script>
+
+{% endblock %}

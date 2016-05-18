@@ -7,6 +7,10 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
 
+    url(r'^race/(?P<pk>[0-9]+)/caution/edit/$', views.EditCautionsView.as_view(), name='caution_edit'),
+    # url(r'^caution/(?P<race_id>[0-9]+)/edit/$', views.caution_edit, name='caution_edit'),
+    # url(r'^caution/(?P<race_id>[0-9]+)/drivers/edit/$', views.cautiondrivers_edit, name='cautiondrivers_edit'),
+
     url(r'^circuit/list/$', views.circuit_list, name='circuit_list'),
     url(r'^circuit/create/$', views.circuit_create, name='circuit_create'),
     url(r'^circuit/(?P<circuit_id>[0-9]+)/edit/$', views.circuit_edit, name='circuit_edit'),

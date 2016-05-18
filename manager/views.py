@@ -1,4 +1,5 @@
 import datetime
+import django
 import time
 import praw
 import json
@@ -14,19 +15,71 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import (login as auth_login, authenticate)
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
+from django.forms.models import inlineformset_factory
+from django.forms.formsets import formset_factory
+from django.views.generic.edit import UpdateView
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 
 from django.shortcuts import render_to_response
-
 
 from celery import states
 from celery.result import AsyncResult
 
 from manager.tasks import GenerateLiveriesTask
 
-from .forms import CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm
-from .models import Caution, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
+from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm
+from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
+
+
+def nestedformset_factory(parent_model, model, nested_formset,
+                          form=BaseNestedModelForm,
+                          formset=BaseNestedFormset, fk_name=None,
+                          fields=None, exclude=None, extra=3,
+                          can_order=False, can_delete=True,
+                          max_num=None, formfield_callback=None,
+                          widgets=None, validate_max=False,
+                          localized_fields=None, labels=None,
+                          help_texts=None, error_messages=None,
+                          min_num=None, validate_min=None):
+    kwargs = {
+        'form': form,
+        'formfield_callback': formfield_callback,
+        'formset': formset,
+        'extra': extra,
+        'can_delete': can_delete,
+        'can_order': can_order,
+        'fields': fields,
+        'exclude': exclude,
+        'max_num': max_num,
+            'widgets': widgets,
+            'validate_max': validate_max,
+            'localized_fields': localized_fields,
+            'labels': labels,
+            'help_texts': help_texts,
+            'error_messages': error_messages,
+    }
+
+    if kwargs['fields'] is None:
+        kwargs['fields'] = [
+            field.name
+            for field in model._meta.local_fields
+        ]
+
+    if django.VERSION >= (1, 7):
+        kwargs.update({
+            'min_num': min_num,
+            'validate_min': validate_min,
+        })
+
+    NestedFormSet = inlineformset_factory(
+        parent_model,
+        model,
+        **kwargs
+    )
+    NestedFormSet.nested_formset_class = nested_formset
+
+    return NestedFormSet
 
 
 @login_required
@@ -369,6 +422,7 @@ def race_create(request):
 @login_required
 def race_edit(request, race_id):
     race = get_object_or_404(Race, pk=race_id)
+    CautionFormSet = formset_factory(CautionForm)
     if request.method == "POST":
         form = RaceForm(request.POST, instance=race)
         if form.is_valid():
@@ -477,6 +531,24 @@ def driver_edit(request, driver_id):
         'form': form,
     }
     return HttpResponse(template.render(context, request))
+
+
+class EditCautionsView(UpdateView):
+    model = Race
+
+    def get_template_names(self):
+        return ['cautionEdit.html']
+
+    def get_form_class(self):
+        return nestedformset_factory(
+            Race,
+            Caution,
+            nested_formset=inlineformset_factory(Caution, CautionDriver, fields='__all__')
+        )
+
+    def get_success_url(self):
+        return reverse('race_list')
+
 
 @staff_member_required
 def redditAccount_edit(request, redditaccount_id):

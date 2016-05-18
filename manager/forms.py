@@ -1,11 +1,74 @@
 from django import forms
 from bootstrap3_datetime.widgets import DateTimePicker
 from django.contrib.auth.models import User
+from django.forms.models import BaseInlineFormSet, inlineformset_factory, ModelForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Row, Submit
 from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, PrependedText, TabHolder, Tab
+from .crispy import Formset
+from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Season
 
-from .models import Country, Course, Driver, Post, Race, RedditAccount, Season
+
+class BaseNestedModelForm(ModelForm):
+
+    def has_changed(self):
+
+        return (
+            super(BaseNestedModelForm, self).has_changed() or
+            self.nested.has_changed()
+        )
+
+
+class BaseNestedFormset(BaseInlineFormSet):
+
+    def add_fields(self, form, index):
+
+        # allow the super class to create the fields as usual
+        super(BaseNestedFormset, self).add_fields(form, index)
+
+        form.nested = self.nested_formset_class(
+            instance=form.instance,
+            data=form.data if self.is_bound else None,
+            prefix='%s-%s' % (
+                form.prefix,
+                self.nested_formset_class.get_default_prefix(),
+            ),
+        )
+
+    def is_valid(self):
+
+        result = super(BaseNestedFormset, self).is_valid()
+
+        if self.is_bound:
+            # look at any nested formsets, as well
+            for form in self.forms:
+                result = result and form.nested.is_valid()
+
+        return result
+
+    def save(self, commit=True):
+
+        result = super(BaseNestedFormset, self).save(commit=commit)
+
+        for form in self:
+            form.nested.save(commit=commit)
+
+        return result
+
+
+class CautionForm(forms.ModelForm):
+
+    class Meta:
+        model = Caution
+        fields = ('startLap', 'endLap', 'reason', 'description')
+
+
+class CautionDriverForm(forms.ModelForm):
+
+    class Meta:
+        model = CautionDriver
+        fields = ('driver',)
+
 
 class CountryForm(forms.ModelForm):
 
@@ -62,6 +125,7 @@ class CourseForm(forms.ModelForm):
             'shortname': "Short Name"
         }
 
+
 class DriverForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(DriverForm, self).__init__(*args, **kwargs)
@@ -98,6 +162,7 @@ class DriverForm(forms.ModelForm):
             'rookie': "Rookie Year",
             'active': "Active?"
         }
+
 
 class RaceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
