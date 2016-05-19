@@ -777,13 +777,13 @@ def liveries_regenerate(request):
     ts = str(time.time())
     result = GenerateLiveriesTask.delay_or_fail(stamp=ts)
 
-    return render_to_response(
-        'liveriesShow.html',
-        {
-            'task_id': result.task_id,
-            'message': "Regenerating Liveries Spritesheet..."
-        },
-    )
+
+    template = loader.get_template('liveriesShow.html')
+    context = {
+        'task_id': result.task_id,
+        'message': "Regenerating Liveries Spritesheet..."
+    }
+    return HttpResponse(template.render(context, request))
 
 
 @csrf_exempt
