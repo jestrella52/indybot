@@ -32,9 +32,9 @@ from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, CountryF
 from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
 
 
-def logit(message):
-    with open("/tmp/bot.log", "a") as myfile:
-        myfile.write(message)
+# def logit(message):
+#     with open("/tmp/bot.log", "a") as myfile:
+#         myfile.write(message)
 
 
 def nestedformset_factory(parent_model, model, nested_formset,
@@ -223,7 +223,7 @@ def post_list_pending(request):
 def race_list(request, season=None):
 
     seasonObj = None
-    
+
     if season:
         raceList = Race.objects.order_by('green')
         raceList = raceList.filter(season = season)
@@ -752,7 +752,6 @@ def liveries_upload(request):
     return HttpResponse(template.render(context, request))
 
 
-
 @login_required
 def liveries_show(request):
 
@@ -776,7 +775,6 @@ def liveries_regenerate(request):
 
     ts = str(time.time())
     result = GenerateLiveriesTask.delay_or_fail(stamp=ts)
-
 
     template = loader.get_template('liveriesShow.html')
     context = {
