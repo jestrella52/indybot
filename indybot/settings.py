@@ -135,3 +135,8 @@ LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
