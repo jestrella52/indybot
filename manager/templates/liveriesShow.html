@@ -28,7 +28,11 @@
 
         if(taskId) {
             document.getElementById("alert").className = "alert alert-warning";
+{% if task == "regenerate" %}
             document.getElementById("alert_text").innerHTML = "<strong>Full Course Yellow!</strong> &nbsp; Regenerating Livery Spritesheet...";
+{% elif task == "upload" %}
+            document.getElementById("alert_text").innerHTML = "<strong>Full Course Yellow!</strong> &nbsp; Uploading Livery Spritesheet...";
+{% endif %}
             $("#progress_container").fadeIn();
         } else {
             $("#alert").hide();
@@ -38,7 +42,11 @@
 
         function error() {
             document.getElementById("alert").className = "alert alert-danger";
-            document.getElementById("alert_text").innerHTML = "<strong>Oops!</strong> There was an error generating the spritesheet.";
+{% if task == "regenerate" %}
+            document.getElementById("alert_text").innerHTML = "<strong>Oops!</strong> &nbsp; There was an error generating the spritesheet.";
+{% elif task == "upload" %}
+            document.getElementById("alert_text").innerHTML = "<strong>Oops!</strong> &nbsp; There was an error uploading the spritesheet.";
+{% endif %}
         };
 
         $.fn.djcelery({
@@ -47,7 +55,11 @@
             on_success: function (task) {
                 $("#progress_bar").width('100%').delay(1000).addClass("progress-bar-success");//.removeClass("progress-bar-info");
                 $("#alert").delay(1000).addClass("alert-success").removeClass("alert-warning");
+{% if task == "regenerate" %}
                 $("#alert_text").delay(300).html("<strong>Success!</strong> &nbsp; New Spritesheet Generated!")
+{% elif task == "upload" %}
+                $("#alert_text").delay(300).html("<strong>Success!</strong> &nbsp; Spritesheet Uploaded!")
+{% endif %}
                 $("#progress_container").delay(3000).fadeOut();
                 $("#liveries").attr("src", $("#liveries").attr("src")+"?timestamp=" + new Date().getTime());
             },

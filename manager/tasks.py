@@ -1,6 +1,7 @@
 import requests
 import pycurl
 import shutil
+import praw
 import re
 import os
 
@@ -15,12 +16,63 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'indybot.settings'
 celery = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
 
 
-# class Page:
-#     def __init__(self):
-#         self.contents = ''
-#
-#     def body_callback(self, buf):
-#         self.contents = self.contents + buf
+class UploadLiveriesTask(JobtasticTask):
+    herd_avoidance_timeout = 60
+    cache_duration = 0
+
+    significant_kwargs = [
+        ('stamp', str),
+    ]
+
+    def calculate_result(self, stamp, **kwargs):
+        subreddits	= ["indycar", "badgerballs"]
+        user_agent	= ("/r/IndyCar Livery bot v0.9.1 by /u/Badgerballs")
+        with open("/tmp/bot.log", "a") as myfile:
+            myfile.write(str(os.getcwd()))
+        message = ""
+        percentage = float(0)
+        subPercentage = float(80/len(subreddits))
+
+        r = praw.Reddit(user_agent=user_agent)
+        r.refresh_access_information()
+
+        if r.user == None:
+            message += "Failed to log in. Something went wrong!\n"
+            with open("/tmp/bot.log", "a") as myfile:
+                myfile.write(message)
+        else:
+            message += "Logged in to reddit as " + str(r.user)
+            with open("/tmp/bot.log", "a") as myfile:
+                myfile.write(message)
+        self.update_progress(20, 100)
+
+
+        for sub in subreddits:
+            r.upload_image(sub, "./static/liveries.png", "liveries")
+            percentage = percentage + float(subPercentage/5)
+            self.update_progress(percentage, 100)
+
+            sub = r.get_subreddit(sub)
+            percentage = percentage + float(subPercentage/5)
+            self.update_progress(percentage, 100)
+
+            css = r.get_stylesheet(sub)['stylesheet']
+            percentage = percentage + float(subPercentage/5)
+            self.update_progress(percentage, 100)
+
+            r.set_stylesheet(sub, css)
+            percentage = percentage + float(subPercentage/5)
+            self.update_progress(percentage, 100)
+
+            settings = sub.get_settings()
+            percentage = percentage + float(subPercentage/5)
+            self.update_progress(percentage, 100)
+
+            message += "Updated /r/" + str(sub) + "\n"
+
+        self.update_progress(percentage, 100)
+
+        return message
 
 
 class GenerateLiveriesTask(JobtasticTask):

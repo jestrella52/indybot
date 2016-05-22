@@ -26,7 +26,7 @@ from django.shortcuts import render_to_response
 from celery import states
 from celery.result import AsyncResult
 
-from manager.tasks import GenerateLiveriesTask
+from manager.tasks import GenerateLiveriesTask, UploadLiveriesTask
 
 from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm
 from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
@@ -725,29 +725,14 @@ def password_change_done():
 @login_required
 def liveries_upload(request):
 
-    subreddits	= ["indycar", "badgerballs"]
-    user_agent	= ("/r/IndyCar Livery bot v0.9.1 by /u/Badgerballs")
-    message = ""
-
-    r = praw.Reddit(user_agent=user_agent)
-    r.refresh_access_information()
-    if r.user == None:
-        message += "Failed to log in. Something went wrong!<br>"
-    else:
-        message += "Logged in to reddit as " + str(r.user)
-
-    for sub in subreddits:
-    	r.upload_image(sub, "./static/liveries.png", "liveries")
-    	sub = r.get_subreddit(sub)
-        css = r.get_stylesheet(sub)['stylesheet']
-        r.set_stylesheet(sub, css)
-        settings = sub.get_settings()
-        message += "  ---  Updated /r/" + str(sub)
+    ts = str(time.time())
+    result = UploadLiveriesTask.delay_or_fail(stamp=ts)
 
     template = loader.get_template('liveriesShow.html')
     context = {
-        'title': "Current Liveries",
-        'message': message,
+        'task': "upload",
+        'task_id': result.task_id,
+        'message': "Uploading Liveries Spritesheet...",
     }
     return HttpResponse(template.render(context, request))
 
@@ -778,6 +763,7 @@ def liveries_regenerate(request):
 
     template = loader.get_template('liveriesShow.html')
     context = {
+        'task': "regenerate",
         'task_id': result.task_id,
         'message': "Regenerating Liveries Spritesheet..."
     }

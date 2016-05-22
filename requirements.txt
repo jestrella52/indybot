@@ -17,7 +17,7 @@ kombu==3.0.35
 lxml==3.6.0
 MySQL-python==1.2.5
 Pillow==3.2.0
-praw==3.4.0
+praw==3.5.0
 psutil==3.4.2
 pycurl==7.43.0
 pytz==2016.4
