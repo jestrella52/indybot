@@ -1,1 +1,10 @@
 celery --purge -A manager.tasks worker --loglevel=INFO --without-mingle
+
+
+
+Running on Mac:
+    Start RabbitMQ:
+        rabbitmq-server
+
+    Start Celery Worker:
+        celery --purge -A manager.tasks worker --loglevel=INFO --without-mingle
