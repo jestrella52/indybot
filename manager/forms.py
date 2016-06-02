@@ -180,10 +180,11 @@ class RaceForm(forms.ModelForm):
                         css_class="row"
                     ),
                     Div(
-                        Div(Field('laps'), css_class="col-md-3"),
-                        Div(Field('rowsize'), css_class="col-md-3"),
-                        Div(Field('start'), css_class="col-md-3"),
+                        Div(Field('laps'), css_class="col-md-2"),
+                        Div(Field('rowsize'), css_class="col-md-2"),
+                        Div(Field('start'), css_class="col-md-2"),
                         Div(Field('channel'), css_class="col-md-3"),
+                        Div(Field('hashtag'), css_class="col-md-3"),
                         css_class="row"
                     ),
                     Fieldset("Dates and Times",
@@ -245,7 +246,7 @@ class RaceForm(forms.ModelForm):
 
     class Meta:
         model = Race
-        fields = ('season', 'title', 'laps', 'practice', 'coverage', 'green', 'endcoverage', 'channel', 'url', 'urlrr', 'submission', 'subpractice', 'subpostrace', 'urlrace', 'urlpractice', 'urlpostrace', 'rowsize', 'course', 'start', 'yellowflags', 'yellowlaps', 'duration', 'speedavg', 'speedpole', 'leadchanges', 'margin')
+        fields = ('season', 'title', 'laps', 'practice', 'coverage', 'green', 'endcoverage', 'channel', 'hashtag', 'url', 'urlrr', 'submission', 'subpractice', 'subpostrace', 'urlrace', 'urlpractice', 'urlpostrace', 'rowsize', 'course', 'start', 'yellowflags', 'yellowlaps', 'duration', 'speedavg', 'speedpole', 'leadchanges', 'margin')
         labels = {
             'laps': "Number of Laps",
             'practice': "First Practice Starts",
@@ -253,6 +254,7 @@ class RaceForm(forms.ModelForm):
             'green': "Green Flag Flies",
             'endcoverage': "Broadcast Ends",
             'channel': "TV Channel",
+            'hashtag': "Hashtag",
             'url': "URL for the Race's Website",
             'urlrr': "This Race's URL on Racing-Reference",
             'rowsize': "Row Size",
