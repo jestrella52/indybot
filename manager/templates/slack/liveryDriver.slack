@@ -1,0 +1,5 @@
+{% extends django_slack %}
+{% block channel %}#indybot-log{% endblock %}
+{% block text %}
+Fetching livery for: {{driver}}
+{% endblock %}

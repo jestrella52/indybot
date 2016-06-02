@@ -1,6 +1,7 @@
 import requests
 import pycurl
 import shutil
+import django
 import praw
 import re
 import os
@@ -10,9 +11,15 @@ from lxml import html
 from time import sleep
 from celery import Celery
 
+os.environ['DJANGO_SETTINGS_MODULE'] = 'indybot.settings'
+django.setup()
+
+from django_slack import slack_message
+
 from jobtastic import JobtasticTask
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'indybot.settings'
+from .models import Country, Driver
+
 celery = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
 
 
@@ -111,6 +118,7 @@ class GenerateLiveriesTask(JobtasticTask):
         self.update_progress(5, 100)
 
         driverPercentage = float(95.0 / float(len(driverPageList)))
+        driverList = Driver.objects.order_by('last', 'first').filter(active=1)
 
         for driverPage in driverPageList:
             page = requests.get("http://www.indycar.com" + driverPage)
@@ -120,11 +128,22 @@ class GenerateLiveriesTask(JobtasticTask):
             imgsrc = imgsrc.rsplit('?', -1)[0]
             filename = re.sub('[-_].*\.png', '.png', imgsrc.rsplit('/', -1)[-1])
 
-            r = requests.get(imgsrc + "?h=42", stream=True)
-            if r.status_code == 200:
-                with open(image_dir + "/" + filename, 'wb') as f:
-                    shutil.copyfileobj(r.raw, f)
-            del r
+            lastName = driverPage.rsplit('-', -1)[-1]
+
+            msg = driverPage + " as filename: " + filename + ".  Last name: " + lastName
+            try:
+                if Driver.objects.filter(active=1).get(last__icontains=lastName):
+                    msg = "ACTIVE: " + msg
+                r = requests.get(imgsrc + "?h=42", stream=True)
+                if r.status_code == 200:
+                    with open(image_dir + "/" + filename, 'wb') as f:
+                        shutil.copyfileobj(r.raw, f)
+                del r
+            except:
+                msg = "INACTIVE: " + msg
+
+            slack_message('slack/liveryDriver.slack', {'driver': msg})
+
 
             percentage = percentage + driverPercentage
             self.update_progress(percentage, 100)
