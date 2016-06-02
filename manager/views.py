@@ -23,6 +23,8 @@ from django.core.urlresolvers import reverse
 
 from django.shortcuts import render_to_response
 
+from django_slack import slack_message
+
 from celery import states
 from celery.result import AsyncResult
 
@@ -297,6 +299,14 @@ def post_create(request):
             post.modified_time = datetime.datetime.now()
             if not request.user.is_staff:
                 post.author_id = author.id
+            slack_message('slack/postCreateRich.slack', {
+                'author': author,
+                'post': post,
+            },
+                [{
+                    'title': post.title,
+                    'text': post.body,
+                },])
             post = form.save()
             return redirect('post_list')
     else:

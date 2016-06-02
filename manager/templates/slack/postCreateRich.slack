@@ -1,0 +1,6 @@
+{% extends django_slack %}
+{% load django_slack %}
+
+{% block text %}
+New {% if post.sticky %}sticky {% endif %}post created by {{ author.handle }}.  Scheduled for: {{ post.publish_time }}.
+{% endblock %}
