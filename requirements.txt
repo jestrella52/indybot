@@ -9,8 +9,10 @@ decorator==4.0.9
 Django==1.9.4
 django-bootstrap3-datetimepicker-2==2.4.2
 django-crispy-forms==1.6.0
+django-slack==5.7.0
 flower==0.9.1
 futures==3.0.5
+gunicorn==19.5.0
 image==1.5.3
 jobtastic==0.3.1
 kombu==3.0.35
