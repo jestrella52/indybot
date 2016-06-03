@@ -9,6 +9,7 @@ import MySQLdb.cursors
 import datetime
 import requests
 import string
+import time
 import sys
 import re
 
@@ -52,4 +53,4 @@ for driver in drivers:
             cur.execute(query)
             con.commit()
 
-    sleep(5000)
+    time.sleep(5)
