@@ -230,8 +230,10 @@ def race_list(request, season=None):
         raceList = Race.objects.order_by('green')
         raceList = raceList.filter(season = season)
         seasonObj= Season.objects.get(id=season)
+        title = "Races - " + str(seasonObj.year) + " Season"
     else:
         raceList = Race.objects.order_by('-green')
+        title = "All Races"
 
     template = loader.get_template('raceList.html')
 
@@ -247,6 +249,7 @@ def race_list(request, season=None):
             raceList[i].raceResultStyle = 'style="color:lightgrey"'
 
     context = {
+        'title': title,
         'raceList': raceList,
         'seasonObj': seasonObj,
     }
