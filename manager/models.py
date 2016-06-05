@@ -94,6 +94,7 @@ class Course(models.Model):
 
 class Race(models.Model):
     title = models.CharField(max_length=70)
+    shortname = models.CharField(max_length=30, blank=True, null=True)
     course = models.ForeignKey(Course)
     practice = models.DateTimeField(blank=True, null=True)
     coverage = models.DateTimeField(blank=True, null=True)
