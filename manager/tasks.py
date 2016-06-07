@@ -17,12 +17,13 @@ from celery.schedules import crontab
 os.environ['DJANGO_SETTINGS_MODULE'] = 'indybot.settings'
 django.setup()
 
+from django.db.models import Q
 from django.utils import timezone
 from django_slack import slack_message
 
 from jobtastic import JobtasticTask
 
-from .models import Country, Driver, Race
+from .models import Country, Driver, Post, Race, RedditAccount
 
 celery = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
 
@@ -30,11 +31,87 @@ celery.conf.update(
     CELERYBEAT_SCHEDULE = {
         'update-sidebar': {
             'task': 'manager.tasks.UpdateRedditSidebarTask',
-            'schedule': crontab(hour='*', minute='23'),
+            'schedule': crontab(hour='*', minute='5'),
+            'kwargs': {'stamp': str(time.time())},
+        },
+        'check-posts': {
+            'task': 'manager.tasks.RedditPostsTask',
+            'schedule': datetime.timedelta(minutes=1),
             'kwargs': {'stamp': str(time.time())},
         },
     }
 )
+
+
+posterCredits  = "***\n\nIndyBot submitted this post on behalf of /u/"
+indybotCredits = "***\n\n^(Questions, comments, or hate mail regarding IndyBot should be directed to /u/BadgerBalls.)\n"
+
+
+def logit(message):
+    with open("/tmp/bot.log", "a") as myfile:
+        myfile.write(message + "\n")
+
+
+def bumpLog():
+    with open("/tmp/bot.log", "a") as myfile:
+        myfile.write("\n\n")
+
+
+class RedditPostsTask(JobtasticTask):
+    herd_avoidance_timeout = 20
+    cache_duration = 0
+
+    significant_kwargs = [
+        ('stamp', str),
+    ]
+
+    def calculate_result(self, stamp, **kwargs):
+        logit("===============================================================")
+        logit("starting up")
+        subreddit = "badgerballs"
+        user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
+
+        posts = Post.objects.filter(submission=None).filter(Q(publish_time__lte=timezone.now())).prefetch_related('author')
+        logit(str(len(posts)) + " posts in queue.")
+
+        if len(posts) > 0:
+            r = praw.Reddit(user_agent=user_agent)
+            r.refresh_access_information()
+
+            if r.user == None:
+                logit("Failed to log in. Something went wrong!")
+            else:
+                logit("Logged in to reddit as " + str(r.user))
+
+            for post in posts:
+                logit("- - - - - - - - - - - - - - -")
+                postBody = post.body
+
+                if post.credit:
+                    postBody = postBody + "\n\n" + posterCredits + str(post.author) + "\n"
+
+                postBody += indybotCredits
+                submission = r.submit(subreddit, post.title, text=postBody)
+
+                if post.sticky:
+                    submission.sticky()
+
+                post.submission = submission.id
+                post.save()
+
+                logit(post.title + ", by " + str(post.author))
+                logit("Scheduled for: " + str(post.publish_time))
+                timePub = timezone.make_naive(post.publish_time)
+                timeNow = timezone.make_naive(timezone.now())
+                logit("Adjusted time: " + str(timePub))
+                logit("Current time: " + str(timeNow))
+                if (timeNow >= timePub):
+                    logit ("POSTING!")
+
+        self.update_progress(100, 100)
+
+        return 1
+
 
 class UpdateRedditSidebarTask(JobtasticTask):
     herd_avoidance_timeout = 60
