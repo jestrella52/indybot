@@ -17,6 +17,7 @@ from celery.schedules import crontab
 os.environ['DJANGO_SETTINGS_MODULE'] = 'indybot.settings'
 django.setup()
 
+from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
 from django_slack import slack_message
@@ -27,20 +28,21 @@ from .models import Country, Driver, Post, Race, RedditAccount
 
 celery = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
 
-celery.conf.update(
-    CELERYBEAT_SCHEDULE = {
-        'update-sidebar': {
-            'task': 'manager.tasks.UpdateRedditSidebarTask',
-            'schedule': crontab(hour='*', minute='5'),
-            'kwargs': {'stamp': str(time.time())},
-        },
-        'check-posts': {
-            'task': 'manager.tasks.RedditPostsTask',
-            'schedule': datetime.timedelta(minutes=1),
-            'kwargs': {'stamp': str(time.time())},
-        },
-    }
-)
+if settings.INDYBOT_ENV == "PROD":
+    celery.conf.update(
+        CELERYBEAT_SCHEDULE = {
+            'update-sidebar': {
+                'task': 'manager.tasks.UpdateRedditSidebarTask',
+                'schedule': crontab(hour='*', minute='5'),
+                'kwargs': {'stamp': str(time.time())},
+            },
+            'check-posts': {
+                'task': 'manager.tasks.RedditPostsTask',
+                'schedule': datetime.timedelta(minutes=1),
+                'kwargs': {'stamp': str(time.time())},
+            },
+        }
+    )
 
 
 posterCredits  = "***\n\nIndyBot submitted this post on behalf of /u/"
