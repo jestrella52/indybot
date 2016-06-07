@@ -45,12 +45,12 @@ if settings.INDYBOT_ENV == "PROD":
                 'task': 'manager.tasks.GenerateLiveriesTask',
                 'schedule': crontab(hour='4', minute='0'),
                 'kwargs': {'stamp': str(time.time())},
-            }
+            },
             'upload-liveries': {
                 'task': 'manager.tasks.UploadLiveriesTask',
                 'schedule': crontab(hour='4', minute='30'),
                 'kwargs': {'stamp': str(time.time())},
-            }
+            },
         }
     )
 
