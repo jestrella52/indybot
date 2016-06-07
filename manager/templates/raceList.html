@@ -10,6 +10,9 @@
 {% if raceList %}
     <table class="table table-striped table-bordered">
         <tr>
+            {% if seasonObj %}
+            <th>#</th>
+            {% endif %}
             <th>Title</th>
             <th>Practice</th>
             <th>Race</th>
@@ -23,6 +26,9 @@
         </tr>
         {% for race in raceList %}
         <tr>
+            {% if seasonObj %}
+            <td>{{forloop.counter}}</td>
+            {% endif %}
             <td><a href="{{ race.url }}">{{ race.season }} {{ race.title }}</a></td>
             <td>
                 {% if race.practice %}
