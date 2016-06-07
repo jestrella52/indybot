@@ -1,8 +1,10 @@
+import datetime
 import requests
 import pycurl
 import shutil
 import django
 import praw
+import time
 import re
 import os
 
@@ -10,17 +12,134 @@ from PIL import Image
 from lxml import html
 from time import sleep
 from celery import Celery
+from celery.schedules import crontab
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'indybot.settings'
 django.setup()
 
+from django.utils import timezone
 from django_slack import slack_message
 
 from jobtastic import JobtasticTask
 
-from .models import Country, Driver
+from .models import Country, Driver, Race
 
 celery = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
+
+celery.conf.update(
+    CELERYBEAT_SCHEDULE = {
+        'update-sidebar': {
+            'task': 'manager.tasks.UpdateRedditSidebarTask',
+            'schedule': crontab(hour='*', minute='23'),
+            'kwargs': {'stamp': str(time.time())},
+        },
+    }
+)
+
+class UpdateRedditSidebarTask(JobtasticTask):
+    herd_avoidance_timeout = 60
+    cache_duration = 0
+
+    significant_kwargs = [
+        ('stamp', str),
+    ]
+
+    def calculate_result(self, stamp, **kwargs):
+
+        subreddits = ["badgerballs"]
+        user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
+
+        # with open("/tmp/bot.log", "a") as myfile:
+        #     myfile.write(str(os.getcwd()) + "\n")
+
+        message = ""
+        percentage = float(0)
+        subPercentage = float(80/len(subreddits))
+
+        r = praw.Reddit(user_agent=user_agent)
+        r.refresh_access_information()
+
+        if r.user == None:
+            message += "Failed to log in. Something went wrong!\n"
+            # with open("/tmp/bot.log", "a") as myfile:
+            #     myfile.write(message + "\n")
+        else:
+            message += "Logged in to reddit as " + str(r.user)
+            # with open("/tmp/bot.log", "a") as myfile:
+            #     myfile.write(message + "\n")
+        self.update_progress(20, 100)
+
+
+        for subreddit in subreddits:
+            settings = r.get_settings(subreddit)
+            oldSidebar = settings['description']
+            sidebar = oldSidebar
+
+            start = timezone.make_aware(datetime.datetime(datetime.date.today().year, 1, 1))
+            end = timezone.make_aware(datetime.datetime(datetime.date.today().year, 12, 31))
+
+            races = Race.objects.order_by('green').filter(green__gte=start).filter(green__lte=end)
+
+            foundNext = 0
+            highlightRow = 0
+            raceCount = 0
+
+            schedTable  = "### 2016 IndyCar Schedule\n\n"
+            schedTable += "**Date**|**Course**|**Time**|**TV**\n"
+            schedTable += ":---|:---|:---|:---\n"
+
+            for race in races:
+                raceCount = raceCount + 1
+                coverageStart = timezone.make_naive(race.coverage)
+                coverageEnd = timezone.make_naive(race.endcoverage)
+                timeNow = timezone.make_naive(timezone.now())
+                if coverageEnd > timeNow and foundNext == 0:
+                    highlightRow = raceCount
+                    bold = "**"
+                    foundNext = 1
+                else:
+                    bold = ""
+
+                schedTable += bold + coverageStart.strftime("%-m/%-d") + bold + "|" + bold + race.shortname + bold + "|" + bold + coverageStart.strftime("%I:%M%p").lstrip("0").lower() + bold + "|" + bold + race.channel + bold + "\n"
+
+            schedTable += "\nAll times Eastern"
+
+
+            stylesheet = r.get_stylesheet(subreddit)
+            newCSS = stylesheet['stylesheet']
+            oldCSS = stylesheet['stylesheet']
+
+            highlightCSS = ".side table tr:nth-of-type(" + str(highlightRow) + ") td {"
+            newCSS = re.sub("\.side table tr:nth-of-type\(\d+\) td \{", highlightCSS, newCSS, flags=re.S)
+
+            old = oldCSS.split("\n")
+            new = newCSS.split("\n")
+
+            # with open("/tmp/bot.log", "a") as myfile:
+            #     for i in range(0, 10):
+            #         myfile.write("-------\n")
+            #         myfile.write(old[i] + "\n")
+            #         myfile.write(new[i] + "\n")
+
+            if newCSS != oldCSS:
+                # with open("/tmp/bot.log", "a") as myfile:
+                #     myfile.write("Stylesheet update required!\n")
+                r.set_stylesheet(subreddit, '')
+                r.set_stylesheet(subreddit, newCSS)
+
+            # with open("/tmp/bot.log", "a") as myfile:
+            #     myfile.write(schedTable + "\n")
+
+            sidebar = re.sub("### 2016 IndyCar Schedule.*All times Eastern", schedTable, sidebar, flags=re.S)
+            if (sidebar != oldSidebar):
+                # with open("/tmp/bot.log", "a") as myfile:
+                #     myfile.write("Sidebar update required!\n")
+                settings = r.update_settings(r.get_subreddit(subreddit), description=sidebar)
+            # else:
+                # with open("/tmp/bot.log", "a") as myfile:
+                #     myfile.write("No change required.\n")
+        self.update_progress(100, 100)
+        return 1
 
 
 class UploadLiveriesTask(JobtasticTask):
@@ -33,7 +152,7 @@ class UploadLiveriesTask(JobtasticTask):
 
     def calculate_result(self, stamp, **kwargs):
         subreddits	= ["indycar", "badgerballs"]
-        user_agent	= ("/r/IndyCar Livery bot v0.9.1 by /u/Badgerballs")
+        user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
         with open("/tmp/bot.log", "a") as myfile:
             myfile.write(str(os.getcwd()))
         message = ""

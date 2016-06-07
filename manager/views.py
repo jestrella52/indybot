@@ -28,7 +28,7 @@ from django_slack import slack_message
 from celery import states
 from celery.result import AsyncResult
 
-from manager.tasks import GenerateLiveriesTask, UploadLiveriesTask
+from manager.tasks import GenerateLiveriesTask, UpdateRedditSidebarTask, UploadLiveriesTask
 
 from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm
 from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
@@ -765,6 +765,16 @@ def liveries_show(request):
         'title': "Current Liveries",
         'message': message
     }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def sidebar_update(request):
+    ts = str(time.time())
+    result = UpdateRedditSidebarTask.delay_or_fail(stamp=ts)
+
+    template = loader.get_template('sidebarUpdate.html')
+    context = {'title': "Sidebar Update"}
     return HttpResponse(template.render(context, request))
 
 

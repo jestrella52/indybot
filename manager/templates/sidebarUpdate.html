@@ -1,0 +1,19 @@
+{% extends "include/base.html" %}
+{% load staticfiles %}
+
+{% block title %}Sidebar Update{% endblock %}
+
+{% block content %}
+<div id="alert_container">
+    <div id="alert" class="alert alert-info" role="alert">
+        <div id="alert_text">{{ message }}</div>
+        <div id="progress_container" hidden>
+            <div class="progress">
+                <div id="progress_bar" class="active progress-bar progress-bar-striped" style="width: 0%;">
+                    Sidebar update in progress!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

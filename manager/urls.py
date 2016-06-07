@@ -53,6 +53,8 @@ urlpatterns = [
     url(r'^season/(?P<season_id>[0-9]+)/edit/$', views.season_edit, name='season_edit'),
     url(r'^season/(?P<season_id>[0-9]+)/delete/$', views.season_delete, name='season_delete'),
 
+    url(r'^sidebar/update/$', views.sidebar_update, name='sidebar_update'),
+
     url(r'^start/list/$', views.start_list, name='start_list'),
 
     url(r'^task/(?P<task_id>[0-9a-f\-]+)/status/', views.task, name='task'),
