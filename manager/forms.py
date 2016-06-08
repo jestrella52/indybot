@@ -5,7 +5,7 @@ from django.forms.models import BaseInlineFormSet, inlineformset_factory, ModelF
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Row, Submit
 from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, PrependedText, TabHolder, Tab
-from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Season
+from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Season, SessionType
 
 
 class BaseNestedModelForm(ModelForm):
@@ -81,6 +81,13 @@ class SeasonForm(forms.ModelForm):
     class Meta:
         model = Season
         fields = ('year', 'seriesname', 'races', 'champion', 'rookie', 'fanfav')
+
+
+class SessionTypeForm(forms.ModelForm):
+
+    class Meta:
+        model = SessionType
+        fields = ('name',)
 
 
 class CourseForm(forms.ModelForm):

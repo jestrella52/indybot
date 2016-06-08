@@ -218,3 +218,22 @@ class Post(models.Model):
         db_table = "post"
     def __str__(self):
         return self.title
+
+
+class SessionType(models.Model):
+    name = models.CharField(max_length=30)
+
+    class Meta:
+        db_table = "sessiontype"
+    def __str__(self):
+        return self.title
+#
+#
+# class Session(models.Model):
+#     type = models.ForeignKey(SessionType)
+#     race = models.ForeignKey(Race)
+#     starttime = models.DateTimeField(blank=False, null=False)
+#     endtime = models.DateTimeField(blank=False, null=False)
+#     posttime = models.DateTimeField(blank=True, null=True)
+#     tweettemplate = models.BooleanField(default=False)
+#     post = models.BooleanField(default=False)

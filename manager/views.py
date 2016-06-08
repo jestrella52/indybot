@@ -30,8 +30,8 @@ from celery.result import AsyncResult
 
 from manager.tasks import GenerateLiveriesTask, UpdateRedditSidebarTask, UploadLiveriesTask
 
-from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm
-from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
+from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm, SessionTypeForm
+from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, SessionType, Start, Type
 
 
 # def logit(message):
@@ -201,6 +201,16 @@ def season_list(request):
 
 
 @login_required
+def sessiontype_list(request):
+    sessionTypeList = SessionType.objects.order_by('name')
+    template = loader.get_template('sessionTypeList.html')
+    context = {
+        'sessionTypeList': sessionTypeList,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def post_list(request):
     postList = Post.objects.order_by('publish_time')
     template = loader.get_template('postList.html')
@@ -293,6 +303,24 @@ def season_create(request):
 
 
 @login_required
+def sessiontype_create(request):
+    if request.method == "POST":
+        form = SessionTypeForm(request.POST)
+        if form.is_valid():
+            sessionType = form.save()
+            return redirect('sessiontype_list')
+    else:
+        form = SessionTypeForm()
+
+    template = loader.get_template('sessionTypeEdit.html')
+    context = {
+        'title': "New Session Type",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def post_create(request):
     author = get_object_or_404(RedditAccount, owner_id=request.user.id)
     if request.method == "POST":
@@ -358,6 +386,16 @@ def country_delete(request, country_id):
 
 
 @login_required
+def sessiontype_delete(request, sessiontype_id):
+    try:
+        sessiontype = SessionType.objects.get(id=sessiontype_id)
+        sessiontype.delete()
+        return redirect('sessiontype_list')
+    except:
+        noop = ""
+
+
+@login_required
 def season_delete(request, season_id):
     try:
         season = Season.objects.get(id=season_id)
@@ -381,6 +419,25 @@ def country_edit(request, country_id):
     template = loader.get_template('countryEdit.html')
     context = {
         'title': "Edit Country",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def sessiontype_edit(request, sessiontype_id):
+    sessiontype = get_object_or_404(SessionType, pk=sessiontype_id)
+    if request.method == "POST":
+        form = SessionTypeForm(request.POST, instance=sessiontype)
+        if form.is_valid():
+            sessiontype = form.save()
+            return redirect('sessiontype_list')
+    else:
+        form = SessionTypeForm(instance=sessiontype)
+
+    template = loader.get_template('sessionTypeEdit.html')
+    context = {
+        'title': "Edit Session Type",
         'form': form,
     }
     return HttpResponse(template.render(context, request))

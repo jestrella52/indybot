@@ -53,6 +53,11 @@ urlpatterns = [
     url(r'^season/(?P<season_id>[0-9]+)/edit/$', views.season_edit, name='season_edit'),
     url(r'^season/(?P<season_id>[0-9]+)/delete/$', views.season_delete, name='season_delete'),
 
+    url(r'^sessiontype/list/$', views.sessiontype_list, name='sessiontype_list'),
+    url(r'^sessiontype/create/$', views.sessiontype_create, name='sessiontype_create'),
+    url(r'^sessiontype/(?P<sessiontype_id>[0-9]+)/edit/$', views.sessiontype_edit, name='sessiontype_edit'),
+    url(r'^sessiontype/(?P<sessiontype_id>[0-9]+)/delete/$', views.sessiontype_delete, name='sessiontype_delete'),
+
     url(r'^sidebar/update/$', views.sidebar_update, name='sidebar_update'),
 
     url(r'^start/list/$', views.start_list, name='start_list'),
