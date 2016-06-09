@@ -30,8 +30,8 @@ from celery.result import AsyncResult
 
 from manager.tasks import GenerateLiveriesTask, UpdateRedditSidebarTask, UploadLiveriesTask
 
-from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm, SessionTypeForm
-from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, SessionType, Start, Type
+from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, CountryForm, CourseForm, DriverForm, EventForm, PostForm, RaceForm, RedditAccountForm, SeasonForm, SessionForm, SessionTypeForm
+from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Session, SessionType, Start, Type
 
 
 # def logit(message):
@@ -439,6 +439,35 @@ def sessiontype_edit(request, sessiontype_id):
     context = {
         'title': "Edit Session Type",
         'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def session_edit(request, race_id):
+    SessionFormSet = formset_factory(SessionForm)
+
+    sessions = Session.objects.filter(race_id=race_id).order_by('starttime')
+    session_data = [{'type': s.type,
+                     'starttime': s.starttime,
+                     'endtime': s.endtime,
+                     'posttime': s.posttime,
+                     'post': s.post,}
+                    for s in sessions]
+
+    if request.method == "POST":
+        event_form = EventForm(request.POST, race_id=race_id)
+        session_formset = SessionFormSet(request.POST)
+
+    else:
+        event_form = EventForm(race_id=race_id)
+        session_formset = SessionFormSet(initial=session_data)
+
+    template = loader.get_template('eventSessionsEdit.html')
+    context = {
+        'title': "Edit Sessions",
+        'event_form': event_form,
+        'session_formset': session_formset,
     }
     return HttpResponse(template.render(context, request))
 

@@ -1,0 +1,41 @@
+{% extends "include/base.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+
+
+
+
+{% block content %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form method="POST">
+{% csrf_token %}
+
+{{ event_form.race_id }}
+
+{{ session_formset.management_form }}
+<div class="session-formset">
+{% for session_form in session_formset %}
+{% crispy session_form %}
+{% endfor %}
+</div>
+
+<hr>
+<input type="submit" value="Update Event" class="btn btn-success"/>
+<hr>
+</form>
+
+<script src="{% static 'js/jquery.formset.js' %}"></script>
+<script>
+    $('.session-formset').formset({
+        addText: 'Add Session',
+        addCssClass: 'btn btn-primary',
+        deleteText: '^-- Remove --^',
+        deleteCssClass: 'btn btn-danger',
+    });
+</script>
+
+{% endblock %}

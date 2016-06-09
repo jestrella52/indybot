@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^race/list/$', views.race_list, name='race_list'),
     url(r'^race/list/season/(?P<season>[0-9]+)$', views.race_list, name='race_list'),
     url(r'^race/(?P<pk>[0-9]+)/caution/edit/$', views.EditCautionsView.as_view(), name='caution_edit'),
+    url(r'^race/(?P<race_id>[0-9]+)/session/edit/$', views.session_edit, name='session_edit'),
     url(r'^race/create/$', views.race_create, name='race_create'),
     url(r'^race/(?P<race_id>[0-9]+)/edit/$', views.race_edit, name='race_edit'),
     url(r'^race/(?P<race_id>[0-9]+)/delete/$', views.race_delete, name='race_delete'),

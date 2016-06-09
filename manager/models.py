@@ -226,14 +226,19 @@ class SessionType(models.Model):
     class Meta:
         db_table = "sessiontype"
     def __str__(self):
-        return self.title
-#
-#
-# class Session(models.Model):
-#     type = models.ForeignKey(SessionType)
-#     race = models.ForeignKey(Race)
-#     starttime = models.DateTimeField(blank=False, null=False)
-#     endtime = models.DateTimeField(blank=False, null=False)
-#     posttime = models.DateTimeField(blank=True, null=True)
-#     tweettemplate = models.BooleanField(default=False)
-#     post = models.BooleanField(default=False)
+        return self.name
+
+
+class Session(models.Model):
+    type = models.ForeignKey(SessionType)
+    name = models.CharField(max_length=30)
+    race = models.ForeignKey(Race)
+    starttime = models.DateTimeField(blank=False, null=False)
+    endtime = models.DateTimeField(blank=False, null=False)
+    posttime = models.DateTimeField(blank=True, null=True)
+    post = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "session"
+    def __str__(self):
+        return self.name

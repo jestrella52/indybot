@@ -3,9 +3,9 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django.contrib.auth.models import User
 from django.forms.models import BaseInlineFormSet, inlineformset_factory, ModelForm
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, Row, Submit
-from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, PrependedText, TabHolder, Tab
-from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Season, SessionType
+from crispy_forms.layout import Fieldset, HTML, Layout, Row, Submit
+from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, PrependedText, StrictButton, TabHolder, Tab
+from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Season, Session, SessionType
 
 
 class BaseNestedModelForm(ModelForm):
@@ -60,6 +60,47 @@ class CautionForm(forms.ModelForm):
     class Meta:
         model = Caution
         fields = ('startLap', 'endLap', 'reason', 'description')
+
+
+class EventForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.race_id = kwargs.pop('race_id', None)
+        super(EventForm, self).__init__(*args, **kwargs)
+
+        self.fields['race_id'] = forms.IntegerField(initial=self.race_id,
+                                                    widget=forms.HiddenInput())
+
+
+class SessionForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(SessionForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-horizontal'
+
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Div(Field('type', autofocus=True), css_class="col-md-3"),
+                    Div(Field('name'), css_class="col-md-6"),
+                    Div(PrependedText('post', ''), css_class="col-md-1"),
+                css_class="row"),
+                Div(
+                    Div(Field('starttime'), css_class="col-md-3"),
+                    Div(Field('endtime'), css_class="col-md-3"),
+                    Div(Field('posttime'), css_class="col-md-3"),
+                    Div(HTML("""<div class="form-group"><label class="control-label">&nbsp;</label><div class="controls"><a class="btn btn-danger" href="javascript:void(0)"><strong>X</strong></a></div></div>"""), align="right", css_class="col-md-3"),
+                css_class="row"),
+            css_class="well well-lg")
+        )
+    class Meta:
+        model = Session
+        fields = ('type', 'name', 'starttime', 'endtime', 'posttime', 'post')
+        labels = {
+            'starttime': "Start Time",
+            'endtime': "End Time",
+            'posttime': "Post Time",
+            'post': "Post?",
+        }
 
 
 class CautionDriverForm(forms.ModelForm):

@@ -14,11 +14,12 @@
             <th>#</th>
             {% endif %}
             <th>Title</th>
-            <th>Practice</th>
-            <th>Race</th>
+            <!-- <th>Practice</th> -->
+            <th>Broadcast</th>
             <!-- <th>Green</th> -->
-            <th>Post-race</th>
+            <!-- <th>Post-race</th> -->
             <th>TV</th>
+            <th>Sched</th>
             <th>Qual</th>
             <th>Finish</th>
             <th>FCY</th>
@@ -30,7 +31,7 @@
             <td>{{forloop.counter}}</td>
             {% endif %}
             <td><a href="{{ race.url }}">{{ race.season }} {{ race.title }}</a></td>
-            <td>
+            <!-- <td>
                 {% if race.practice %}
                     {% if race.subpractice %}<font color="#bbbbbb">{% endif %}
                     {% if race.practice|date:"H:i:s" == "23:59:59" %}<font color="#FF0000">{% endif %}
@@ -40,7 +41,7 @@
                     {% if race.practice|date:"H:i:s" == "23:59:59" %}</font>{% endif %}
                     {% if race.subpractice %}</font>{% endif %}
                 {% endif %}
-            </td>
+            </td> -->
             <td>
                 {% if race.coverage %}
                     {% if race.submission %}<font color="#bbbbbb">{% endif %}
@@ -57,7 +58,7 @@
                     {% if race.submission %}</font>{% endif %}
                 {% endif %}
             </td> -->
-            <td>
+            <!-- <td>
                 {% if race.endcoverage %}
                     {% if race.subpostrace %}<font color="#bbbbbb">{% endif %}
                     {% if race.endcoverage|date:"H:i:s" == "23:59:59" %}<font color="#FF0000">{% endif %}
@@ -67,8 +68,13 @@
                     {% if race.endcoverage|date:"H:i:s" == "23:59:59" %}</font>{% endif %}
                     {% if race.subpostrace %}</font>{% endif %}
                 {% endif %}
-            </td>
+            </td> -->
             <td>{{ race.channel }}</td>
+            <td align="center">
+                <a href="/race/{{race.id}}/session/edit">
+                    <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+                </a>
+            </td>
             <td align="center">
                 <a href="/results/edit/{{race.id}}/1">
                     <span class="glyphicon glyphicon-time" {{ race.qualResultStyle | safe }} aria-hidden="true"></span>
