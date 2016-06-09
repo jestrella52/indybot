@@ -55,26 +55,23 @@
             insertDeleteLink = function(row) {
                 var delCssSelector = $.trim(options.deleteCssClass).replace(/\s+/g, '.'),
                     addCssSelector = $.trim(options.addCssClass).replace(/\s+/g, '.');
-                if (row.is('TR')) {
-                    console.log("TR")
-                    // If the forms are laid out in table rows, insert
-                    // the remove button into the last table cell:
-                    row.children(':last').append('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
-                } else if (row.is('UL') || row.is('OL')) {
-                    console.log("ULOL")
-                    // If they're laid out as an ordered/unordered list,
-                    // insert an <li> after the last list item:
-                    row.append('<li><a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a></li>');
-                } else if (row.is('DIV')) {
-                    console.log("DIV")
-                    console.log(row)
-                    // row.append('<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText + '</a>');
-                } else {
-                    console.log("ELSE")
-                    // Otherwise, just insert the remove button as the
-                    // last child element of the form's container:
-                    row.append('<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>');
-                }
+                // if (row.is('TR')) {
+                //     // If the forms are laid out in table rows, insert
+                //     // the remove button into the last table cell:
+                //     row.children(':last').append('<a class="' + options.deleteCssClass +'" href="javascript:void(0)">' + options.deleteText + '</a>');
+                // } else if (row.is('UL') || row.is('OL')) {
+                //     // If they're laid out as an ordered/unordered list,
+                //     // insert an <li> after the last list item:
+                //     row.append('<li><a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a></li>');
+                // } else if (row.is('DIV')) {
+                //     console.log("DIV")
+                //     // row.append('<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText + '</a>');
+                // } else {
+                //     console.log("ELSE")
+                //     // Otherwise, just insert the remove button as the
+                //     // last child element of the form's container:
+                //     row.append('<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>');
+                // }
                 // Check if we're under the minimum number of forms - not to display delete link at rendering
                 if (!showDeleteLinks()){
                     row.find('a.' + delCssSelector).hide();
