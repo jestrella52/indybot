@@ -59,6 +59,11 @@ urlpatterns = [
 
     url(r'^task/(?P<task_id>[0-9a-f\-]+)/status/', views.task, name='task'),
 
+    url(r'^tweet/list/$', views.tweet_list, name='tweet_list'),
+    url(r'^tweet/create/$', views.tweet_create, name='tweet_create'),
+    url(r'^tweet/(?P<tweet_id>[0-9]+)/edit/$', views.tweet_edit, name='tweet_edit'),
+    url(r'^tweet/(?P<tweet_id>[0-9]+)/delete/$', views.tweet_delete, name='tweet_delete'),
+
     url(r'^type/list/$', views.type_list, name='type_list'),
 
     url(r'^post/list/$', views.post_list, name='post_list'),

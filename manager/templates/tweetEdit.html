@@ -1,0 +1,45 @@
+{% extends "include/base.html" %}
+{% load staticfiles %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form method="POST" class="tweet-form">
+{% csrf_token %}
+{% crispy form %}
+</form>
+
+<script src="{% static 'js/moment.js' %}"></script>
+<script src="{% static 'js/bootstrap-datetimepicker.js' %}"></script>
+<!-- <form method="POST" class="tweet-form">
+    {% csrf_token %}
+    <div class="form-group row">
+        <label class="form-control-label col-md-2">Post Title:</label>
+        <div class = "col-md-10">{{ form.title }}</div>
+    </div>
+    <div class="form-group row">
+        <label class="form-control-label col-md-2">Post Body:</label>
+        <div class = "col-md-10">{{ form.body }}</div>
+    </div>
+    <div class="form-group row">
+        <label class="form-control-label col-md-2">Publish At:<br>(ex: 2016-05-27 16:30)<br>Eastern Time</label>
+        <div class = "col-md-4">{{ form.publish_time }}</div>
+    </div>
+    <div class="form-group row">
+        <label class="form-control-label col-md-2">Sticky this post?</label>
+        <div class = "col-md-4">{{ form.sticky }}</div>
+    </div>
+    {% if user.is_staff %}
+    <div class="form-group row">
+        <label class="form-control-label col-md-2">Author:</label>
+        <div class = "col-md-4">{{ form.author }}</div>
+    </div>
+    {% endif %}
+    <input type="submit" value="Submit" class="save btn btn-default"/>
+</form> -->
+{% endblock %}

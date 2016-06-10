@@ -218,3 +218,13 @@ class Post(models.Model):
         db_table = "post"
     def __str__(self):
         return self.title
+
+class Tweet(models.Model):
+    text = models.CharField(max_length=140)
+    author = models.ForeignKey(RedditAccount)
+    publish_time = models.DateTimeField()
+
+    class Meta:
+        db_table = "tweet"
+    def __str__(self):
+        return self.text

@@ -5,7 +5,9 @@ from django.forms.models import BaseInlineFormSet, inlineformset_factory, ModelF
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Row, Submit
 from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, PrependedText, TabHolder, Tab
-from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Season
+
+from .models import Caution, CautionDriver, CautionReason, Country, Course
+from .models import Driver, Post, Race, RedditAccount, Season, Tweet
 
 
 class BaseNestedModelForm(ModelForm):
@@ -283,6 +285,21 @@ class RedditAccountForm(forms.ModelForm):
     class Meta:
         model = RedditAccount
         fields = ('handle', 'owner')
+
+
+class TweetForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(TweetForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-horizontal'
+        self.helper.add_input(Submit('submit', 'Submit'))
+
+    class Meta:
+        model = Tweet
+        fields = ('text', 'publish_time')
+        widgets = {
+            'publish_time': DateTimePicker(options={"format": "YYYY-MM-DD HH:mm:ss"})
+        }
 
 
 class PostForm(forms.ModelForm):

@@ -28,10 +28,16 @@ from django_slack import slack_message
 from celery import states
 from celery.result import AsyncResult
 
-from manager.tasks import GenerateLiveriesTask, UpdateRedditSidebarTask, UploadLiveriesTask
+from manager.tasks import GenerateLiveriesTask, UpdateRedditSidebarTask
+from manager.tasks import UploadLiveriesTask
 
-from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, CountryForm, CourseForm, DriverForm, PostForm, RaceForm, RedditAccountForm, SeasonForm
-from .models import Caution, CautionDriver, CautionReason, Country, Course, Driver, Post, Race, RedditAccount, Result, ResultType, Season, Start, Type
+from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm
+from .forms import CountryForm, CourseForm, DriverForm, PostForm, RaceForm
+from .forms import RedditAccountForm, SeasonForm, TweetForm
+
+from .models import Caution, CautionDriver, CautionReason, Country, Course
+from .models import Driver, Post, Race, RedditAccount, Result, ResultType
+from .models import Season, Start, Tweet, Type
 
 
 # def logit(message):
@@ -538,6 +544,67 @@ def driver_create(request):
         'form': form,
     }
     return HttpResponse(template.render(context, request))
+
+
+@login_required
+def tweet_list(request):
+    tweetList = Tweet.objects.order_by('publish_time')
+    template = loader.get_template('tweetList.html')
+    context = {
+        'tweetList': tweetList,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def tweet_create(request):
+    author = get_object_or_404(RedditAccount, owner_id=request.user.id)
+    if request.method == "POST":
+        form = TweetForm(request.POST, initial={'author': author.id})
+        if form.is_valid():
+            tweet = form.save(commit=False)
+            tweet.author = author
+            tweet = form.save()
+            return redirect('tweet_list')
+    else:
+        form = TweetForm()
+
+    template = loader.get_template('tweetEdit.html')
+    context = {
+        'title': "New Tweet",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def tweet_edit(request, tweet_id):
+    tweet = get_object_or_404(Tweet, pk=tweet_id)
+    if request.method == "POST":
+        form = TweetForm(request.POST, instance=tweet)
+        if form.is_valid():
+            tweet = form.save()
+            return redirect('tweet_list')
+    else:
+        form = TweetForm(instance=tweet)
+
+    template = loader.get_template('tweetEdit.html')
+    context = {
+        'title': "Edit Tweet",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@staff_member_required
+def tweet_delete(request, tweet_id):
+    try:
+        tweet = Tweet.objects.get(id=tweet_id)
+        tweet.delete()
+        return redirect('/tweet/list')
+    except:
+        noop = ""
+
 
 
 @staff_member_required
