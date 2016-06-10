@@ -76,6 +76,9 @@ class SessionForm(forms.ModelForm):
         super(SessionForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-horizontal'
+        self.fields['starttime'].widget = DateTimePicker(options={"format": "ddd, MMM Do, h:mm a"})
+        self.fields['endtime'].widget   = DateTimePicker(options={"format": "ddd, MMM Do, h:mm a"})
+        self.fields['posttime'].widget  = DateTimePicker(options={"format": "ddd, MMM Do, h:mm a"})
 
         self.helper.layout = Layout(
             Div(
