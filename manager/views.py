@@ -39,11 +39,9 @@ from .models import Caution, CautionDriver, CautionReason, Country, Course
 from .models import Driver, Post, Race, RedditAccount, Result, ResultType
 from .models import Season, Start, Tweet, Type
 
+from .social import removeTweet
 
-# def logit(message):
-#     with open("/tmp/bot.log", "a") as myfile:
-#         myfile.write(message)
-
+from .support import logit
 
 def nestedformset_factory(parent_model, model, nested_formset,
                           form=BaseNestedModelForm,
@@ -548,7 +546,7 @@ def driver_create(request):
 
 @login_required
 def tweet_list(request):
-    tweetList = Tweet.objects.order_by('publish_time')
+    tweetList = Tweet.objects.order_by('-publish_time')
     template = loader.get_template('tweetList.html')
     context = {
         'tweetList': tweetList,
@@ -600,10 +598,16 @@ def tweet_edit(request, tweet_id):
 def tweet_delete(request, tweet_id):
     try:
         tweet = Tweet.objects.get(id=tweet_id)
-        tweet.delete()
-        return redirect('/tweet/list')
-    except:
-        noop = ""
+        if tweet.tid:
+            if removeTweet(str(tweet.tid)):
+                tweet.deleted = True
+                tweet.save()
+        else:
+            tweet.delete()
+
+        return redirect('tweet_list')
+    except Exception as e:
+        logit(str(e))
 
 
 

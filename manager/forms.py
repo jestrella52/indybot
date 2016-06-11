@@ -3,8 +3,9 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django.contrib.auth.models import User
 from django.forms.models import BaseInlineFormSet, inlineformset_factory, ModelForm
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, Row, Submit
-from crispy_forms.bootstrap import Alert, AppendedText, Div, Field, PrependedText, TabHolder, Tab
+from crispy_forms.layout import Fieldset, HTML, Layout, Row, Submit
+from crispy_forms.bootstrap import Alert, AppendedText, Div, Field
+from crispy_forms.bootstrap import PrependedText, StrictButton, TabHolder, Tab
 
 from .models import Caution, CautionDriver, CautionReason, Country, Course
 from .models import Driver, Post, Race, RedditAccount, Season, Tweet
@@ -292,11 +293,27 @@ class TweetForm(forms.ModelForm):
         super(TweetForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-horizontal'
-        self.helper.add_input(Submit('submit', 'Submit'))
+
+        self.helper.layout = Layout(
+            Div(
+                Div(AppendedText('text', "0", autofocus=True), css_class="col-md-12"),
+                css_class="row"
+            ),
+            Div(
+                Div(Field('publish_time'), css_class="col-md-4"),
+                Div(HTML("""<div class="form-group"><label class="control-label">&nbsp;</label><div class="controls"><a class="btn btn-primary btn-now col-md-1" href="javascript:void(0)">Now</a></div></div>""")),
+                css_class="row"
+            ),
+            Submit('submit', u'Submit', css_class='btn btn-success'),
+        )
 
     class Meta:
         model = Tweet
         fields = ('text', 'publish_time')
+        labels = {
+            'text': "Tweet Text",
+            'publish_time': "Publish At",
+        }
         widgets = {
             'publish_time': DateTimePicker(options={"format": "YYYY-MM-DD HH:mm:ss"})
         }

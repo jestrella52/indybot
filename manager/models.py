@@ -223,7 +223,9 @@ class Tweet(models.Model):
     text = models.CharField(max_length=140)
     author = models.ForeignKey(RedditAccount)
     publish_time = models.DateTimeField()
-
+    tid = models.BigIntegerField(blank=True, null=True)
+    deleted = models.BooleanField(default=False)
+    
     class Meta:
         db_table = "tweet"
     def __str__(self):
