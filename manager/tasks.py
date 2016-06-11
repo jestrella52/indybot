@@ -52,6 +52,11 @@ if settings.INDYBOT_ENV == "PROD":
                 'schedule': crontab(hour='4', minute='30'),
                 'kwargs': {'stamp': str(time.time())},
             },
+            'check-tweets': {
+                'task': 'manager.tasks.TweetTask',
+                'schedule': datetime.timedelta(seconds=30),
+                'kwargs': {'stamp': str(time.time())},
+            },
         }
     )
 if settings.INDYBOT_ENV == "DEVEL":
