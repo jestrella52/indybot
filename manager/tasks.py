@@ -1,5 +1,6 @@
 import datetime
 import requests
+import twitter
 import pycurl
 import shutil
 import django
@@ -24,7 +25,7 @@ from django_slack import slack_message
 
 from jobtastic import JobtasticTask
 
-from .models import Country, Driver, Post, Race, RedditAccount
+from .models import Country, Driver, Post, Race, RedditAccount, Tweet
 
 celery = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
 
@@ -51,9 +52,23 @@ if settings.INDYBOT_ENV == "PROD":
                 'schedule': crontab(hour='4', minute='30'),
                 'kwargs': {'stamp': str(time.time())},
             },
+            'check-tweets': {
+                'task': 'manager.tasks.TweetTask',
+                'schedule': datetime.timedelta(seconds=30),
+                'kwargs': {'stamp': str(time.time())},
+            },
         }
     )
-
+if settings.INDYBOT_ENV == "DEVEL":
+    celery.conf.update(
+        CELERYBEAT_SCHEDULE = {
+            'check-tweets': {
+                'task': 'manager.tasks.TweetTask',
+                'schedule': datetime.timedelta(seconds=30),
+                'kwargs': {'stamp': str(time.time())},
+            }
+        }
+    )
 
 posterCredits  = "***\n\nIndyBot submitted this post on behalf of /u/"
 indybotCredits = "***\n\n^(Questions, comments, or hate mail regarding IndyBot should be directed to /u/BadgerBalls.)\n"
@@ -67,6 +82,39 @@ def logit(message):
 def bumpLog():
     with open("/tmp/bot.log", "a") as myfile:
         myfile.write("\n\n")
+
+
+class TweetTask(JobtasticTask):
+    herd_avoidance_timeout = 20
+    cache_duration = 0
+
+    significant_kwargs = [
+        ('stamp', str),
+    ]
+
+    def calculate_result(self, stamp, **kwargs):
+        tweets = Tweet.objects.filter(tid=None).filter(Q(publish_time__lte=timezone.now()))
+
+        if len(tweets) > 0:
+            logit(str(len(tweets)) + " tweets in queue")
+            api = twitter.Api(consumer_key=settings.TWITTER_CONSUMER_KEY,
+                              consumer_secret=settings.TWITTER_CONSUMER_SECRET,
+                              access_token_key=settings.TWITTER_ACCESS_TOKEN_KEY,
+                              access_token_secret=settings.TWITTER_ACCESS_TOKEN_SECRET)
+            #TODO : Verify that we've successfully logged in.
+            try:
+                api.VerifyCredentials()
+
+                for tweet in tweets:
+                    status = api.PostUpdate(tweet.text)
+                    logit("STATUS: " + str(status))
+                    tweet.tid = status.id
+                    tweet.save()
+            except:
+                logit("TWITTER LOGIN FAILED")
+
+        self.update_progress(100, 100)
+        return 1
 
 
 class RedditPostsTask(JobtasticTask):

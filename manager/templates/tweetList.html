@@ -1,0 +1,44 @@
+{% extends "include/base.html" %}
+
+{% block title %}All Tweets{% endblock %}
+
+{% block content %}
+
+{% if tweetList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>Author</th>
+            <th>Publish Time</th>
+            <th>Text</th>
+            <th>Twitter ID</th>
+            <th>Actions</th>
+        </tr>
+        {% for tweet in tweetList %}
+        <tr>
+            <td>{{ tweet.author }}</td>
+            <td>{{ tweet.publish_time }}</td>
+            <td>
+                {% if tweet.deleted %}<strike><span style="color:grey">{% endif %}
+                    {{ tweet.text }}
+                {% if tweet.deleted %}</strike></span>{% endif %}
+            </td>
+            <td>
+                {% if tweet.deleted %}<strike><span style="color:grey">{% endif %}
+                    <a href="https://twitter.com/statuses/{{tweet.tid}}">{{ tweet.tid }}</a>
+                {% if tweet.deleted %}</strike></span>{% endif %}
+            </td>
+            <td>
+                {% if not tweet.deleted %}
+                    {% if not tweet.tid %}
+                    <a class="btn btn-xs btn-info" href="/tweet/{{tweet.id}}/edit">Edit</a>
+                    {% endif %}
+                    <a class="btn btn-xs btn-danger" href="/tweet/{{tweet.id}}/delete">Delete</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No tweets created.</p>
+{% endif %}
+{% endblock %}

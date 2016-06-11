@@ -1,0 +1,39 @@
+{% extends "include/base.html" %}
+{% load staticfiles %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form method="POST" class="tweet-form">
+{% csrf_token %}
+{% crispy form %}
+</form>
+
+<script src="{% static 'js/moment.js' %}"></script>
+<script src="{% static 'js/bootstrap-datetimepicker.js' %}"></script>
+<script>
+    $('#id_text').keyup(updateCount);
+    $('#id_text').keydown(updateCount);
+    $('.btn-now').click(updatePicker);
+
+    function updateCount() {
+        var cs = $(this).val().length;
+        if (cs > 140) {
+            cs = 140 - $cs
+        }
+        $('.input-group-addon').first().text(cs);
+    }
+
+    function updatePicker() {
+        var now = (new Date()).toISOString().substring(0, 19).replace('T', ' ');
+        console.log($('input[name=publish_time]').val());
+        $('input[name=publish_time]').val(moment().format('YYYY-MM-DD HH:mm:ss'));
+    }
+</script>
+
+{% endblock %}
