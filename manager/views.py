@@ -9,6 +9,7 @@ import os
 
 from PIL import Image
 
+from django.db import IntegrityError, transaction
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
@@ -487,21 +488,61 @@ def sessiontype_edit(request, sessiontype_id):
 
 @login_required
 def session_edit(request, race_id):
-    SessionFormSet = formset_factory(SessionForm)
 
     sessions = Session.objects.filter(race_id=race_id).order_by('starttime')
     session_data = [{'type': s.type,
+                     'name': s.name,
                      'starttime': s.starttime,
                      'endtime': s.endtime,
                      'posttime': s.posttime,
-                     'post': s.post,}
+                     'channel': s.channel,
+                     'tvstarttime': s.tvstarttime,
+                     'tvendtime': s.tvendtime,
+                     }
                     for s in sessions]
 
     if request.method == "POST":
+        SessionFormSet = formset_factory(SessionForm, extra=0)
         event_form = EventForm(request.POST, race_id=race_id)
         session_formset = SessionFormSet(request.POST)
 
+        if event_form.is_valid() and session_formset.is_valid():
+            new_sessions = []
+
+            for session_form in session_formset:
+                session_type      = session_form.cleaned_data.get('type')
+                session_name      = session_form.cleaned_data.get('name')
+                session_startTime = session_form.cleaned_data.get('starttime')
+                session_endTime   = session_form.cleaned_data.get('endtime')
+                session_postTime  = session_form.cleaned_data.get('posttime')
+                session_channel   = session_form.cleaned_data.get('channel')
+                session_tvStartTime = session_form.cleaned_data.get('tvstarttime')
+                session_tvEndTime   = session_form.cleaned_data.get('tvendtime')
+
+                if race_id and session_type and session_name and session_startTime and session_endTime:
+                    new_sessions.append(Session(race_id=race_id,
+                                                type=session_type,
+                                                name=session_name,
+                                                starttime=session_startTime,
+                                                endtime=session_endTime,
+                                                posttime=session_postTime,
+                                                channel=session_channel,
+                                                tvstarttime=session_tvStartTime,
+                                                tvendtime=session_tvEndTime
+                                                ))
+                try:
+                    with transaction.atomic():
+                        Session.objects.filter(race_id=race_id).delete()
+                        Session.objects.bulk_create(new_sessions)
+
+                        # messages.success(request, "Sessions updated.")
+                except IntegrityError as e:
+                    logit(str(e))
+                    # messages.error(request, "Error saving sessions.")
+                    return redirect(reverse('session_edit', race_id=race_id))
+
     else:
+        SessionFormSet = formset_factory(SessionForm, extra=1)
         event_form = EventForm(race_id=race_id)
         session_formset = SessionFormSet(initial=session_data)
 

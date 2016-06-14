@@ -81,39 +81,53 @@ class EventForm(forms.Form):
         self.fields['race_id'] = forms.IntegerField(initial=self.race_id,
                                                     widget=forms.HiddenInput())
 
+        # self.helper = FormHelper(self)
+        # self.helper.layout=Layout(
+        #     Submit('submit', u'Submit', css_class='btn btn-xxx btn-success'),
+        # )
+
 
 class SessionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SessionForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-horizontal'
-        self.fields['starttime'].widget = DateTimePicker(options={"format": "ddd, MMM Do, h:mm a"})
-        self.fields['endtime'].widget   = DateTimePicker(options={"format": "ddd, MMM Do, h:mm a"})
-        self.fields['posttime'].widget  = DateTimePicker(options={"format": "ddd, MMM Do, h:mm a"})
+        self.helper.form_tag = False
+
+        # self.fields['starttime'].widget = DateTimePicker(options={"format": "YYYY-MM-DD HH:mm"})
+        # self.fields['endtime'].widget   = DateTimePicker(options={"format": "YYYY-MM-DD HH:mm"})
+        # self.fields['posttime'].widget  = DateTimePicker(options={"format": "YYYY-MM-DD HH:mm"})
 
         self.helper.layout = Layout(
             Div(
                 Div(
                     Div(Field('type', autofocus=True), css_class="col-md-3"),
-                    Div(Field('name'), css_class="col-md-6"),
-                    Div(PrependedText('post', ''), css_class="col-md-1"),
+                    Div(Field('name'), css_class="col-md-3"),
+                    Div(Field('posttime', placeholder="YYYY-MM-DD HH:MM"), css_class="col-md-3"),
+                    Div(Field('channel'), css_class="col-md-2"),
+                    # Div(PrependedText('post', ''), css_class="col-md-1"),
+                    Div(HTML("""<div class="form-group"><label class="control-label">&nbsp;</label><div class="controls"><a class="btn btn-danger" href="javascript:void(0)"><strong>X</strong></a></div></div>"""), align="right", css_class="col-md-1"),
                 css_class="row"),
                 Div(
-                    Div(Field('starttime'), css_class="col-md-3"),
-                    Div(Field('endtime'), css_class="col-md-3"),
-                    Div(Field('posttime'), css_class="col-md-3"),
-                    Div(HTML("""<div class="form-group"><label class="control-label">&nbsp;</label><div class="controls"><a class="btn btn-danger" href="javascript:void(0)"><strong>X</strong></a></div></div>"""), align="right", css_class="col-md-3"),
+                    Div(Field('starttime', placeholder="YYYY-MM-DD HH:MM"), css_class="col-md-3"),
+                    Div(Field('endtime', placeholder="YYYY-MM-DD HH:MM"), css_class="col-md-3"),
+                    Div(Field('tvstarttime', placeholder="YYYY-MM-DD HH:MM"), css_class="col-md-3"),
+                    Div(Field('tvendtime', placeholder="YYYY-MM-DD HH:MM"), css_class="col-md-3"),
+                    # Div(Field('starttime'), css_class="col-md-4"),
+                    # Div(Field('endtime'), css_class="col-md-4"),
+                    # Div(Field('posttime'), css_class="col-md-4"),
                 css_class="row"),
-            css_class="well well-lg")
+            css_class="well well-lg session-form")
         )
     class Meta:
         model = Session
-        fields = ('type', 'name', 'starttime', 'endtime', 'posttime', 'post')
+        fields = ('type', 'name', 'starttime', 'endtime', 'channel', 'posttime', 'tvstarttime', 'tvendtime')
         labels = {
             'starttime': "Start Time",
             'endtime': "End Time",
             'posttime': "Post Time",
-            'post': "Post?",
+            'tvstarttime': "TV Broadcast Start",
+            'tvendtime': "TV Broadcast End",
         }
 
 

@@ -245,8 +245,9 @@ class Session(models.Model):
     starttime = models.DateTimeField(blank=False, null=False)
     endtime = models.DateTimeField(blank=False, null=False)
     posttime = models.DateTimeField(blank=True, null=True)
-    post = models.BooleanField(default=False)
-    channel = models.ForeignKey(Channel, null=True)
+    channel = models.ForeignKey(Channel, blank=True, null=True)
+    tvstarttime = models.DateTimeField(blank=True, null=True)
+    tvendtime = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         db_table = "session"
@@ -259,7 +260,7 @@ class Tweet(models.Model):
     publish_time = models.DateTimeField()
     tid = models.BigIntegerField(blank=True, null=True)
     deleted = models.BooleanField(default=False)
-    
+
     class Meta:
         db_table = "tweet"
     def __str__(self):
