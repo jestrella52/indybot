@@ -1,0 +1,28 @@
+{% extends "include/base.html" %}
+
+{% block title %}All Channels{% endblock %}
+
+{% block content %}
+
+{% if channelList %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>Channel Name</th>
+            <th>Actions</th>
+        </tr>
+        {% for channel in channelList %}
+        <tr>
+            <td>{{ channel.name }}</td>
+            <td>
+                <a class="btn btn-xs btn-info" href="/channel/{{channel.id}}/edit">Edit</a>
+                <a class="btn btn-xs btn-danger" href="/channel/{{channel.id}}/delete">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No channels created.</p>
+{% endif %}
+    <a class="btn btn-success" href="/channel/create">New Channel</a>
+    <p>
+{% endblock %}

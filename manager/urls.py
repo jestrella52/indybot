@@ -10,6 +10,11 @@ urlpatterns = [
     url(r'^caution/(?P<caution_id>[0-9]+)/race/(?P<race_id>[0-9]+)/delete$', views.caution_delete, name='caution_delete'),
     url(r'^cautiondriver/(?P<cautiondriver_id>[0-9]+)/race/(?P<race_id>[0-9]+)/delete$', views.cautiondriver_delete, name='cautiondriver_delete'),
 
+    url(r'^channel/list/$', views.channel_list, name='channel_list'),
+    url(r'^channel/create/$', views.channel_create, name='channel_create'),
+    url(r'^channel/(?P<channel_id>[0-9]+)/edit/$', views.channel_edit, name='channel_edit'),
+    url(r'^channel/(?P<channel_id>[0-9]+)/delete/$', views.channel_delete, name='channel_delete'),
+
     url(r'^circuit/list/$', views.circuit_list, name='circuit_list'),
     url(r'^circuit/create/$', views.circuit_create, name='circuit_create'),
     url(r'^circuit/(?P<circuit_id>[0-9]+)/edit/$', views.circuit_edit, name='circuit_edit'),

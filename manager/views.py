@@ -31,12 +31,12 @@ from celery.result import AsyncResult
 from manager.tasks import GenerateLiveriesTask, UpdateRedditSidebarTask
 from manager.tasks import UploadLiveriesTask
 
-from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm
+from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, ChannelForm
 from .forms import CountryForm, CourseForm, DriverForm, EventForm, PostForm, RaceForm
 from .forms import RedditAccountForm, SeasonForm, SessionForm, SessionTypeForm, TweetForm
 
-from .models import Caution, CautionDriver, CautionReason, Country, Course
-from .models import Driver, Post, Race, RedditAccount, Result, ResultType
+from .models import Caution, CautionDriver, CautionReason, Channel, Country
+from .models import Course, Driver, Post, Race, RedditAccount, Result, ResultType
 from .models import Season, Session, SessionType, Start, Tweet, Type
 
 from .social import removeTweet
@@ -195,6 +195,16 @@ def country_list(request):
 
 
 @login_required
+def channel_list(request):
+    channelList = Channel.objects.order_by('name')
+    template = loader.get_template('channelList.html')
+    context = {
+        'channelList': channelList,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def season_list(request):
 	seasonList = Season.objects.order_by('year')
 	template = loader.get_template('seasonList.html')
@@ -283,6 +293,24 @@ def country_create(request):
     template = loader.get_template('countryEdit.html')
     context = {
         'title': "New Country",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def channel_create(request):
+    if request.method == "POST":
+        form = ChannelForm(request.POST)
+        if form.is_valid():
+            channel = form.save()
+            return redirect('channel_list')
+    else:
+        form = ChannelForm()
+
+    template = loader.get_template('channelEdit.html')
+    context = {
+        'title': "New Channel",
         'form': form,
     }
     return HttpResponse(template.render(context, request))
@@ -400,6 +428,16 @@ def sessiontype_delete(request, sessiontype_id):
 
 
 @login_required
+def channel_delete(request, channel_id):
+    try:
+        channel = Channel.objects.get(id=channel_id)
+        channel.delete()
+        return redirect('channel_list')
+    except:
+        noop = ""
+
+
+@login_required
 def season_delete(request, season_id):
     try:
         season = Season.objects.get(id=season_id)
@@ -490,6 +528,25 @@ def season_edit(request, season_id):
     template = loader.get_template('seasonEdit.html')
     context = {
         'title': "Edit Season",
+        'form': form,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def channel_edit(request, channel_id):
+    channel = get_object_or_404(Channel, pk=channel_id)
+    if request.method == "POST":
+        form = ChannelForm(request.POST, instance=channel)
+        if form.is_valid():
+            channel = form.save()
+            return redirect('channel_list')
+    else:
+        form = ChannelForm(instance=channel)
+
+    template = loader.get_template('channelEdit.html')
+    context = {
+        'title': "Edit Channel",
         'form': form,
     }
     return HttpResponse(template.render(context, request))

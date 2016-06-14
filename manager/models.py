@@ -229,6 +229,15 @@ class SessionType(models.Model):
         return self.name
 
 
+class Channel(models.Model):
+    name = models.CharField(max_length=20)
+
+    class Meta:
+        db_table = "channel"
+    def __str__(self):
+        return self.name
+
+
 class Session(models.Model):
     type = models.ForeignKey(SessionType)
     name = models.CharField(max_length=30)
@@ -237,6 +246,7 @@ class Session(models.Model):
     endtime = models.DateTimeField(blank=False, null=False)
     posttime = models.DateTimeField(blank=True, null=True)
     post = models.BooleanField(default=False)
+    channel = models.ForeignKey(Channel, null=True)
 
     class Meta:
         db_table = "session"

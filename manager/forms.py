@@ -8,8 +8,9 @@ from crispy_forms.layout import Fieldset, HTML, Layout, Row, Submit
 from crispy_forms.bootstrap import Alert, AppendedText, Div, Field
 from crispy_forms.bootstrap import PrependedText, StrictButton, TabHolder, Tab
 
-from .models import Caution, CautionDriver, CautionReason, Country, Course
-from .models import Driver, Post, Race, RedditAccount, Season, Session, SessionType, Tweet
+from .models import Caution, CautionDriver, CautionReason, Channel, Country
+from .models import Course, Driver, Post, Race, RedditAccount, Season, Session
+from .models import SessionType, Tweet
 
 class BaseNestedModelForm(ModelForm):
 
@@ -56,6 +57,13 @@ class BaseNestedFormset(BaseInlineFormSet):
             form.nested.save(commit=commit)
 
         return result
+
+
+class ChannelForm(forms.ModelForm):
+
+    class Meta:
+        model = Channel
+        fields = ('name',)
 
 
 class CautionForm(forms.ModelForm):
