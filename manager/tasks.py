@@ -206,6 +206,29 @@ class UpdateRedditSidebarTask(JobtasticTask):
             #     myfile.write(message + "\n")
         self.update_progress(20, 100)
 
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        #
+        # BELOW CODE TAKEN FROM OLD INDYBOT SCRIPT.  USED FOR UPDATING 500 COUNTDOWN.
+        # NOT TESTED IN DJANGO VERSION, JUST HERE FOR MODIFICATION/REUSE NEXT YEAR.
+        #
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # query  = "SELECT race.coverage FROM race WHERE course_id = 1 AND "
+        # query += "green >= '" + datetime.datetime.now().strftime("%Y-%m-%d")
+        # query += " 00:00:00' ORDER BY coverage ASC LIMIT 1"
+        #
+        # indyCur = con.cursor()
+        # indyCur.execute(query)
+        # daysToIndy = (indyCur.fetchone()[0].date() - datetime.date.today()).days
+        #
+        # ## Update Indy 500 countdown
+        # if daysToIndy > 0:
+        #     countdownText = "### [" + str(daysToIndy) + " Days until the Indy 500!]"
+        # elif daysToIndy == 0:
+        #     countdownText = "### [Drivers, START YOUR ENGINES!]"
+        #
+        # sidebar = re.sub("### \[Drivers, START YOUR ENGINES!\]", countdownText, sidebar, flags=re.S)
+        # sidebar = re.sub("### \[\d+ Days until the Indy 500!\]", countdownText, sidebar, flags=re.S)
+
 
         for subreddit in subreddits:
             settings = r.get_settings(subreddit)
