@@ -36,6 +36,8 @@ urlpatterns = [
     url(r'^liveries/show/$', views.liveries_show, name='liveries_show'),
     url(r'^liveries/upload/$', views.liveries_upload, name='liveries_upload'),
 
+    url(r'^output/$', views.output, name='output'),
+
     url(r'^race/list/$', views.race_list, name='race_list'),
     url(r'^race/list/season/(?P<season>[0-9]+)$', views.race_list, name='race_list'),
     url(r'^race/(?P<pk>[0-9]+)/caution/edit/$', views.EditCautionsView.as_view(), name='caution_edit'),
@@ -43,6 +45,7 @@ urlpatterns = [
     url(r'^race/create/$', views.race_create, name='race_create'),
     url(r'^race/(?P<race_id>[0-9]+)/edit/$', views.race_edit, name='race_edit'),
     url(r'^race/(?P<race_id>[0-9]+)/delete/$', views.race_delete, name='race_delete'),
+    url(r'^race/(?P<race_id>[0-9]+)/thread/$', views.race_thread, name='race_thread'),
 
     url(r'^redditaccount/list/$', views.redditAccount_list, name='redditAccount_list'),
     url(r'^redditaccount/create/$', views.redditAccount_create, name='redditAccount_create'),

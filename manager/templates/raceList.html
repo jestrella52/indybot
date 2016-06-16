@@ -23,6 +23,7 @@
             <th>Qual</th>
             <th>Finish</th>
             <th>FCY</th>
+            <th>Thread</th>
             <th>Actions</th>
         </tr>
         {% for race in raceList %}
@@ -92,6 +93,11 @@
                     <span class="glyphicon glyphicon-exclamation-sign"></span>
                 </a>
                 {% endif %}
+            </td>
+            <td align=center>
+                <a href="/race/{{race.id}}/thread">
+                    <span class="glyphicon glyphicon-eye-open"></span>
+                </a>
             </td>
             <td>
                 <a class="btn btn-xs btn-info" href="/race/{{race.id}}/edit">Edit</a>

@@ -1,0 +1,25 @@
+{% extends "include/base.html" %}
+
+{% block title %}Output{% endblock %}
+
+{% block content %}
+
+{% if output %}
+
+<style>
+table, th, td {
+    border: 1px solid black;
+    padding: 5px;
+}
+table {
+    border-spacing: 15px;
+}
+</style>
+
+<pre>
+{{ output|safe }}
+</pre>
+{% else %}
+    <p>No output.</p>
+{% endif %}
+{% endblock %}

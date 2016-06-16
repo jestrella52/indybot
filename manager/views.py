@@ -44,6 +44,8 @@ from .social import removeTweet
 
 from .support import logit
 
+from .racethread import compile, raceInfo, winnerList
+
 def nestedformset_factory(parent_model, model, nested_formset,
                           form=BaseNestedModelForm,
                           formset=BaseNestedFormset, fk_name=None,
@@ -1044,6 +1046,28 @@ def liveries_regenerate(request):
         'task': "regenerate",
         'task_id': result.task_id,
         'message': "Regenerating Liveries Spritesheet..."
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def race_thread(request, race_id):
+    thread = compile(race_id, output="html")
+
+    template = loader.get_template('raceThread.html')
+    context = {
+        'thread': thread
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def output(request):
+    output = compile("55", output="reddit")
+
+    template = loader.get_template('output.html')
+    context = {
+        'output': output
     }
     return HttpResponse(template.render(context, request))
 
