@@ -5,6 +5,25 @@
 {% block content %}
 <h3><span class="label label-default">{{ resultTypeName }}</span> Results for {{ race.title }}</h3>
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<script>
+    function moveDown(event) {
+        mover = event.data.pos;
+
+        for (i = 33; i > mover; i--) {
+            sourceElement = "driver_pos_" + (i - 1)
+            destElement = "driver_pos_" + i
+            console.log("-----")
+            console.log("src: " + sourceElement + " --- dst: " + destElement)
+            console.log($(sourceElement))
+            $('select[name=' + destElement + ']').val($('select[name=' + sourceElement + ']').val())
+            $('select[name=' + sourceElement + ']').val(0)
+            // $('select[name=driver_pos_]')
+        }
+
+    }
+</script>
+
 <form action="{% url 'results_update' race.id resultTypeName.id %}" method="POST">
 {% csrf_token %}
 <table class="table table-striped table-bordered">
@@ -23,6 +42,10 @@
                     {% endif %}
                 {% endfor %}
             </select>
+            <span id="arrow_down_{{ position }}" class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
+            <script>
+                $('#arrow_down_{{position}}').click({pos: {{ position }}}, moveDown);
+            </script>
         </td>
     </tr>
     {% endfor %}
