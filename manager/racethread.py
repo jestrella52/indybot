@@ -11,6 +11,8 @@ from django.utils import timezone
 
 from .models import Caution, Course, Race, Result, ResultType, SessionType
 
+from .support import logit
+
 def sendMail(race, subreddit):
     msg = MIMEText("")
     msg['Subject'] = "Posted in " +subreddit + ": " + race
@@ -27,16 +29,163 @@ def compile(race_id, output="reddit"):
 
     thread += raceInfo(race_id, output)
     thread += courseInfo(race_id, output)
+    thread += grid(race_id, output)
     thread += winnerList(race_id, output)
+    thread += footer(output)
 
     return thread
 
 
 def link(url, text, output="reddit"):
+    logit("link output: " + output)
+    logit("link text: " + text)
     if output == "reddit":
         return "[" + text + "](" + url + ")"
     else:
         return "<a href=\"" + url + "\">" + text + "</a>"
+
+
+def footer(output="reddit"):
+    if output == "reddit":
+        hr = "***"      # Horizontal Rule
+        nl = "\n\n"     # New Line
+        ss = "^("       # Small Start
+        se = ")"        # Small End
+    else:
+        hr = "<hr>"
+        nl = "<br>"
+        ss = ""
+        se = ""
+
+    footer  = hr + "\nLive timing and scoring available at " + link("http://racecontrol.indycar.com", "Verizon IndyCar Series Race Control", output) + nl
+    footer += link("http://www.indycar.com/Drivers", "Current Driver Standings", output) + nl
+    footer += hr + nl + ss + "Questions, comments, or hate mail regarding IndyBot should be directed to /u/BadgerBalls." + se + "\n"
+
+    return footer
+
+
+def gridDriver(driver, output="reddit"):
+
+    fullName = driver.driver.first + " " + driver.driver.last
+    twitterURL = "https://twitter.com/" + driver.driver.twitter
+
+    nameplate = link(twitterURL, fullName, output)
+
+    try:
+        if (int(driver.driver.rookie) == int(datetime.date.today().year)):
+            nameplate += " (R)"
+    except Exception, e:
+        logit("Error: " + e.args[0])
+
+    nameplate += " " + link("/" + str(driver.driver.country.iso), "", output)
+
+    return nameplate
+
+
+def grid(race_id, output="reddit"):
+
+    race = Race.objects.get(pk=race_id)
+    rowsize = race.rowsize
+
+    entrant = []
+
+    qualTypeValue = ResultType.objects.get(name="Qualification")
+    driverList = Result.objects.select_related('driver__country').filter(race__id=race_id).filter(type_id=qualTypeValue).order_by('position')
+
+    # Abandon hope, ye who enter here.
+    tableRows = len(driverList) / rowsize
+    remainder = len(driverList) % rowsize
+
+    rows = tableRows + (1 if remainder > 0 else 0)
+
+    if output == "reddit":
+        bs = "**"
+        be = "**"
+        nl = "\n\n"
+        hr = "***"
+        rs = "|"
+        re = "|"
+        cs = "|"
+    else:
+        bs = "<strong>"
+        be = "</strong>"
+        nl = "<br>"
+        hr = "<hr>"
+        rs = "<tr><td>"
+        re = "</td></tr>"
+        cs = "</td><td>"
+
+    gridTable  = hr + "\n" + bs + "STARTING GRID" + be + nl
+
+    # TODO: This can be optimized.
+    if rowsize == 2:
+        if output == "reddit":
+            gridTable += "|Position|||Position|\n"
+            gridTable += "|:---:|:---:|:---:|:---:|\n"
+        else:
+            gridTable += "<table>\n"
+            gridTable += "<tr><th>Position</th><th></th><th></th><th>Position</th></tr>\n"
+    elif rowsize == 3:
+        if output == "reddit":
+            gridTable += "|Position||||Position|\n"
+            gridTable += "|:---:|:---:|:---:|:---:|:---:|\n"
+        else:
+            gridTable += "<table>\n"
+            gridTable += "<tr><th>Position</th><th></th><th></th><th></th><th>Position</th></tr>\n"
+
+    query  = "select driver.first, driver.last, drivercountry.iso, driver.twitter, driver.number, driver.rookie "
+
+    i = 0
+    while i < rows:
+        if rowsize == 2:
+            # Positions & Cars
+            gridTable += rs + bs + str(((i+1)*rowsize)-1)
+            gridTable += be + cs + link("/car" + str(driverList[((i+1)*rowsize)-2].driver.number), "", output)
+            try:
+                gridTable += cs + link("/car" + str(driverList[((i+1)*rowsize)-1].driver.number), "", output)
+            except IndexError, e:
+                gridTable += cs
+            gridTable += cs + bs + str((i+1)*rowsize) + be + re + "\n"
+
+            # Nameplate Line
+            gridTable += rs + cs + gridDriver(driverList[((i+1)*rowsize)-2], output)
+            try:
+                gridTable += cs + gridDriver(driverList[((i+1)*rowsize)-1], output)
+            except IndexError, e:
+                gridTable += cs
+            gridTable += cs + re + "\n"
+
+        elif rowsize == 3:
+            # Positions & Cars
+            gridTable += rs + bs + str(((i+1)*rowsize)-2)
+            gridTable += be + cs + link("/car" + str(driverList[((i+1)*rowsize)-3].driver.number), "", output)
+            try:
+                gridTable += cs + link("/car" + str(driverList[((i+1)*rowsize)-2].driver.number), "", output)
+            except IndexError, e:
+                gridTable += cs
+            try:
+                gridTable += cs + link("/car" + str(driverList[((i+1)*rowsize)-1].driver.number), "", output)
+            except IndexError, e:
+                gridTable += cs
+            gridTable += cs + bs + str((i+1)*rowsize) + be + re + "\n"
+
+            # Nameplate Line
+            gridTable += rs + cs + gridDriver(driverList[((i+1)*rowsize)-3], output)
+            try:
+                gridTable += cs + gridDriver(driverList[((i+1)*rowsize)-2], output)
+            except IndexError, e:
+                gridTable += cs
+            try:
+                gridTable += cs + gridDriver(driverList[((i+1)*rowsize)-1], output)
+            except IndexError, e:
+                gridTable += cs
+            gridTable += cs + re + "\n"
+        i = i + 1
+
+    if output != "reddit":
+        gridTable += "</table>"
+
+    return gridTable
 
 
 def courseInfo(race_id, output="reddit"):
@@ -80,36 +229,15 @@ def courseInfo(race_id, output="reddit"):
 
     courseTable += rs + "Length:" + cs + cs + str(course.length) + " miles" + re + "\n"
     courseTable += rs + "Type:" + cs + cs + course.type.type + re + "\n"
-    courseTable += rs + "Location:" + cs + cs + course.location + " [](/" + course.country.iso + ")" + re + "\n"
-    courseTable += rs + "Fast Lap:" + cs + cs + str(course.fastlap) + " mph by " + course.fastdriver.first + " " + course.fastdriver.last + " [](/" + course.fastdriver.country.iso + ") in " + str(course.fastyear) + re + "\n"
+    courseTable += rs + "Location:" + cs + cs + course.location + " " + link("/" + course.country.iso, "", output) + re + "\n"
+    courseTable += rs + "Fast Lap:" + cs + cs + str(course.fastlap) + " mph by " + course.fastdriver.first + " " + course.fastdriver.last + " " + link("/" + course.fastdriver.country.iso, "", output) + " in " + str(course.fastyear) + re + "\n"
     courseTable += rs + "Coordinates:" + cs + cs + link("https://maps.google.com/?q=" + course.gps, course.gps, output) + re + "\n"
     courseTable += rs + "Caution periods:" + cs + cs + "Average of " + str( round(float(totalCautions) / float(len(raceIDs)), 1)  ) + " caution periods per race (over last " + str(len(raceIDs)) + " races)"+ re + "\n"
     courseTable += rs + "Caution lengths:" + cs + cs + "Average of " + str( round(float(totalCautionLaps) / float(totalCautions), 1) ) + " laps per caution period (over last " + str(len(raceIDs)) + " races)" + re + "\n"
     courseTable += "</table>"
 
     return courseTable
-    # query = """SELECT race_id, COUNT(race_id)
-    #            FROM caution
-    #            WHERE race_id IN
-    #             (SELECT id
-    #              FROM race
-    #              WHERE race.course_id = """ + str(course) + """
-    #              AND race.green < CURRENT_DATE)
-    #            GROUP BY race_id"""
-    #
-    # courseData = con.cursor()
-    # courseData.execute(query)
-    # rows = courseData.fetchall()
-    #
-    # cautions = 0
-    # races = 0
-    # for row in rows:
-    #     races = races + 1
-    #     cautions = cautions + row[1]
-    #
-    # courseTable += "Average # of Caution Periods:||" + str(round(float(cautions)/float(races), 1)) + " (over last " + str(races) + " races)\n\n"
-    #
-    # return courseTable
+
 
 def raceInfo(race_id, output="reddit"):
     race = Race.objects.select_related('course', 'start').get(id=race_id)
@@ -206,13 +334,13 @@ def winnerList(race_id, output="reddit"):
     # Abandon hope, ye who enter here.
     i = 0
     while i < rows:
-        winnerTable += rb + str(winners[i].race.green.year) + cs + winners[i].driver.first + " " + winners[i].driver.last + cs + "[](/" + winners[i].driver.country.iso + ")" + cs + cs
+        winnerTable += rb + str(winners[i].race.green.year) + cs + winners[i].driver.first + " " + winners[i].driver.last + cs + link("/" + winners[i].driver.country.iso, "", output) + cs + cs
         try:
-            winnerTable += str(winners[i+rows].race.green.year) + cs + winners[i+rows].driver.first + " " + winners[i+rows].driver.last + cs + "[](/" + winners[i+rows].driver.country.iso + ")" + cs + cs
+            winnerTable += str(winners[i+rows].race.green.year) + cs + winners[i+rows].driver.first + " " + winners[i+rows].driver.last + cs + link("/" + winners[i+rows].driver.country.iso, "", output) + cs + cs
         except IndexError, e:
             winnerTable += cs + cs + cs + cs
         try:
-            winnerTable += str(winners[i+(rows*2)].race.green.year) + cs + winners[i+(rows*2)].driver.first + " " + winners[i+(rows*2)].driver.last + cs + "[](/" + winners[i+(rows*2)].driver.country.iso + ")" + re
+            winnerTable += str(winners[i+(rows*2)].race.green.year) + cs + winners[i+(rows*2)].driver.first + " " + winners[i+(rows*2)].driver.last + cs + link("/" + winners[i+(rows*2)].driver.country.iso, "", output) + re
         except IndexError, e:
             winnerTable += cs + cs + re
         winnerTable += "\n"

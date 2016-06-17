@@ -59,16 +59,16 @@ if settings.INDYBOT_ENV == "PROD":
             },
         }
     )
-if settings.INDYBOT_ENV == "DEVEL":
-    celery.conf.update(
-        CELERYBEAT_SCHEDULE = {
-            'check-tweets': {
-                'task': 'manager.tasks.TweetTask',
-                'schedule': datetime.timedelta(seconds=30),
-                'kwargs': {'stamp': str(time.time())},
-            }
-        }
-    )
+# if settings.INDYBOT_ENV == "DEVEL":
+#     celery.conf.update(
+#         CELERYBEAT_SCHEDULE = {
+#             'check-tweets': {
+#                 'task': 'manager.tasks.TweetTask',
+#                 'schedule': datetime.timedelta(seconds=30),
+#                 'kwargs': {'stamp': str(time.time())},
+#             }
+#         }
+#     )
 
 posterCredits  = "***\n\nIndyBot submitted this post on behalf of /u/"
 indybotCredits = "***\n\n^(Questions, comments, or hate mail regarding IndyBot should be directed to /u/BadgerBalls.)\n"
