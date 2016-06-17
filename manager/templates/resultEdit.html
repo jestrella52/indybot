@@ -9,18 +9,12 @@
 <script>
     function moveDown(event) {
         mover = event.data.pos;
-
         for (i = 33; i > mover; i--) {
             sourceElement = "driver_pos_" + (i - 1)
             destElement = "driver_pos_" + i
-            console.log("-----")
-            console.log("src: " + sourceElement + " --- dst: " + destElement)
-            console.log($(sourceElement))
             $('select[name=' + destElement + ']').val($('select[name=' + sourceElement + ']').val())
             $('select[name=' + sourceElement + ']').val(0)
-            // $('select[name=driver_pos_]')
         }
-
     }
 </script>
 
