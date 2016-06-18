@@ -16,15 +16,6 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'g@z=i1_zyart4o2htswt@^=1@#+wis-s%=k29)h4sjn*7zt75q'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 ALLOWED_HOSTS = []
 
 
@@ -75,21 +66,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'indybot.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'indybot2',
-        'USER': 'indybot2',
-        'PASSWORD': 'yLhHBmLCzwpnuMTg7y3F',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-    }
-}
 
 
 # Password validation
