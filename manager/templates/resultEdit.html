@@ -16,6 +16,33 @@
             $('select[name=' + sourceElement + ']').val(0)
         }
     }
+    function checkDupes() {
+        baseName = "driver_pos_";
+        driverMap = new Map()
+        $("#driver_pos_1 option").each(function() {
+            driverMap.set($(this).val(), new Set());
+        });
+        for (i = 1; i <= 33; i++) {
+            elementID = "driver_pos_" + i;
+            driverID = $("#" + elementID).val();
+            if (driverID != 0) {
+                rowSet = driverMap.get(driverID);
+                rowSet.add(i);
+                driverMap.set(driverID, rowSet);
+            }
+            console.log("driver at pos: " + i + ": " + $("#" + elementID).val());
+        }
+        for (var [key, value] of driverMap) {
+            console.log("DID: " + key + " - val: " + value + " - size: " + value.size);
+            if (value.size > 1) {
+                for ( item of value) {
+                    console.log("Coloring row " + item + " red.");
+                    targetElement = "driver_pos_" + item
+                    $("#" + targetElement).css('background-color', 'red');
+                }
+            }
+        }
+    }
 </script>
 
 <form action="{% url 'results_update' race.id resultTypeName.id %}" method="POST">
@@ -26,7 +53,7 @@
     <tr>
         <td>{{ position }}</td>
         <td>
-            <select name="driver_pos_{{ position }}">
+            <select id="driver_pos_{{ position }}" name="driver_pos_{{ position }}">
                 <option value="0"> </option>
                 {% for driver in activeDrivers %}
                     {% if driver.id == driverID %}
@@ -38,6 +65,7 @@
             </select>
             <span id="arrow_down_{{ position }}" class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
             <script>
+                $('#driver_pos_{{position}}').change(checkDupes);
                 $('#arrow_down_{{position}}').click({pos: {{ position }}}, moveDown);
             </script>
         </td>
