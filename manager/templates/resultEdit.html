@@ -24,6 +24,7 @@
         });
         for (i = 1; i <= 33; i++) {
             elementID = "driver_pos_" + i;
+            $("#" + elementID).css('background-color', '');
             driverID = $("#" + elementID).val();
             if (driverID != 0) {
                 rowSet = driverMap.get(driverID);
