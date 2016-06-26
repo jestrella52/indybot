@@ -40,7 +40,7 @@ if settings.INDYBOT_ENV == "PROD":
                 'task': 'manager.tasks.RedditThreadTask',
                 'schedule': crontab(hour='*', minute='*'),
                 'kwargs': {'stamp': str(time.time())},
-            }
+            },
             'update-sidebar': {
                 'task': 'manager.tasks.UpdateRedditSidebarTask',
                 'schedule': crontab(hour='*', minute='5'),
