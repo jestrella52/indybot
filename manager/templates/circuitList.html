@@ -15,6 +15,7 @@
             <th>Short Name</th>
             <th>Record Speed</th>
             <th>Record Holder</th>
+            <th>Social</th>
             <th>Actions</th>
         </tr>
         {% for circuit in circuitList %}
@@ -27,6 +28,13 @@
             <td>{{ circuit.shortname }}</td>
             <td>{{ circuit.fastlap }}</td>
             <td>{{ circuit.fastdriver }} ({{ circuit.fastyear }})</td>
+            <td align="center">
+                {% if circuit.twitter %}
+                    <a href="https://twitter.com/{{circuit.twitter}}">
+                        <i class="fa fa-lg fa-twitter-square" aria-hidden="true" style="color:#55acee"></i>
+                    </a>
+                {% endif %}
+            </td>
             <td>
                 <a class="btn btn-xs btn-info" href="/circuit/{{circuit.id}}/edit">Edit</a>
                 <a class="btn btn-xs btn-danger" href="/circuit/{{circuit.id}}/delete">Delete</a>

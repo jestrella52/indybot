@@ -177,7 +177,8 @@ class CourseForm(forms.ModelForm):
                 Div(AppendedText('length', "mi."), css_class="col-md-2"),
                 Div(Field('type'), css_class="col-md-2"),
                 Div(Field('shortname'), css_class="col-md-2"),
-                Div(Field('url'), css_class="col-md-6"),
+                Div(PrependedText('twitter', "@"), css_class="col-md-3"),
+                Div(Field('url'), css_class="col-md-3"),
                 css_class="row"
             ),
             Fieldset("Track Record",
@@ -190,14 +191,15 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ('name', 'location', 'length', 'url', 'fastyear', 'fastlap', 'fastdriver', 'gps', 'shortname', 'country', 'type')
+        fields = ('name', 'location', 'length', 'url', 'twitter', 'fastyear', 'fastlap', 'fastdriver', 'gps', 'shortname', 'country', 'type')
         labels = {
             'url': "Circuit URL",
             'fastyear': "Year",
             'fastlap': "Speed",
             'fastdriver': "Driver",
             'gps': "GPS Coordinates",
-            'shortname': "Short Name"
+            'shortname': "Short Name",
+            'twitter': "Twitter Handle"
         }
 
 

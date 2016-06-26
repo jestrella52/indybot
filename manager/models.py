@@ -84,6 +84,7 @@ class Course(models.Model):
     fastlap = models.FloatField(blank=True, null=True)
     gps = models.CharField(max_length=30)
     shortname = models.CharField(max_length=20)
+    twitter = models.CharField(max_length=30, blank=True, null=True)
 
     class Meta:
         db_table = "course"
