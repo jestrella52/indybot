@@ -274,7 +274,7 @@ def raceInfo(race_id, output="reddit"):
         re = "</td></tr>"
         cs = "</td><td>"
 
-    raceTable += bs + link(race.url, race.title, output) + " at the " + race.course.name + be + "\n"
+    raceTable += bs + link(race.url, race.title, output) + " at " + race.course.name + be + "\n"
     raceTable += hr + nl + nl
     raceTable += bs + "WHEN/WHERE TO WATCH" + bs
 
