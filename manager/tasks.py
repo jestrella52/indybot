@@ -350,8 +350,8 @@ class UpdateRedditSidebarTask(JobtasticTask):
         # sidebar = re.sub("### \[\d+ Days until the Indy 500!\]", countdownText, sidebar, flags=re.S)
 
 
-        settings = r.get_settings(settings.SUBREDDIT)
-        oldSidebar = settings['description']
+        subsettings = r.get_settings(settings.SUBREDDIT)
+        oldSidebar = subsettings['description']
         sidebar = oldSidebar
 
         start = timezone.make_aware(datetime.datetime(datetime.date.today().year, 1, 1))
@@ -413,7 +413,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
         if (sidebar != oldSidebar):
             # with open("/tmp/bot.log", "a") as myfile:
             #     myfile.write("Sidebar update required!\n")
-            settings = r.update_settings(r.get_subreddit(settings.SUBREDDIT), description=sidebar)
+            subsettings = r.update_settings(r.get_subreddit(settings.SUBREDDIT), description=sidebar)
         # else:
             # with open("/tmp/bot.log", "a") as myfile:
             #     myfile.write("No change required.\n")
@@ -469,7 +469,7 @@ class UploadLiveriesTask(JobtasticTask):
             percentage = percentage + float(subPercentage/5)
             self.update_progress(percentage, 100)
 
-            settings = sub.get_settings()
+            subsettings = sub.get_settings()
             percentage = percentage + float(subPercentage/5)
             self.update_progress(percentage, 100)
 
