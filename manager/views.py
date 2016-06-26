@@ -31,6 +31,7 @@ from celery.result import AsyncResult
 
 from manager.tasks import GenerateLiveriesTask, RedditThreadTask
 from manager.tasks import UpdateRedditSidebarTask, UploadLiveriesTask
+from manager.tasks import TweetTask, RedditPostsTask
 
 from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, ChannelForm
 from .forms import CountryForm, CourseForm, DriverForm, EventForm, PostForm, RaceForm
@@ -977,6 +978,38 @@ def circuit_list(request):
 
 
 @staff_member_required
+def tasks(request, task_name=None):
+    redir = False
+    ts = str(time.time())
+
+    if task_name == "RedditThreadTask":
+        RedditThreadTask.delay_or_fail(stamp=ts)
+        redir = True
+    elif task_name == "TweetTask":
+        TweetTask.delay_or_fail(stamp=ts)
+        redir = True
+    elif task_name == "RedditPostsTask":
+        RedditPostsTask.delay_or_fail(stamp=ts)
+        redir = True
+    elif task_name == "UpdateRedditSidebarTask":
+        UpdateRedditSidebarTask.delay_or_fail(stamp=ts)
+        redir = True
+    elif task_name == "UploadLiveriesTask":
+        UploadLiveriesTask.delay_or_fail(stamp=ts)
+        redir = True
+    elif task_name == "GenerateLiveriesTask":
+        GenerateLiveriesTask.delay_or_fail(stamp=ts)
+        redir = True
+
+    if redir:
+        return redirect('tasks')
+    else:
+        template = loader.get_template('tasks.html')
+        context = {}
+        return HttpResponse(template.render(context, request))
+
+
+@staff_member_required
 def redditAccount_list(request):
     redditAccountList = RedditAccount.objects.order_by('handle')
     template = loader.get_template('redditAccountList.html')
@@ -1063,11 +1096,13 @@ def race_thread(request, race_id):
 
 @login_required
 def output(request):
-    output = compile("55", output="reddit")
+    upcomingPosts = Session.objects.filter(submission_id__isnull=True).filter(posttime__isnull=False).order_by('posttime')
+    ts = str(time.time())
+    result = RedditThreadTask.delay_or_fail(stamp=ts)
 
     template = loader.get_template('output.html')
     context = {
-        'output': output
+        'output': upcomingPosts
     }
     return HttpResponse(template.render(context, request))
 
