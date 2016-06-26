@@ -37,8 +37,6 @@ def compile(race_id, output="reddit"):
 
 
 def link(url, text, output="reddit"):
-    logit("link output: " + output)
-    logit("link text: " + text)
     if output == "reddit":
         return "[" + text + "](" + url + ")"
     else:
@@ -59,7 +57,6 @@ def footer(output="reddit"):
 
     footer  = hr + "\nLive timing and scoring available at " + link("http://racecontrol.indycar.com", "Verizon IndyCar Series Race Control", output) + nl
     footer += link("http://www.indycar.com/Drivers", "Current Driver Standings", output) + nl
-    footer += hr + nl + ss + "Questions, comments, or hate mail regarding IndyBot should be directed to /u/BadgerBalls." + se + "\n"
 
     return footer
 
@@ -232,9 +229,15 @@ def courseInfo(race_id, output="reddit"):
     courseTable += rs + "Location:" + cs + cs + course.location + " " + link("/" + course.country.iso, "", output) + re + "\n"
     courseTable += rs + "Fast Lap:" + cs + cs + str(course.fastlap) + " mph by " + course.fastdriver.first + " " + course.fastdriver.last + " " + link("/" + course.fastdriver.country.iso, "", output) + " in " + str(course.fastyear) + re + "\n"
     courseTable += rs + "Coordinates:" + cs + cs + link("https://maps.google.com/?q=" + course.gps, course.gps, output) + re + "\n"
-    courseTable += rs + "Caution periods:" + cs + cs + "Average of " + str( round(float(totalCautions) / float(len(raceIDs)), 1)  ) + " caution periods per race (over last " + str(len(raceIDs)) + " races)"+ re + "\n"
-    courseTable += rs + "Caution lengths:" + cs + cs + "Average of " + str( round(float(totalCautionLaps) / float(totalCautions), 1) ) + " laps per caution period (over last " + str(len(raceIDs)) + " races)" + re + "\n"
-    courseTable += "</table>"
+
+    try:
+        courseTable += rs + "Caution periods:" + cs + cs + "Average of " + str( round(float(totalCautions) / float(len(raceIDs)), 1)  ) + " caution periods per race (over last " + str(len(raceIDs)) + " races)"+ re + "\n"
+        courseTable += rs + "Caution lengths:" + cs + cs + "Average of " + str( round(float(totalCautionLaps) / float(totalCautions), 1) ) + " laps per caution period (over last " + str(len(raceIDs)) + " races)" + re + "\n"
+    except ZeroDivisionError:
+        pass
+
+    if output != "reddit":
+        courseTable += "</table>"
 
     return courseTable
 

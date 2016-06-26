@@ -25,13 +25,22 @@ from django_slack import slack_message
 
 from jobtastic import JobtasticTask
 
-from .models import Country, Driver, Post, Race, RedditAccount, Tweet
+from .models import Country, Driver, Post, Race, RedditAccount, Session
+from .models import SessionType, Tweet
+
+from .racethread import compile
+
 
 celery = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
 
 if settings.INDYBOT_ENV == "PROD":
     celery.conf.update(
         CELERYBEAT_SCHEDULE = {
+            'check-threads': {
+                'task': 'manager.tasks.RedditThreadTask',
+                'schedule': crontab(hour='*', minute='*'),
+                'kwargs': {'stamp': str(time.time())},
+            }
             'update-sidebar': {
                 'task': 'manager.tasks.UpdateRedditSidebarTask',
                 'schedule': crontab(hour='*', minute='5'),
@@ -59,16 +68,12 @@ if settings.INDYBOT_ENV == "PROD":
             },
         }
     )
-# if settings.INDYBOT_ENV == "DEVEL":
-#     celery.conf.update(
-#         CELERYBEAT_SCHEDULE = {
-#             'check-tweets': {
-#                 'task': 'manager.tasks.TweetTask',
-#                 'schedule': datetime.timedelta(seconds=30),
-#                 'kwargs': {'stamp': str(time.time())},
-#             }
-#         }
-#     )
+
+if settings.INDYBOT_ENV == "DEVEL":
+    celery.conf.update(
+        CELERYBEAT_SCHEDULE = {
+        }
+    )
 
 posterCredits  = "***\n\nIndyBot submitted this post on behalf of /u/"
 indybotCredits = "***\n\n^(Questions, comments, or hate mail regarding IndyBot should be directed to /u/BadgerBalls.)\n"
@@ -117,6 +122,113 @@ class TweetTask(JobtasticTask):
         return 1
 
 
+class RedditThreadTask(JobtasticTask):
+    herd_avoidance_timeout = 55
+    cache_duration = 0
+
+    significant_kwargs = [
+        ('stamp', str),
+    ]
+
+    def calculate_result(self, stamp, **kwargs):
+        logit("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =")
+        logit("RedditThreadTask starting up!")
+        user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
+
+        pracSessionID = SessionType.objects.filter(name="Practice").values('id')[0]['id']
+        qualSessionID = SessionType.objects.filter(name="Qualification").values('id')[0]['id']
+        raceSessionID = SessionType.objects.filter(name="Race").values('id')[0]['id']
+        contSessionID = SessionType.objects.filter(name="Race (Resumed)").values('id')[0]['id']
+        postSessionID = SessionType.objects.filter(name="Post-Race").values('id')[0]['id']
+
+        # logit("Practice: " + str(pracSessionID))
+        # logit("Qualification: " + str(qualSessionID))
+        # logit("Race: " + str(raceSessionID))
+        # logit("Race resumed: " + str(contSessionID))
+        # logit("Post-race: " + str(postSessionID))
+
+        now = timezone.now()
+
+        # Get posts in future with scheduled times but no submission id
+        upcomingSessions = Session.objects.filter(submission_id__isnull=True)
+        upcomingSessions = upcomingSessions.filter(posttime__isnull=False)
+        upcomingSessions = upcomingSessions.filter(posttime__lte=now)
+        upcomingSessions = upcomingSessions.order_by('posttime')
+
+        # logit(str(upcomingSessions.query))
+
+        # Only post if the session hasn't already ended
+        for sess in upcomingSessions:
+
+            # Set our defaults
+            postAuthor = 1
+            postCredit = 0
+
+            if sess.posttime:
+                postPubTime = sess.posttime
+                postModTime = sess.posttime
+            else:
+                postPubTime = sess.starttime
+                postModTime = sess.starttime
+
+            postFlairCSS = 'race'
+            postSticky = 1
+            postStream = 1
+            postSort = 'new'
+
+            if sess.endtime >= now:
+
+                eventName = str(datetime.datetime.now().year) + " " + sess.race.title
+
+                if sess.type.id == pracSessionID or sess.type.id == qualSessionID:
+                    logit("Posting practice/qual thread.")
+                    postTitle = "[Practice/Qual Thread] - " + eventName
+                    postBody = "This thread is for discussion of all things related to practice and qualifying for the " + sess.race.title + "\n"
+                    postFlairText='Practice Thread'
+
+
+                elif sess.type.id == raceSessionID or sess.type.id == contSessionID:
+                    logit("Posting race thread.")
+                    postTitle = "[Race Thread] - " + eventName
+                    postBody = compile(sess.race.id)
+                    postFlairText='Race Thread'
+
+                elif sess.type.id == postSessionID:
+                    logit("Posting post-race thread.")
+                    postTitle = "[Post-Race Thread] - " + eventName
+                    postBody = "This thread is for discussion of the results and post-race happenings of the " + sess.race.title + "\n"
+                    postFlairText='Post-Race Thread'
+                    postStream = 0
+
+                else:
+                    logit("Fuck it.  No idea what to post.")
+
+                # We have a post to post.  Let's post our post.
+                if postTitle and postBody:
+                    postObj = Post(
+                        title=postTitle,
+                        body=postBody,
+                        author_id=postAuthor,
+                        publish_time=postPubTime,
+                        modified_time=postModTime,
+                        flair_text=postFlairText,
+                        flair_css_class=postFlairCSS,
+                        sort=postSort,
+                        sticky=postSticky,
+                        stream=postStream,
+                        credit=postCredit
+                    )
+                    postObj.save()
+                    sess.submission_id = postObj.id
+                    sess.save()
+
+                    # Publish instantly.
+                    ts = str(time.time())
+                    result = RedditPostsTask.delay_or_fail(stamp=ts)
+
+        return True
+
+
 class RedditPostsTask(JobtasticTask):
     herd_avoidance_timeout = 20
     cache_duration = 0
@@ -128,7 +240,6 @@ class RedditPostsTask(JobtasticTask):
     def calculate_result(self, stamp, **kwargs):
         logit("===============================================================")
         logit("starting up")
-        subreddit = "badgerballs"
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         posts = Post.objects.filter(submission=None).filter(Q(publish_time__lte=timezone.now())).prefetch_related('author')
@@ -151,10 +262,21 @@ class RedditPostsTask(JobtasticTask):
                     postBody = postBody + "\n\n" + posterCredits + str(post.author) + "\n"
 
                 postBody += indybotCredits
-                submission = r.submit(subreddit, post.title, text=postBody)
+                submission = r.submit(settings.SUBREDDIT, post.title, text=postBody)
+
+                if post.flair_text and post.flair_css_class:
+                    submission.set_flair(flair_text=post.flair_text,
+                                         flair_css_class=post.flair_css_class)
+
+                if post.sort:
+                    submission.set_suggested_sort(sort=post.sort)
 
                 if post.sticky:
                     submission.sticky()
+
+                if post.stream:
+                    comment = submission.add_comment("Please post stream links as a reply to this stickied comment.")
+                    comment.distinguish(sticky=True)
 
                 post.submission = submission.id
                 post.save()
@@ -183,7 +305,6 @@ class UpdateRedditSidebarTask(JobtasticTask):
 
     def calculate_result(self, stamp, **kwargs):
 
-        subreddits = ["badgerballs"]
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         # with open("/tmp/bot.log", "a") as myfile:
@@ -191,7 +312,6 @@ class UpdateRedditSidebarTask(JobtasticTask):
 
         message = ""
         percentage = float(0)
-        subPercentage = float(80/len(subreddits))
 
         r = praw.Reddit(user_agent=user_agent)
         r.refresh_access_information()
@@ -230,74 +350,73 @@ class UpdateRedditSidebarTask(JobtasticTask):
         # sidebar = re.sub("### \[\d+ Days until the Indy 500!\]", countdownText, sidebar, flags=re.S)
 
 
-        for subreddit in subreddits:
-            settings = r.get_settings(subreddit)
-            oldSidebar = settings['description']
-            sidebar = oldSidebar
+        settings = r.get_settings(settings.SUBREDDIT)
+        oldSidebar = settings['description']
+        sidebar = oldSidebar
 
-            start = timezone.make_aware(datetime.datetime(datetime.date.today().year, 1, 1))
-            end = timezone.make_aware(datetime.datetime(datetime.date.today().year, 12, 31))
+        start = timezone.make_aware(datetime.datetime(datetime.date.today().year, 1, 1))
+        end = timezone.make_aware(datetime.datetime(datetime.date.today().year, 12, 31))
 
-            races = Race.objects.order_by('green').filter(green__gte=start).filter(green__lte=end)
+        races = Race.objects.order_by('green').filter(green__gte=start).filter(green__lte=end)
 
-            foundNext = 0
-            highlightRow = 0
-            raceCount = 0
+        foundNext = 0
+        highlightRow = 0
+        raceCount = 0
 
-            schedTable  = "### 2016 IndyCar Schedule\n\n"
-            schedTable += "**Date**|**Course**|**Time**|**TV**\n"
-            schedTable += ":---|:---|:---|:---\n"
+        schedTable  = "### 2016 IndyCar Schedule\n\n"
+        schedTable += "**Date**|**Course**|**Time**|**TV**\n"
+        schedTable += ":---|:---|:---|:---\n"
 
-            for race in races:
-                raceCount = raceCount + 1
-                coverageStart = timezone.make_naive(race.coverage)
-                coverageEnd = timezone.make_naive(race.endcoverage)
-                timeNow = timezone.make_naive(timezone.now())
-                if coverageEnd > timeNow and foundNext == 0:
-                    highlightRow = raceCount
-                    bold = "**"
-                    foundNext = 1
-                else:
-                    bold = ""
+        for race in races:
+            raceCount = raceCount + 1
+            coverageStart = timezone.make_naive(race.coverage)
+            coverageEnd = timezone.make_naive(race.endcoverage)
+            timeNow = timezone.make_naive(timezone.now())
+            if coverageEnd > timeNow and foundNext == 0:
+                highlightRow = raceCount
+                bold = "**"
+                foundNext = 1
+            else:
+                bold = ""
 
-                schedTable += bold + coverageStart.strftime("%-m/%-d") + bold + "|" + bold + race.shortname + bold + "|" + bold + coverageStart.strftime("%I:%M%p").lstrip("0").lower() + bold + "|" + bold + race.channel + bold + "\n"
+            schedTable += bold + coverageStart.strftime("%-m/%-d") + bold + "|" + bold + race.shortname + bold + "|" + bold + coverageStart.strftime("%I:%M%p").lstrip("0").lower() + bold + "|" + bold + race.channel + bold + "\n"
 
-            schedTable += "\nAll times Eastern"
+        schedTable += "\nAll times Eastern"
 
 
-            stylesheet = r.get_stylesheet(subreddit)
-            newCSS = stylesheet['stylesheet']
-            oldCSS = stylesheet['stylesheet']
+        stylesheet = r.get_stylesheet(settings.SUBREDDIT)
+        newCSS = stylesheet['stylesheet']
+        oldCSS = stylesheet['stylesheet']
 
-            highlightCSS = ".side table tr:nth-of-type(" + str(highlightRow) + ") td {"
-            newCSS = re.sub("\.side table tr:nth-of-type\(\d+\) td \{", highlightCSS, newCSS, flags=re.S)
+        highlightCSS = ".side table tr:nth-of-type(" + str(highlightRow) + ") td {"
+        newCSS = re.sub("\.side table tr:nth-of-type\(\d+\) td \{", highlightCSS, newCSS, flags=re.S)
 
-            old = oldCSS.split("\n")
-            new = newCSS.split("\n")
+        old = oldCSS.split("\n")
+        new = newCSS.split("\n")
 
+        # with open("/tmp/bot.log", "a") as myfile:
+        #     for i in range(0, 10):
+        #         myfile.write("-------\n")
+        #         myfile.write(old[i] + "\n")
+        #         myfile.write(new[i] + "\n")
+
+        if newCSS != oldCSS:
             # with open("/tmp/bot.log", "a") as myfile:
-            #     for i in range(0, 10):
-            #         myfile.write("-------\n")
-            #         myfile.write(old[i] + "\n")
-            #         myfile.write(new[i] + "\n")
+            #     myfile.write("Stylesheet update required!\n")
+            r.set_stylesheet(settings.SUBREDDIT, '')
+            r.set_stylesheet(settings.SUBREDDIT, newCSS)
 
-            if newCSS != oldCSS:
-                # with open("/tmp/bot.log", "a") as myfile:
-                #     myfile.write("Stylesheet update required!\n")
-                r.set_stylesheet(subreddit, '')
-                r.set_stylesheet(subreddit, newCSS)
+        # with open("/tmp/bot.log", "a") as myfile:
+        #     myfile.write(schedTable + "\n")
 
+        sidebar = re.sub("### 2016 IndyCar Schedule.*All times Eastern", schedTable, sidebar, flags=re.S)
+        if (sidebar != oldSidebar):
             # with open("/tmp/bot.log", "a") as myfile:
-            #     myfile.write(schedTable + "\n")
-
-            sidebar = re.sub("### 2016 IndyCar Schedule.*All times Eastern", schedTable, sidebar, flags=re.S)
-            if (sidebar != oldSidebar):
-                # with open("/tmp/bot.log", "a") as myfile:
-                #     myfile.write("Sidebar update required!\n")
-                settings = r.update_settings(r.get_subreddit(subreddit), description=sidebar)
-            # else:
-                # with open("/tmp/bot.log", "a") as myfile:
-                #     myfile.write("No change required.\n")
+            #     myfile.write("Sidebar update required!\n")
+            settings = r.update_settings(r.get_subreddit(settings.SUBREDDIT), description=sidebar)
+        # else:
+            # with open("/tmp/bot.log", "a") as myfile:
+            #     myfile.write("No change required.\n")
         self.update_progress(100, 100)
         return 1
 
@@ -311,7 +430,7 @@ class UploadLiveriesTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        subreddits	= ["indycar", "badgerballs"]
+        subreddits	= [settings.SUBREDDIT]
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
         with open("/tmp/bot.log", "a") as myfile:
             myfile.write(str(os.getcwd()))

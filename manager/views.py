@@ -29,8 +29,8 @@ from django_slack import slack_message
 from celery import states
 from celery.result import AsyncResult
 
-from manager.tasks import GenerateLiveriesTask, UpdateRedditSidebarTask
-from manager.tasks import UploadLiveriesTask
+from manager.tasks import GenerateLiveriesTask, RedditThreadTask
+from manager.tasks import UpdateRedditSidebarTask, UploadLiveriesTask
 
 from .forms import BaseNestedFormset, BaseNestedModelForm, CautionForm, ChannelForm
 from .forms import CountryForm, CourseForm, DriverForm, EventForm, PostForm, RaceForm

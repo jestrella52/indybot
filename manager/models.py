@@ -212,6 +212,10 @@ class Post(models.Model):
     publish_time = models.DateTimeField(blank=False, null=False)
     modified_time = models.DateTimeField(blank=False, null=False)
     credit = models.BooleanField(default=True)
+    stream = models.BooleanField(default=False)
+    flair_text = models.CharField(max_length=30, null=True)
+    flair_css_class = models.CharField(max_length=30, default=None, null=True)
+    sort = models.CharField(max_length=20, default=None, null=True)
     author = models.ForeignKey(RedditAccount)
 
     class Meta:
@@ -248,6 +252,7 @@ class Session(models.Model):
     channel = models.ForeignKey(Channel, blank=True, null=True)
     tvstarttime = models.DateTimeField(blank=True, null=True)
     tvendtime = models.DateTimeField(blank=True, null=True)
+    submission = models.ForeignKey(Post, blank=True, null=True)
 
     class Meta:
         db_table = "session"
