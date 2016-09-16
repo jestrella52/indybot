@@ -14,6 +14,7 @@ from lxml import html
 from time import sleep
 from celery import Celery
 from celery.schedules import crontab
+from celery.backends.rpc import RPCBackend
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'indybot.settings'
 django.setup()
@@ -30,11 +31,11 @@ from .models import SessionType, Tweet
 
 from .racethread import compile
 
-
-celery = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
+app = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
+rpc_backend = RPCBackend(app)
 
 if settings.INDYBOT_ENV == "PROD":
-    celery.conf.update(
+    app.conf.update(
         CELERYBEAT_SCHEDULE = {
             'check-threads': {
                 'task': 'manager.tasks.RedditThreadTask',
@@ -70,8 +71,18 @@ if settings.INDYBOT_ENV == "PROD":
     )
 
 if settings.INDYBOT_ENV == "DEVEL":
-    celery.conf.update(
+    app.conf.update(
         CELERYBEAT_SCHEDULE = {
+            'check-threads': {
+                'task': 'manager.tasks.RedditThreadTask',
+                'schedule': crontab(hour='*', minute='*'),
+                'kwargs': {'stamp': str(time.time())},
+            },
+            'check-posts': {
+                'task': 'manager.tasks.RedditPostsTask',
+                'schedule': datetime.timedelta(minutes=1),
+                'kwargs': {'stamp': str(time.time())},
+            },
         }
     )
 
@@ -90,6 +101,7 @@ def bumpLog():
 
 
 class TweetTask(JobtasticTask):
+    backend = rpc_backend
     herd_avoidance_timeout = 20
     cache_duration = 0
 
@@ -123,6 +135,7 @@ class TweetTask(JobtasticTask):
 
 
 class RedditThreadTask(JobtasticTask):
+    backend = rpc_backend
     herd_avoidance_timeout = 55
     cache_duration = 0
 
@@ -230,6 +243,7 @@ class RedditThreadTask(JobtasticTask):
 
 
 class RedditPostsTask(JobtasticTask):
+    backend = rpc_backend
     herd_avoidance_timeout = 20
     cache_duration = 0
 
@@ -296,6 +310,7 @@ class RedditPostsTask(JobtasticTask):
 
 
 class UpdateRedditSidebarTask(JobtasticTask):
+    backend = rpc_backend
     herd_avoidance_timeout = 60
     cache_duration = 0
 
