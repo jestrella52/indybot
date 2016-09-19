@@ -127,8 +127,8 @@ class TweetTask(JobtasticTask):
                     logit("STATUS: " + str(status))
                     tweet.tid = status.id
                     tweet.save()
-            except:
-                logit("TWITTER LOGIN FAILED")
+            except twitter.TwitterError as e:
+                logit("TWITTER ERROR: Code: " + str(e))
 
         self.update_progress(100, 100)
         return 1
