@@ -1,3 +1,4 @@
+import operator
 import datetime
 import django
 import time
@@ -21,6 +22,7 @@ from django.forms.formsets import formset_factory
 from django.views.generic.edit import UpdateView
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 
 from django.shortcuts import render_to_response
 
@@ -253,28 +255,48 @@ def post_list_pending(request):
 def race_list(request, season=None):
 
     seasonObj = None
+    sessionTypeValue = SessionType.objects.get(name="Race")
 
     if season:
-        raceList = Race.objects.order_by('green')
-        raceList = raceList.filter(season = season)
+        raceList = Race.objects.filter(season=season)
         seasonObj= Season.objects.get(id=season)
         title = "Races - " + str(seasonObj.year) + " Season"
     else:
-        raceList = Race.objects.order_by('-green')
+        raceList = Race.objects.all()
         title = "All Races"
 
     template = loader.get_template('raceList.html')
 
     for i in xrange(len(raceList)):
-        qualResultStyle = ''
-        raceResultStyle = ''
-
         itemResults = Result.objects.filter(race_id=raceList[i].id)
+        sentinelTime = timezone.make_aware(datetime.datetime(raceList[i].season.year, 12, 31, 23, 59, 59))
+
+        gotStartTime = False
+        try:
+            raceSession = Session.objects.get(race_id=raceList[i].id, type_id=sessionTypeValue)
+            if raceSession.tvstarttime:
+                raceList[i].startTime = raceSession.tvstarttime
+            else:
+                raceList[i].startTime = sentinelTime
+            gotStartTime = True
+        except Session.DoesNotExist:
+            raceList[i].startTime = sentinelTime
+
+        if gotStartTime:
+            try:
+                raceList[i].channel = raceSession.channel.name
+            except:
+                pass
 
         if itemResults.filter(type_id=1).count() == 0:
             raceList[i].qualResultStyle = 'style="color:lightgrey"'
         if itemResults.filter(type_id=2).count() == 0:
             raceList[i].raceResultStyle = 'style="color:lightgrey"'
+
+    if season:
+        raceList = sorted(raceList, key=operator.attrgetter('startTime'))
+    else:
+        raceList = sorted(raceList, key=operator.attrgetter('startTime'), reverse=True)
 
     context = {
         'title': title,
@@ -907,7 +929,7 @@ def results_edit(request, race_id, resulttype_id):
 
     race = Race.objects.get(id=race_id)
     resultTypeName = ResultType.objects.get(id=resulttype_id)
-    if (race.green.year == datetime.date.today().year):
+    if (race.season.year == datetime.date.today().year):
         activeDrivers = Driver.objects.order_by('last', 'first').filter(active=1)
     else:
         activeDrivers = Driver.objects.order_by('last', 'first')

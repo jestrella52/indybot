@@ -266,15 +266,6 @@ class RaceForm(forms.ModelForm):
                         Div(Field('hashtag'), css_class="col-md-2"),
                         css_class="row"
                     ),
-                    Fieldset("Dates and Times",
-                        Div(
-                            Div(Field('practice', placeholder="YYYY-MM-DD HH:MM"), css_class="col-md-3"),
-                            Div(Field('coverage', placeholder="YYYY-MM-DD HH:MM"), css_class="col-md-3"),
-                            Div(Field('green', placeholder="YYYY-MM-DD HH:MM"), css_class="col-md-3"),
-                            Div(Field('endcoverage', placeholder="YYYY-MM-DD HH:MM"), css_class="col-md-3"),
-                            css_class="row"
-                        ),
-                    ),
                     css_class="fade in"
                 ),
                 Tab('Post-Race Statistics',
@@ -325,14 +316,10 @@ class RaceForm(forms.ModelForm):
 
     class Meta:
         model = Race
-        fields = ('season', 'title', 'shortname', 'laps', 'practice', 'coverage', 'green', 'endcoverage', 'channel', 'hashtag', 'url', 'urlrr', 'submission', 'subpractice', 'subpostrace', 'urlrace', 'urlpractice', 'urlpostrace', 'rowsize', 'course', 'start', 'yellowflags', 'yellowlaps', 'duration', 'speedavg', 'speedpole', 'leadchanges', 'margin')
+        fields = ('season', 'title', 'shortname', 'laps', 'channel', 'hashtag', 'url', 'urlrr', 'submission', 'subpractice', 'subpostrace', 'urlrace', 'urlpractice', 'urlpostrace', 'rowsize', 'course', 'start', 'yellowflags', 'yellowlaps', 'duration', 'speedavg', 'speedpole', 'leadchanges', 'margin')
         labels = {
             'shortname': "Short Name",
             'laps': "Number of Laps",
-            'practice': "First Practice Starts",
-            'coverage': "Broadcast Starts",
-            'green': "Green Flag Flies",
-            'endcoverage': "Broadcast Ends",
             'channel': "TV Channel",
             'hashtag': "Hashtag",
             'url': "URL for the Race's Website",

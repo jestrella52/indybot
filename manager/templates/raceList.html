@@ -44,11 +44,11 @@
                 {% endif %}
             </td> -->
             <td>
-                {% if race.coverage %}
+                {% if race.startTime %}
                     {% if race.submission %}<font color="#bbbbbb">{% endif %}
-                    {% if race.urlrace %}<a href="{{race.urlrace}}">{% endif %}
-                    {{ race.coverage|date:"m/d H:i" }}
-                    {% if race.urlrace %}</a>{% endif %}
+                    {% if race.submission %}<a href="http://redd.it/{{race.submission.submission}}">{% endif %}
+                    {{ race.startTime|date:"m/d H:i" }}
+                    {% if race.submission %}</a>{% endif %}
                     {% if race.submission %}</font>{% endif %}
                 {% endif %}
             </td>
@@ -73,7 +73,13 @@
             <td>{{ race.channel }}</td>
             <td align="center">
                 <a href="/race/{{race.id}}/session/edit">
+                    {% if race.hasRaceSession and race.hasPracticeSession and race.hasQualSession and race.hasPostRaceSession %}
                     <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+                    {% elif race.hasRaceSession or race.hasPracticeSession or race.hasQualSession or race.hasPostRaceSession %}
+                    <span class="glyphicon glyphicon-calendar" style="color:orange" aria-hidden="true"></span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-calendar" style="color:lightgrey" aria-hidden="true"></span>
+                    {% endif %}
                 </a>
             </td>
             <td align="center">

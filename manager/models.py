@@ -126,9 +126,48 @@ class Race(models.Model):
 
     @property
     def in_the_past(self):
-        if date.today() >= self.green.date():
-            return True
+        try:
+            if date.today() >= Session.objects.get(race_id=self, type_id=1).starttime.date():
+                return True
+        except:
+            pass
         return False
+
+    @property
+    def sessionCount(self):
+        return Session.objects.filter(race_id=self).count()
+
+    @property
+    def raceStart(self):
+        return Session.objects.filter(race_id=self).filter(type_id=1).order_by('-starttime')[:1].starttime
+
+    @property
+    def hasRaceSession(self):
+        if Session.objects.filter(race_id=self).filter(type_id=1).count() > 0:
+            return True
+        else:
+            return False
+
+    @property
+    def hasQualSession(self):
+        if Session.objects.filter(race_id=self).filter(type_id=2).count() > 0:
+            return True
+        else:
+            return False
+
+    @property
+    def hasPracticeSession(self):
+        if Session.objects.filter(race_id=self).filter(type_id=3).count() > 0:
+            return True
+        else:
+            return False
+
+    @property
+    def hasPostRaceSession(self):
+        if Session.objects.filter(race_id=self).filter(type_id=5).count() > 0:
+            return True
+        else:
+            return False
 
     class Meta:
         db_table = "race"

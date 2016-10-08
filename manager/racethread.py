@@ -9,7 +9,7 @@ from django.db.models import Count
 from django.core import serializers
 from django.utils import timezone
 
-from .models import Caution, Course, Race, Result, ResultType, SessionType
+from .models import Caution, Course, Race, Result, ResultType, Session, SessionType
 
 from .support import logit
 
@@ -245,12 +245,13 @@ def courseInfo(race_id, output="reddit"):
 def raceInfo(race_id, output="reddit"):
     race = Race.objects.select_related('course', 'start').get(id=race_id)
 
-    raceTypeValue = SessionType.objects.get(name="Race")
+    sessionTypeValue = SessionType.objects.get(name="Race")
+    raceSession = Session.objects.filter(type_id=sessionTypeValue.id).filter(race_id=race_id)[0]
 
     wolframURL = "http://www.wolframalpha.com/input/?i="
 
-    coverTime = timezone.make_naive(race.coverage)
-    greenTime = timezone.make_naive(race.green)
+    coverTime = timezone.make_naive(raceSession.tvstarttime)
+    greenTime = timezone.make_naive(raceSession.starttime)
 
     coverageURL = wolframURL + urllib.quote(str(coverTime) + " " + coverTime.strftime("%p") + " EDT in UTC")
     greenURL = wolframURL + urllib.quote(str(greenTime) + " " + greenTime.strftime("%p") + " EDT in UTC")
@@ -299,13 +300,18 @@ def winnerList(race_id, output="reddit"):
     race = Race.objects.get(id=race_id)
     courseValue = race.course_id
 
-    raceTypeValue = ResultType.objects.get(name="Race")
+    resultTypeValue = ResultType.objects.get(name="Race")
+    sessionTypeValue = SessionType.objects.get(name="Race")
 
-    winners = Result.objects.select_related('race__course', 'driver__country')
-    winners = winners.filter(race__course_id=courseValue)
-    winners = winners.filter(position=1)
-    winners = winners.filter(type_id=raceTypeValue.id)
-    winners = winners.order_by('-race.green')
+    raceSessions = Session.objects.filter(race__course_id=courseValue).filter(type_id=sessionTypeValue.id).order_by('-starttime')
+
+    winners = []
+    for raceSession in raceSessions:
+        try:
+            race = Race.objects.get(id=raceSession.race_id)
+            winners.append(Result.objects.get(race_id=raceSession.race_id, type_id=resultTypeValue.id, position=1))
+        except:
+            pass
 
 
     if output == "reddit":
@@ -337,13 +343,14 @@ def winnerList(race_id, output="reddit"):
     # Abandon hope, ye who enter here.
     i = 0
     while i < rows:
-        winnerTable += rb + str(winners[i].race.green.year) + cs + winners[i].driver.first + " " + winners[i].driver.last + cs + link("/" + winners[i].driver.country.iso, "", output) + cs + cs
+        # winnerTable += rb + str(winners[i].race.green.year) + cs + winners[i].driver.first + " " + winners[i].driver.last + cs + link("/" + winners[i].driver.country.iso, "", output) + cs + cs
+        winnerTable += rb + str(winners[i].race.season.year) + cs + winners[i].driver.first + " " + winners[i].driver.last + cs + link("/" + winners[i].driver.country.iso, "", output) + cs + cs
         try:
-            winnerTable += str(winners[i+rows].race.green.year) + cs + winners[i+rows].driver.first + " " + winners[i+rows].driver.last + cs + link("/" + winners[i+rows].driver.country.iso, "", output) + cs + cs
+            winnerTable += str(winners[i+rows].race.season.year) + cs + winners[i+rows].driver.first + " " + winners[i+rows].driver.last + cs + link("/" + winners[i+rows].driver.country.iso, "", output) + cs + cs
         except IndexError, e:
             winnerTable += cs + cs + cs + cs
         try:
-            winnerTable += str(winners[i+(rows*2)].race.green.year) + cs + winners[i+(rows*2)].driver.first + " " + winners[i+(rows*2)].driver.last + cs + link("/" + winners[i+(rows*2)].driver.country.iso, "", output) + re
+            winnerTable += str(winners[i+(rows*2)].race.season.year) + cs + winners[i+(rows*2)].driver.first + " " + winners[i+(rows*2)].driver.last + cs + link("/" + winners[i+(rows*2)].driver.country.iso, "", output) + re
         except IndexError, e:
             winnerTable += cs + cs + re
         winnerTable += "\n"

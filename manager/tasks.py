@@ -42,11 +42,12 @@ if settings.INDYBOT_ENV == "PROD":
                 'schedule': crontab(hour='*', minute='*'),
                 'kwargs': {'stamp': str(time.time())},
             },
-            'update-sidebar': {
-                'task': 'manager.tasks.UpdateRedditSidebarTask',
-                'schedule': crontab(hour='*', minute='5'),
-                'kwargs': {'stamp': str(time.time())},
-            },
+            # Disabled for offseason.
+            # 'update-sidebar': {
+            #     'task': 'manager.tasks.UpdateRedditSidebarTask',
+            #     'schedule': crontab(hour='*', minute='5'),
+            #     'kwargs': {'stamp': str(time.time())},
+            # },
             'check-posts': {
                 'task': 'manager.tasks.RedditPostsTask',
                 'schedule': datetime.timedelta(minutes=1),
@@ -372,7 +373,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
         start = timezone.make_aware(datetime.datetime(datetime.date.today().year, 1, 1))
         end = timezone.make_aware(datetime.datetime(datetime.date.today().year, 12, 31))
 
-        races = Race.objects.order_by('green').filter(green__gte=start).filter(green__lte=end)
+        sessions = Session.objects.filter(type_id=1).filter(starttime__gte=start).filter(starttime__lte=end).order_by('starttime').select_related()
 
         foundNext = 0
         highlightRow = 0
@@ -382,10 +383,10 @@ class UpdateRedditSidebarTask(JobtasticTask):
         schedTable += "**Date**|**Course**|**Time**|**TV**\n"
         schedTable += ":---|:---|:---|:---\n"
 
-        for race in races:
+        for session in sessions:
             raceCount = raceCount + 1
-            coverageStart = timezone.make_naive(race.coverage)
-            coverageEnd = timezone.make_naive(race.endcoverage)
+            coverageStart = timezone.make_naive(session.tvstarttime)
+            coverageEnd = timezone.make_naive(session.tvendtime)
             timeNow = timezone.make_naive(timezone.now())
             if coverageEnd > timeNow and foundNext == 0:
                 highlightRow = raceCount
@@ -394,7 +395,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
             else:
                 bold = ""
 
-            schedTable += bold + coverageStart.strftime("%-m/%-d") + bold + "|" + bold + race.shortname + bold + "|" + bold + coverageStart.strftime("%I:%M%p").lstrip("0").lower() + bold + "|" + bold + race.channel + bold + "\n"
+            schedTable += bold + coverageStart.strftime("%-m/%-d") + bold + "|" + bold + session.race.shortname + bold + "|" + bold + coverageStart.strftime("%I:%M%p").lstrip("0").lower() + bold + "|" + bold + session.channel.name + bold + "\n"
 
         schedTable += "\nAll times Eastern"
 
