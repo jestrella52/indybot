@@ -130,7 +130,7 @@ class Race(models.Model):
             if date.today() >= Session.objects.get(race_id=self, type_id=1).starttime.date():
                 return True
         except:
-            pass
+            return False
         return False
 
     @property
