@@ -379,7 +379,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
         highlightRow = 0
         raceCount = 0
 
-        schedTable  = "### 2016 IndyCar Schedule\n\n"
+        schedTable  = "### 2017 IndyCar Schedule\n\n"
         schedTable += "**Date**|**Course**|**Time**|**TV**\n"
         schedTable += ":---|:---|:---|:---\n"
 
@@ -425,7 +425,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
         # with open("/tmp/bot.log", "a") as myfile:
         #     myfile.write(schedTable + "\n")
 
-        sidebar = re.sub("### 2016 IndyCar Schedule.*All times Eastern", schedTable, sidebar, flags=re.S)
+        sidebar = re.sub("### 2017 IndyCar Schedule.*All times Eastern", schedTable, sidebar, flags=re.S)
         if (sidebar != oldSidebar):
             # with open("/tmp/bot.log", "a") as myfile:
             #     myfile.write("Sidebar update required!\n")
