@@ -44,7 +44,7 @@ if settings.INDYBOT_ENV == "PROD":
             },
             'update-sidebar': {
                 'task': 'manager.tasks.UpdateRedditSidebarTask',
-                'schedule': crontab(hour='*', minute='*'),
+                'schedule': crontab(hour='*', minute='5'),
                 'kwargs': {'stamp': str(time.time())},
             },
             'check-posts': {
@@ -370,16 +370,8 @@ class UpdateRedditSidebarTask(JobtasticTask):
         sidebar = oldSidebar
 
         start = timezone.make_aware(datetime.datetime(datetime.date.today().year, 1, 1))
-        with open("/tmp/bot.log", "a") as myfile:
-            myfile.write("Start")
-
         end = timezone.make_aware(datetime.datetime(datetime.date.today().year, 12, 31))
-        with open("/tmp/bot.log", "a") as myfile:
-            myfile.write("End")
-
         sessions = Session.objects.filter(type_id=1).filter(starttime__gte=start).filter(starttime__lte=end).order_by('starttime').select_related()
-        with open("/tmp/bot.log", "a") as myfile:
-            myfile.write("Got Sessions")
 
         foundNext = 0
         highlightRow = 0
@@ -390,19 +382,11 @@ class UpdateRedditSidebarTask(JobtasticTask):
         schedTable += ":---|:---|:---|:---\n"
 
         for session in sessions:
-            with open("/tmp/bot.log", "a") as myfile:
-                myfile.write(session)
 
             raceCount = raceCount + 1
             coverageStart = timezone.make_naive(session.tvstarttime)
-            with open("/tmp/bot.log", "a") as myfile:
-                myfile.write(coverageStart)
             coverageEnd = timezone.make_naive(session.tvendtime)
-            with open("/tmp/bot.log", "a") as myfile:
-                myfile.write(coverageEnd)
             timeNow = timezone.make_naive(timezone.now())
-            with open("/tmp/bot.log", "a") as myfile:
-                myfile.write(timeNow)
             if coverageEnd > timeNow and foundNext == 0:
                 highlightRow = raceCount
                 bold = "**"
