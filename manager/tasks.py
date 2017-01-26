@@ -42,12 +42,11 @@ if settings.INDYBOT_ENV == "PROD":
                 'schedule': crontab(hour='*', minute='*'),
                 'kwargs': {'stamp': str(time.time())},
             },
-            # Disabled for offseason.
-            # 'update-sidebar': {
-            #     'task': 'manager.tasks.UpdateRedditSidebarTask',
-            #     'schedule': crontab(hour='*', minute='5'),
-            #     'kwargs': {'stamp': str(time.time())},
-            # },
+            'update-sidebar': {
+                'task': 'manager.tasks.UpdateRedditSidebarTask',
+                'schedule': crontab(hour='*', minute='5'),
+                'kwargs': {'stamp': str(time.time())},
+            },
             'check-posts': {
                 'task': 'manager.tasks.RedditPostsTask',
                 'schedule': datetime.timedelta(minutes=1),
