@@ -1,6 +1,7 @@
 import operator
 import datetime
 import django
+import pytz
 import time
 import praw
 import json
@@ -417,9 +418,9 @@ def post_edit(request, post_id):
         form = PostForm(request.POST, user=request.user, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
-            post.modified_time = datetime.datetime.now()
+            post.modified_time = datetime.datetime.now(pytz.timezone('US/Eastern'))
             if post.publish_time > post.modified_time:
-                post.submission = False
+                post.submission = None
             if not request.user.is_staff:
                 post.author_id = author.id
             post = form.save()
