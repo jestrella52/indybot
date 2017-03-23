@@ -418,6 +418,8 @@ def post_edit(request, post_id):
         if form.is_valid():
             post = form.save(commit=False)
             post.modified_time = datetime.datetime.now()
+            if post.publish_time > post.modified_time:
+                post.submission = False
             if not request.user.is_staff:
                 post.author_id = author.id
             post = form.save()
