@@ -230,6 +230,30 @@ def courseInfo(race_id, output="reddit"):
     courseTable += rs + "Fast Lap:" + cs + cs + str(course.fastlap) + " mph by " + course.fastdriver.first + " " + course.fastdriver.last + " " + link("/" + course.fastdriver.country.iso, "", output) + " in " + str(course.fastyear) + re + "\n"
     courseTable += rs + "Coordinates:" + cs + cs + link("https://maps.google.com/?q=" + course.gps, course.gps, output) + re + "\n"
 
+
+    resultTypeValue = ResultType.objects.get(name="Race")
+    resultQualTypeValue = ResultType.objects.get(name="Qualification")
+    sessionTypeValue = SessionType.objects.get(name="Race")
+
+    raceSessions = Session.objects.filter(race__course_id=course_id).filter(type_id=sessionTypeValue.id).order_by('-starttime')
+
+    startPosTotal = 0
+    raceCount = 0
+    for raceSession in raceSessions:
+        try:
+            race = Race.objects.get(id=raceSession.race_id)
+            winner = Result.objects.get(race_id=raceSession.race_id, type_id=resultTypeValue.id, position=1)
+            startPos = Result.objects.get(race_id=raceSession.race_id, type_id=resultQualTypeValue.id, driver_id=winner.driver.id)
+            startPosTotal = startPosTotal + startPos.position
+            raceCount = raceCount + 1
+        except:
+            pass
+    try:
+        courseTable += rs + "Average Starting Position of Winner:" + cs + cs + "P" + str(round(float(startPosTotal) / float(raceCount), 1)) + " (over last " + str(raceCount) + " races)"
+    except ZeroDivisionError:
+        pass
+
+
     try:
         courseTable += rs + "Caution periods:" + cs + cs + "Average of " + str( round(float(totalCautions) / float(len(raceIDs)), 1)  ) + " caution periods per race (over last " + str(len(raceIDs)) + " races)"+ re + "\n"
         courseTable += rs + "Caution lengths:" + cs + cs + "Average of " + str( round(float(totalCautionLaps) / float(totalCautions), 1) ) + " laps per caution period (over last " + str(len(raceIDs)) + " races)" + re + "\n"
@@ -301,15 +325,24 @@ def winnerList(race_id, output="reddit"):
     courseValue = race.course_id
 
     resultTypeValue = ResultType.objects.get(name="Race")
+    resultQualTypeValue = ResultType.objects.get(name="Qualification")
     sessionTypeValue = SessionType.objects.get(name="Race")
 
     raceSessions = Session.objects.filter(race__course_id=courseValue).filter(type_id=sessionTypeValue.id).order_by('-starttime')
 
     winners = []
+    starts = []
     for raceSession in raceSessions:
         try:
             race = Race.objects.get(id=raceSession.race_id)
-            winners.append(Result.objects.get(race_id=raceSession.race_id, type_id=resultTypeValue.id, position=1))
+            winner = Result.objects.get(race_id=raceSession.race_id, type_id=resultTypeValue.id, position=1)
+            winners.append(winner)
+            with open("/tmp/bot.log", "a") as myfile:
+                myfile.write(winner.driver.last + "\n" )
+            qualResult = Result.objects.get(race_id=raceSession.race_id, type_id=resultQualTypeValue.id, driver_id=winner.driver.id)
+            starts.append(qualResult)
+            with open("/tmp/bot.log", "a") as myfile:
+                myfile.write(str(qualResult.position) + "\n" )
         except:
             pass
 
@@ -323,9 +356,9 @@ def winnerList(race_id, output="reddit"):
     else:
         winnerTable  = "<hr><br><strong>PREVIOUS WINNERS</strong><br><br>"
         winnerTable += "<table><tr>"
-        winnerTable += "<th>Year</th><th>Winner</th><th>Country</th>" + "<th></th>"
-        winnerTable += "<th>Year</th><th>Winner</th><th>Country</th>" + "<th></th>"
-        winnerTable += "<th>Year</th><th>Winner</th><th>Country</th>" + "</tr>"
+        winnerTable += "<th>Year</th><th>Winner</th><th>Start</th><th>Country</th>" + "<th></th>"
+        winnerTable += "<th>Year</th><th>Winner</th><th>Start</th><th>Country</th>" + "<th></th>"
+        winnerTable += "<th>Year</th><th>Winner</th><th>Start</th><th>Country</th>" + "</tr>"
 
     if output == "reddit":
         rb = ""             # Row Beginning
@@ -343,16 +376,27 @@ def winnerList(race_id, output="reddit"):
     # Abandon hope, ye who enter here.
     i = 0
     while i < rows:
-        # winnerTable += rb + str(winners[i].race.green.year) + cs + winners[i].driver.first + " " + winners[i].driver.last + cs + link("/" + winners[i].driver.country.iso, "", output) + cs + cs
-        winnerTable += rb + str(winners[i].race.season.year) + cs + winners[i].driver.first + " " + winners[i].driver.last + cs + link("/" + winners[i].driver.country.iso, "", output) + cs + cs
+        #winnerTable += rb + str(winners[i].race.season.year) + cs + winners[i].driver.first + " " + winners[i].driver.last + cs + link("/" + winners[i].driver.country.iso, "", output) + cs + cs
+        winnerTable += rb + str(winners[i].race.season.year) + cs + winners[i].driver.first + " " + winners[i].driver.last + cs + "P" + str(starts[i].position) + cs + link("/" + winners[i].driver.country.iso, "", output) + cs + cs
         try:
-            winnerTable += str(winners[i+rows].race.season.year) + cs + winners[i+rows].driver.first + " " + winners[i+rows].driver.last + cs + link("/" + winners[i+rows].driver.country.iso, "", output) + cs + cs
+            winnerTable += str(winners[i+rows].race.season.year) + cs + winners[i+rows].driver.first + " " + winners[i+rows].driver.last + cs + "P" + str(starts[i+rows].position) + cs + link("/" + winners[i+rows].driver.country.iso, "", output) + cs + cs
         except IndexError, e:
-            winnerTable += cs + cs + cs + cs
+            winnerTable += cs + cs + cs + cs + cs
         try:
-            winnerTable += str(winners[i+(rows*2)].race.season.year) + cs + winners[i+(rows*2)].driver.first + " " + winners[i+(rows*2)].driver.last + cs + link("/" + winners[i+(rows*2)].driver.country.iso, "", output) + re
+            with open("/tmp/bot.log", "a") as myfile:
+                myfile.write("-----")
+                myfile.write(str(winners[i+(rows*2)].race.season.year))
+                myfile.write(" ")
+                myfile.write(winners[i+(rows*2)].driver.first)
+                myfile.write(" ")
+                myfile.write(winners[i+(rows*2)].driver.last)
+                myfile.write(" ")
+                myfile.write("P" + str(starts[i+(rows*2)].position))
+                myfile.write(" ")
+                myfile.write(winners[i+(rows*2)].driver.country.iso)
+            winnerTable += str(winners[i+(rows*2)].race.season.year) + cs + winners[i+(rows*2)].driver.first + " " + winners[i+(rows*2)].driver.last + cs + "P" + str(starts[i+(rows*2)].position) + cs + link("/" + winners[i+(rows*2)].driver.country.iso, "", output) + re
         except IndexError, e:
-            winnerTable += cs + cs + re
+            winnerTable += cs + cs + cs + re
         winnerTable += "\n"
         i = i + 1
 

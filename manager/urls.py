@@ -1,4 +1,5 @@
-from django.conf.urls import url
+from django.conf import settings
+from django.conf.urls import include, url
 from django.contrib import auth
 from django.contrib.auth import views as auth_views
 
@@ -95,3 +96,11 @@ urlpatterns = [
     url(r'^password_change/$', auth_views.password_change, {'template_name': 'passwordChange.html'}),
     url(r'^password_change_done/$', auth_views.password_change_done, {'template_name': 'passwordChangeDone.html'}, name='password_change_done'),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
+    urlpatterns += staticfiles_urlpatterns()
