@@ -252,9 +252,8 @@ class RaceForm(forms.ModelForm):
                 Tab('Pre-Race Information',
                     Div(
                         Div(Field('season', autofocus=True), css_class="col-md-3"),
-                        Div(Field('title'), css_class="col-md-3"),
+                        Div(Field('title'), css_class="col-md-6"),
                         Div(Field('course'), css_class="col-md-3"),
-                        Div(Field('url'), css_class="col-md-3"),
                         css_class="row"
                     ),
                     Div(
@@ -264,6 +263,11 @@ class RaceForm(forms.ModelForm):
                         Div(Field('shortname'), css_class="col-md-2"),
                         Div(Field('channel'), css_class="col-md-2"),
                         Div(Field('hashtag'), css_class="col-md-2"),
+                        css_class="row"
+                    ),
+                    Div(
+                        Div(Field('url'), css_class="col-md-6"),
+                        Div(Field('headerimgurl'), css_class="col-md-6"),
                         css_class="row"
                     ),
                     css_class="fade in"
@@ -316,7 +320,7 @@ class RaceForm(forms.ModelForm):
 
     class Meta:
         model = Race
-        fields = ('season', 'title', 'shortname', 'laps', 'channel', 'hashtag', 'url', 'urlrr', 'submission', 'subpractice', 'subpostrace', 'urlrace', 'urlpractice', 'urlpostrace', 'rowsize', 'course', 'start', 'yellowflags', 'yellowlaps', 'duration', 'speedavg', 'speedpole', 'leadchanges', 'margin')
+        fields = ('season', 'title', 'shortname', 'laps', 'channel', 'hashtag', 'url', 'urlrr', 'submission', 'subpractice', 'subpostrace', 'urlrace', 'urlpractice', 'urlpostrace', 'rowsize', 'course', 'start', 'yellowflags', 'yellowlaps', 'duration', 'speedavg', 'speedpole', 'leadchanges', 'margin', 'headerimgurl')
         labels = {
             'shortname': "Short Name",
             'laps': "Number of Laps",
@@ -339,7 +343,8 @@ class RaceForm(forms.ModelForm):
             'submission': "SubID",
             'urlrace': "URL",
             'subpostrace': "SubID",
-            'urlpostrace': "URL"
+            'urlpostrace': "URL",
+            'headerimgurl': "Reddit Mobile Header Image URL"
         }
 
 

@@ -280,7 +280,10 @@ def raceInfo(race_id, output="reddit"):
     coverageURL = wolframURL + urllib.quote(str(coverTime) + " " + coverTime.strftime("%p") + " EDT in UTC")
     greenURL = wolframURL + urllib.quote(str(greenTime) + " " + greenTime.strftime("%p") + " EDT in UTC")
 
-    raceTable  = "Welcome to the /r/INDYCAR race thread for the "
+    if race.headerimgurl:
+        raceTable  = "Welcome" + link(race.headerimgurl, "!", output) + " to the /r/INDYCAR race thread for the "
+    else:
+        raceTable  = "Welcome to the /r/INDYCAR race thread for the "
 
     if output == "reddit":
         bs = "**"

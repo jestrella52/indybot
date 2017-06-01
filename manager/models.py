@@ -123,6 +123,7 @@ class Race(models.Model):
     start = models.ForeignKey(Start)
     season = models.ForeignKey(Season, on_delete=models.PROTECT, null=True)
     hashtag = models.CharField(max_length=20, blank=True, null=True)
+    headerimgurl = models.CharField(max_length=100, blank=True, null=True)
 
     @property
     def in_the_past(self):
