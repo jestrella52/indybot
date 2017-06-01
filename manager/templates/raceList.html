@@ -73,7 +73,9 @@
             <td>{{ race.channel }}</td>
             <td align="center">
                 <a href="/race/{{race.id}}/session/edit">
-                    {% if race.hasRaceSession and race.hasPracticeSession and race.hasQualSession and race.hasPostRaceSession %}
+                    {% if race.in_the_past %}
+                    <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+                    {% elif race.hasRaceSession and race.hasPracticeSession and race.hasQualSession and race.hasPostRaceSession %}
                     <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
                     {% elif race.hasRaceSession or race.hasPracticeSession or race.hasQualSession or race.hasPostRaceSession %}
                     <span class="glyphicon glyphicon-calendar" style="color:orange" aria-hidden="true"></span>
