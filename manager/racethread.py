@@ -249,7 +249,7 @@ def courseInfo(race_id, output="reddit"):
         except:
             pass
     try:
-        courseTable += rs + "Average Starting Position of Winner:" + cs + cs + "P" + str(round(float(startPosTotal) / float(raceCount), 1)) + " (over last " + str(raceCount) + " races)"
+        courseTable += rs + "Average Starting Position of Winner:" + cs + cs + "P" + str(round(float(startPosTotal) / float(raceCount), 1)) + " (over last " + str(raceCount) + " races)" + re + "\n"
     except ZeroDivisionError:
         pass
 
