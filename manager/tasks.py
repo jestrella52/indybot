@@ -186,7 +186,7 @@ class RedditThreadTask(JobtasticTask):
         upcomingSessions = upcomingSessions.filter(posttime__lte=now)
         upcomingSessions = upcomingSessions.order_by('posttime')
 
-        # logit(str(upcomingSessions.query))
+        logit("[RTT] Upcoming Sessions: " + str(upcomingSessions.query))
 
         # Only post if the session hasn't already ended
         for sess in upcomingSessions:
