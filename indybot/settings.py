@@ -117,3 +117,5 @@ try:
 except ImportError:
     # We're running in our CI environment, use a dummy key.
     SECRET_KEY="abcdeABCDEabcdeABCDEabcdeABCDEabcdeABCDEabcdeABCDE"
+
+INDYBOT_LOGFILE = INDYBOT_LOGDIR + "/" + INDYBOT_ENV.lower() + ".log"
