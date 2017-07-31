@@ -163,7 +163,7 @@ class RedditThreadTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        logit("[Threads] RedditThreadTask: starting up! - - - - - - - - - - - - - - - - - - - - ")
+        logit("[Threads] RedditThreadTask: starting up! - - - - - - - - - - - - ")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         pracSessionID = SessionType.objects.filter(name="Practice").values('id')[0]['id']
@@ -276,7 +276,7 @@ class RedditPostsTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        logit("[Posts] RedditPostsTask: starting up! - - - - - - - - - - - - - - - - - - - -")
+        logit("[Posts] RedditPostsTask: starting up! - - - - - - - - - - - -")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         posts = Post.objects.filter(submission=None).filter(Q(publish_time__lte=timezone.now())).prefetch_related('author')
@@ -342,7 +342,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
 
     def calculate_result(self, stamp, **kwargs):
 
-        logit("[Sidebar] RedditSidebarTask: starting up! - - - - - - - - - - - - - - - - - - - -")
+        logit("[Sidebar] RedditSidebarTask: starting up! - - - - - - - - - - - -")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         message = ""
