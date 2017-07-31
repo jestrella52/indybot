@@ -37,6 +37,7 @@ app = Celery('indybot-' + settings.INDYBOT_ENV, backend='amqp', broker='amqp://g
 rpc_backend = RPCBackend(app)
 
 if settings.INDYBOT_ENV == "PROD":
+    logit("Applying PROD schedule.")
     app.conf.update(
         CELERYBEAT_SCHEDULE = {
             'check-threads': {
@@ -72,6 +73,7 @@ if settings.INDYBOT_ENV == "PROD":
         }
     )
 elif settings.INDYBOT_ENV == "STAGE":
+    logit("Applying STAGE schedule.")
     app.conf.update(
         CELERYBEAT_SCHEDULE = {
             'check-threads': {
@@ -87,6 +89,7 @@ elif settings.INDYBOT_ENV == "STAGE":
         }
     )
 elif settings.INDYBOT_ENV == "DEVEL":
+    logit("Applying DEVEL schedule.")
     app.conf.update(
         CELERYBEAT_SCHEDULE = {
             'check-threads': {
