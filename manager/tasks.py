@@ -163,7 +163,7 @@ class RedditThreadTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        logit("[RTT] RedditThreadTask starting up!")
+        logit("[RTT] RedditThreadTask: starting up!")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         pracSessionID = SessionType.objects.filter(name="Practice").values('id')[0]['id']
@@ -257,6 +257,7 @@ class RedditThreadTask(JobtasticTask):
                     ts = str(time.time())
                     result = RedditPostsTask.delay_or_fail(stamp=ts)
 
+        logit("[RTT] Finished.")
         return True
 
 
@@ -270,7 +271,7 @@ class RedditPostsTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        logit("[RPT] RedditPostsTask: starting up")
+        logit("[RPT] RedditPostsTask: starting up!")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         posts = Post.objects.filter(submission=None).filter(Q(publish_time__lte=timezone.now())).prefetch_related('author')
