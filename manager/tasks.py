@@ -163,8 +163,7 @@ class RedditThreadTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        logit("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =")
-        logit("RedditThreadTask starting up!")
+        logit("[RTT] RedditThreadTask starting up!")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         pracSessionID = SessionType.objects.filter(name="Practice").values('id')[0]['id']
@@ -173,11 +172,11 @@ class RedditThreadTask(JobtasticTask):
         contSessionID = SessionType.objects.filter(name="Race (Resumed)").values('id')[0]['id']
         postSessionID = SessionType.objects.filter(name="Post-Race").values('id')[0]['id']
 
-        # logit("Practice: " + str(pracSessionID))
-        # logit("Qualification: " + str(qualSessionID))
-        # logit("Race: " + str(raceSessionID))
-        # logit("Race resumed: " + str(contSessionID))
-        # logit("Post-race: " + str(postSessionID))
+        # logit("[RTT] Practice: " + str(pracSessionID))
+        # logit("[RTT] Qualification: " + str(qualSessionID))
+        # logit("[RTT] Race: " + str(raceSessionID))
+        # logit("[RTT] Race resumed: " + str(contSessionID))
+        # logit("[RTT] Post-race: " + str(postSessionID))
 
         now = timezone.now()
 
@@ -213,27 +212,27 @@ class RedditThreadTask(JobtasticTask):
                 eventName = str(datetime.datetime.now().year) + " " + sess.race.title
 
                 if sess.type.id == pracSessionID or sess.type.id == qualSessionID:
-                    logit("Posting practice/qual thread.")
+                    logit("[RTT] Posting practice/qual thread.")
                     postTitle = "[Practice/Qual Thread] - " + eventName
                     postBody = "This thread is for discussion of all things related to practice and qualifying for the " + sess.race.title + "\n"
                     postFlairText='Practice Thread'
 
 
                 elif sess.type.id == raceSessionID or sess.type.id == contSessionID:
-                    logit("Posting race thread.")
+                    logit("[RTT] Posting race thread.")
                     postTitle = "[Race Thread] - " + eventName
                     postBody = compile(sess.race.id)
                     postFlairText='Race Thread'
 
                 elif sess.type.id == postSessionID:
-                    logit("Posting post-race thread.")
+                    logit("[RTT] Posting post-race thread.")
                     postTitle = "[Post-Race Thread] - " + eventName
                     postBody = "This thread is for discussion of the results and post-race happenings of the " + sess.race.title + "\n"
                     postFlairText='Post-Race Thread'
                     postStream = 0
 
                 else:
-                    logit("Fuck it.  No idea what to post.")
+                    logit("[RTT] Fuck it.  No idea what to post.")
 
                 # We have a post to post.  Let's post our post.
                 if postTitle and postBody:
@@ -271,24 +270,22 @@ class RedditPostsTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        logit("===============================================================")
-        logit("starting up")
+        logit("[RPT] RedditPostsTask: starting up")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         posts = Post.objects.filter(submission=None).filter(Q(publish_time__lte=timezone.now())).prefetch_related('author')
-        logit(str(len(posts)) + " posts in queue.")
+        logit("[RPT] " + str(len(posts)) + " posts in queue.")
 
         if len(posts) > 0:
             r = praw.Reddit(user_agent=user_agent)
             r.refresh_access_information()
 
             if r.user == None:
-                logit("Failed to log in. Something went wrong!")
+                logit("[RPT] Failed to log in. Something went wrong!")
             else:
-                logit("Logged in to reddit as " + str(r.user))
+                logit("[RPT] Logged in to reddit as " + str(r.user))
 
             for post in posts:
-                logit("- - - - - - - - - - - - - - -")
                 postBody = post.body
 
                 if post.credit:
@@ -314,14 +311,14 @@ class RedditPostsTask(JobtasticTask):
                 post.submission = submission.id
                 post.save()
 
-                logit(post.title + ", by " + str(post.author))
-                logit("Scheduled for: " + str(post.publish_time))
+                logit("[RPT] " + post.title + ", by " + str(post.author))
+                logit("[RPT] Scheduled for: " + str(post.publish_time))
                 timePub = timezone.make_naive(post.publish_time)
                 timeNow = timezone.make_naive(timezone.now())
-                logit("Adjusted time: " + str(timePub))
-                logit("Current time: " + str(timeNow))
+                logit("[RPT] Adjusted time: " + str(timePub))
+                logit("[RPT] Current time: " + str(timeNow))
                 if (timeNow >= timePub):
-                    logit ("POSTING!")
+                    logit ("[RPT] POSTING!")
 
         self.update_progress(100, 100)
 
