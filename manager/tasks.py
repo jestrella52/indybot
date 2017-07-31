@@ -31,7 +31,7 @@ from .models import SessionType, Tweet
 
 from .racethread import compile
 
-app = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
+app = Celery('indybot-' + settings.INDYBOT_ENV, backend='amqp', broker='amqp://guest@localhost//')
 rpc_backend = RPCBackend(app)
 
 if settings.INDYBOT_ENV == "PROD":
