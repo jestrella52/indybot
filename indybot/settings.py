@@ -113,7 +113,7 @@ LOGIN_REDIRECT_URL = '/'
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 INDYBOT_ENV = "PROD" # PROD, STAGE, or DEVEL.  Override in local_settings.py
-INDYBOT_LOGDIR = "/var/log/indybot"
+INDYBOT_LOGDIR = "/var/log/indybot" # Default.  Override in local_settings.py
 
 try:
     from local_settings import *
