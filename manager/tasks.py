@@ -163,7 +163,7 @@ class RedditThreadTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        logit("[RTT] RedditThreadTask: starting up!")
+        logit("[RTT] RedditThreadTask: starting up! - - - - - - - - - - - - - - - - - - - - ")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         pracSessionID = SessionType.objects.filter(name="Practice").values('id')[0]['id']
@@ -186,7 +186,7 @@ class RedditThreadTask(JobtasticTask):
         upcomingSessions = upcomingSessions.filter(posttime__lte=now)
         upcomingSessions = upcomingSessions.order_by('posttime')
 
-        logit("[RTT] Upcoming Sessions: " + str(upcomingSessions.query))
+        # logit("[RTT] Upcoming Sessions: " + str(upcomingSessions.query))
 
         # Only post if the session hasn't already ended
         for sess in upcomingSessions:
@@ -276,7 +276,7 @@ class RedditPostsTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        logit("[RPT] RedditPostsTask: starting up!")
+        logit("[RPT] RedditPostsTask: starting up! - - - - - - - - - - - - - - - - - - - -")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         posts = Post.objects.filter(submission=None).filter(Q(publish_time__lte=timezone.now())).prefetch_related('author')
