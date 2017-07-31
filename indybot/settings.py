@@ -112,6 +112,8 @@ LOGIN_REDIRECT_URL = '/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
+INDYBOT_LOGDIR = "/var/log/indybot"
+
 try:
     from local_settings import *
 except ImportError:
