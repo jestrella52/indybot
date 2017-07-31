@@ -97,7 +97,7 @@ urlpatterns = [
     url(r'^password_change_done/$', auth_views.password_change_done, {'template_name': 'passwordChangeDone.html'}, name='password_change_done'),
 ]
 
-if settings.INDYBOT_ENV="DEVEL":
+if settings.INDYBOT_ENV == "DEVEL":
     import debug_toolbar
     from django.contrib.staticfiles.urls import staticfiles_urlpatterns
     urlpatterns += [
