@@ -69,8 +69,22 @@ if settings.INDYBOT_ENV == "PROD":
             },
         }
     )
-
-if settings.INDYBOT_ENV == "DEVEL":
+elif settings.INDYBOT_ENV == "STAGE":
+    app.conf.update(
+        CELERYBEAT_SCHEDULE = {
+            'check-threads': {
+                'task': 'manager.tasks.RedditThreadTask',
+                'schedule': crontab(hour='*', minute='*'),
+                'kwargs': {'stamp': str(time.time())},
+            },
+            'check-posts': {
+                'task': 'manager.tasks.RedditPostsTask',
+                'schedule': datetime.timedelta(minutes=1),
+                'kwargs': {'stamp': str(time.time())},
+            },
+        }
+    )
+elif settings.INDYBOT_ENV == "DEVEL":
     app.conf.update(
         CELERYBEAT_SCHEDULE = {
             'check-threads': {
@@ -91,12 +105,12 @@ indybotCredits = "***\n\n^(Questions, comments, or hate mail regarding IndyBot s
 
 
 def logit(message):
-    with open("/tmp/bot.log", "a") as myfile:
+    with open(settings.INDYBOT_LOGFILE, "a") as myfile:
         myfile.write(message + "\n")
 
 
 def bumpLog():
-    with open("/tmp/bot.log", "a") as myfile:
+    with open(settings.INDYBOT_LOGFILE, "a") as myfile:
         myfile.write("\n\n")
 
 
@@ -447,8 +461,7 @@ class UploadLiveriesTask(JobtasticTask):
     def calculate_result(self, stamp, **kwargs):
         subreddits	= [settings.SUBREDDIT]
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
-        with open("/tmp/bot.log", "a") as myfile:
-            myfile.write(str(os.getcwd()))
+        logit(str(os.getcwd()))
         message = ""
         percentage = float(0)
         subPercentage = float(80/len(subreddits))
@@ -458,12 +471,10 @@ class UploadLiveriesTask(JobtasticTask):
 
         if r.user == None:
             message += "Failed to log in. Something went wrong!\n"
-            with open("/tmp/bot.log", "a") as myfile:
-                myfile.write(message)
+            logit(message)
         else:
             message += "Logged in to reddit as " + str(r.user)
-            with open("/tmp/bot.log", "a") as myfile:
-                myfile.write(message)
+            logit(message)
         self.update_progress(20, 100)
 
 
