@@ -1,4 +1,4 @@
 
 def logit(message):
-    with open("/tmp/bot.log", "a") as myfile:
+    with open(settings.INDYBOT_LOGFILE, "a") as myfile:
         myfile.write(message + "\n")

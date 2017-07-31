@@ -31,6 +31,8 @@ from .models import SessionType, Tweet
 
 from .racethread import compile
 
+from .support import logit
+
 app = Celery('indybot-' + settings.INDYBOT_ENV, backend='amqp', broker='amqp://guest@localhost//')
 rpc_backend = RPCBackend(app)
 
@@ -104,14 +106,14 @@ posterCredits  = "***\n\nIndyBot submitted this post on behalf of /u/"
 indybotCredits = "***\n\n^(Questions, comments, or hate mail regarding IndyBot should be directed to /u/BadgerBalls.)\n"
 
 
-def logit(message):
-    with open(settings.INDYBOT_LOGFILE, "a") as myfile:
-        myfile.write(message + "\n")
+# def logit(message):
+#     with open(settings.INDYBOT_LOGFILE, "a") as myfile:
+#         myfile.write(message + "\n")
 
 
-def bumpLog():
-    with open(settings.INDYBOT_LOGFILE, "a") as myfile:
-        myfile.write("\n\n")
+# def bumpLog():
+#     with open(settings.INDYBOT_LOGFILE, "a") as myfile:
+#         myfile.write("\n\n")
 
 
 class TweetTask(JobtasticTask):
@@ -336,9 +338,6 @@ class UpdateRedditSidebarTask(JobtasticTask):
 
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
-        # with open("/tmp/bot.log", "a") as myfile:
-        #     myfile.write(str(os.getcwd()) + "\n")
-
         message = ""
         percentage = float(0)
 
@@ -347,12 +346,8 @@ class UpdateRedditSidebarTask(JobtasticTask):
 
         if r.user == None:
             message += "Failed to log in. Something went wrong!\n"
-            # with open("/tmp/bot.log", "a") as myfile:
-            #     myfile.write(message + "\n")
         else:
             message += "Logged in to reddit as " + str(r.user)
-            # with open("/tmp/bot.log", "a") as myfile:
-            #     myfile.write(message + "\n")
         self.update_progress(20, 100)
 
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
