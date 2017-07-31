@@ -163,7 +163,7 @@ class RedditThreadTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        logit("[RTT] RedditThreadTask: starting up! - - - - - - - - - - - - - - - - - - - - ")
+        logit("[Threads] RedditThreadTask: starting up! - - - - - - - - - - - - - - - - - - - - ")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         pracSessionID = SessionType.objects.filter(name="Practice").values('id')[0]['id']
@@ -172,11 +172,11 @@ class RedditThreadTask(JobtasticTask):
         contSessionID = SessionType.objects.filter(name="Race (Resumed)").values('id')[0]['id']
         postSessionID = SessionType.objects.filter(name="Post-Race").values('id')[0]['id']
 
-        # logit("[RTT] Practice: " + str(pracSessionID))
-        # logit("[RTT] Qualification: " + str(qualSessionID))
-        # logit("[RTT] Race: " + str(raceSessionID))
-        # logit("[RTT] Race resumed: " + str(contSessionID))
-        # logit("[RTT] Post-race: " + str(postSessionID))
+        # logit("[Threads] Practice: " + str(pracSessionID))
+        # logit("[Threads] Qualification: " + str(qualSessionID))
+        # logit("[Threads] Race: " + str(raceSessionID))
+        # logit("[Threads] Race resumed: " + str(contSessionID))
+        # logit("[Threads] Post-race: " + str(postSessionID))
 
         now = timezone.now()
 
@@ -186,7 +186,7 @@ class RedditThreadTask(JobtasticTask):
         upcomingSessions = upcomingSessions.filter(posttime__lte=now)
         upcomingSessions = upcomingSessions.order_by('posttime')
 
-        # logit("[RTT] Upcoming Sessions: " + str(upcomingSessions.query))
+        # logit("[Threads] Upcoming Sessions: " + str(upcomingSessions.query))
 
         # Only post if the session hasn't already ended
         for sess in upcomingSessions:
@@ -212,32 +212,32 @@ class RedditThreadTask(JobtasticTask):
                 eventName = str(datetime.datetime.now().year) + " " + sess.race.title
 
                 if sess.type.id == pracSessionID or sess.type.id == qualSessionID:
-                    logit("[RTT] Posting practice/qual thread.")
+                    logit("[Threads] Posting practice/qual thread.")
                     postTitle = "[Practice/Qual Thread] - " + eventName
                     postBody = "This thread is for discussion of all things related to practice and qualifying for the " + sess.race.title + "\n"
                     postFlairText='Practice Thread'
 
 
                 elif sess.type.id == raceSessionID or sess.type.id == contSessionID:
-                    logit("[RTT] Posting race thread.")
+                    logit("[Threads] Posting race thread.")
                     postTitle = "[Race Thread] - " + eventName
                     postBody = compile(sess.race.id)
-                    logit("[RTT] Compiled Race Thread")
+                    logit("[Threads] Compiled Race Thread")
                     postFlairText='Race Thread'
 
                 elif sess.type.id == postSessionID:
-                    logit("[RTT] Posting post-race thread.")
+                    logit("[Threads] Posting post-race thread.")
                     postTitle = "[Post-Race Thread] - " + eventName
                     postBody = "This thread is for discussion of the results and post-race happenings of the " + sess.race.title + "\n"
                     postFlairText='Post-Race Thread'
                     postStream = 0
 
                 else:
-                    logit("[RTT] Fuck it.  No idea what to post.")
+                    logit("[Threads] Fuck it.  No idea what to post.")
 
                 # We have a post to post.  Let's post our post.
                 if postTitle and postBody:
-                    logit("[RTT] " + postTitle)
+                    logit("[Threads] " + postTitle)
                     postObj = Post(
                         title=postTitle,
                         body=postBody,
@@ -252,17 +252,17 @@ class RedditThreadTask(JobtasticTask):
                         credit=postCredit
                     )
                     postObj.save()
-                    logit("[RTT] Post Object Saved.  ID: " + str(postObj.id))
+                    logit("[Threads] Post Object Saved.  ID: " + str(postObj.id))
                     sess.submission_id = postObj.id
                     sess.save()
-                    logit("[RTT] Session updated with post id.")
+                    logit("[Threads] Session updated with post id.")
 
                     # Publish instantly.
                     ts = str(time.time())
                     result = RedditPostsTask.delay_or_fail(stamp=ts)
-                    logit("[RTT] Submitted RPT Task.")
+                    logit("[Threads] Submitted RPT Task.")
 
-        logit("[RTT] Finished.")
+        logit("[Threads] Finished.")
         return True
 
 
@@ -276,20 +276,20 @@ class RedditPostsTask(JobtasticTask):
     ]
 
     def calculate_result(self, stamp, **kwargs):
-        logit("[RPT] RedditPostsTask: starting up! - - - - - - - - - - - - - - - - - - - -")
+        logit("[Posts] RedditPostsTask: starting up! - - - - - - - - - - - - - - - - - - - -")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         posts = Post.objects.filter(submission=None).filter(Q(publish_time__lte=timezone.now())).prefetch_related('author')
-        logit("[RPT] " + str(len(posts)) + " posts in queue.")
+        logit("[Posts] " + str(len(posts)) + " posts in queue.")
 
         if len(posts) > 0:
             r = praw.Reddit(user_agent=user_agent)
             r.refresh_access_information()
 
             if r.user == None:
-                logit("[RPT] Failed to log in. Something went wrong!")
+                logit("[Posts] Failed to log in. Something went wrong!")
             else:
-                logit("[RPT] Logged in to reddit as " + str(r.user))
+                logit("[Posts] Logged in to reddit as " + str(r.user))
 
             for post in posts:
                 postBody = post.body
@@ -317,14 +317,14 @@ class RedditPostsTask(JobtasticTask):
                 post.submission = submission.id
                 post.save()
 
-                logit("[RPT] " + post.title + ", by " + str(post.author))
-                logit("[RPT] Scheduled for: " + str(post.publish_time))
+                logit("[Posts] " + post.title + ", by " + str(post.author))
+                logit("[Posts] Scheduled for: " + str(post.publish_time))
                 timePub = timezone.make_naive(post.publish_time)
                 timeNow = timezone.make_naive(timezone.now())
-                logit("[RPT] Adjusted time: " + str(timePub))
-                logit("[RPT] Current time: " + str(timeNow))
+                logit("[Posts] Adjusted time: " + str(timePub))
+                logit("[Posts] Current time: " + str(timeNow))
                 if (timeNow >= timePub):
-                    logit ("[RPT] POSTING!")
+                    logit ("[Posts] POSTING!")
 
         self.update_progress(100, 100)
 
@@ -342,6 +342,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
 
     def calculate_result(self, stamp, **kwargs):
 
+        logit("[Sidebar] RedditSidebarTask: starting up! - - - - - - - - - - - - - - - - - - - -")
         user_agent	= ("/r/IndyCar crew chief v1.9.1 by /u/Badgerballs")
 
         message = ""
@@ -424,29 +425,17 @@ class UpdateRedditSidebarTask(JobtasticTask):
         old = oldCSS.split("\n")
         new = newCSS.split("\n")
 
-        # with open("/tmp/bot.log", "a") as myfile:
-        #     for i in range(0, 10):
-        #         myfile.write("-------\n")
-        #         myfile.write(old[i] + "\n")
-        #         myfile.write(new[i] + "\n")
-
         if newCSS != oldCSS:
-            # with open("/tmp/bot.log", "a") as myfile:
-            #     myfile.write("Stylesheet update required!\n")
+            logit("[Sidebar] Stylesheet update required!")
             r.set_stylesheet(settings.SUBREDDIT, '')
             r.set_stylesheet(settings.SUBREDDIT, newCSS)
 
-        # with open("/tmp/bot.log", "a") as myfile:
-        #     myfile.write(schedTable + "\n")
-
         sidebar = re.sub("### 2017 IndyCar Schedule.*All times Eastern", schedTable, sidebar, flags=re.S)
         if (sidebar != oldSidebar):
-            # with open("/tmp/bot.log", "a") as myfile:
-            #     myfile.write("Sidebar update required!\n")
+            logit("[Sidebar] Sidebar update required!\n")
             subsettings = r.update_settings(r.get_subreddit(settings.SUBREDDIT), description=sidebar)
-        # else:
-            # with open("/tmp/bot.log", "a") as myfile:
-            #     myfile.write("No change required.\n")
+        else:
+            logit("[Sidebar] No change required.\n")
         self.update_progress(100, 100)
         return 1
 
