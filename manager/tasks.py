@@ -180,7 +180,7 @@ class RedditThreadTask(JobtasticTask):
 
         now = timezone.now()
 
-        # Get posts in future with scheduled times but no submission id
+        # Get posts whose post times have passed but have no submission id
         upcomingSessions = Session.objects.filter(submission_id__isnull=True)
         upcomingSessions = upcomingSessions.filter(posttime__isnull=False)
         upcomingSessions = upcomingSessions.filter(posttime__lte=now)
@@ -222,6 +222,7 @@ class RedditThreadTask(JobtasticTask):
                     logit("[RTT] Posting race thread.")
                     postTitle = "[Race Thread] - " + eventName
                     postBody = compile(sess.race.id)
+                    logit("[RTT] Compiled Race Thread")
                     postFlairText='Race Thread'
 
                 elif sess.type.id == postSessionID:
@@ -236,6 +237,7 @@ class RedditThreadTask(JobtasticTask):
 
                 # We have a post to post.  Let's post our post.
                 if postTitle and postBody:
+                    logit("[RTT] " + postTitle)
                     postObj = Post(
                         title=postTitle,
                         body=postBody,
@@ -250,12 +252,15 @@ class RedditThreadTask(JobtasticTask):
                         credit=postCredit
                     )
                     postObj.save()
+                    logit("[RTT] Post Object Saved.  ID: " + str(postObj.id))
                     sess.submission_id = postObj.id
                     sess.save()
+                    logit("[RTT] Session updated with post id.")
 
                     # Publish instantly.
                     ts = str(time.time())
                     result = RedditPostsTask.delay_or_fail(stamp=ts)
+                    logit("[RTT] Submitted RPT Task.")
 
         logit("[RTT] Finished.")
         return True
