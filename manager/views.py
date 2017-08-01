@@ -162,6 +162,17 @@ def driver_list_inactive(request):
 
 
 @login_required
+def driver_toggleActive(request, driver_id):
+    driver = get_object_or_404(Driver, pk=driver_id)
+    if driver.active:
+        driver.active = False
+    else:
+        driver.active = True
+    driver.save()
+    return HttpResponse(driver.active)
+
+
+@login_required
 def start_list(request):
     startList = Start.objects.order_by('id')
     template = loader.get_template('startList.html')

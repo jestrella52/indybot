@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^driver/create/$', views.driver_create, name='driver_create'),
     url(r'^driver/(?P<driver_id>[0-9]+)/edit/$', views.driver_edit, name='driver_edit'),
     url(r'^driver/(?P<driver_id>[0-9]+)/delete/$', views.driver_delete, name='driver_delete'),
+    url(r'^driver/(?P<driver_id>[0-9]+)/toggleActive/$', views.driver_toggleActive, name='driver_toggleActive'),
 
     url(r'^liveries/regenerate/$', views.liveries_regenerate, name='liveries_regenerate'),
     url(r'^liveries/show/$', views.liveries_show, name='liveries_show'),
