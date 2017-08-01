@@ -12,6 +12,7 @@ import os
 from PIL import Image
 
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from django.shortcuts import get_object_or_404, redirect, render
@@ -943,8 +944,10 @@ def results_edit(request, race_id, resulttype_id):
 
     race = Race.objects.get(id=race_id)
     resultTypeName = ResultType.objects.get(id=resulttype_id)
-    if (race.season.year == datetime.date.today().year):
-        activeDrivers = Driver.objects.order_by('last', 'first').filter(active=1)
+    currentYear = datetime.date.today().year
+    if (race.season.year == currentYear):
+        # Get all drivers marked active OR who have a Result object for the current season.
+        activeDrivers = Driver.objects.filter(Q(active=1) | Q(result__race__season__year=currentYear)).distinct()
     else:
         activeDrivers = Driver.objects.order_by('last', 'first')
 
