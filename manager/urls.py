@@ -28,6 +28,7 @@ urlpatterns = [
 
     url(r'^driver/list/$', views.driver_list, name='driver_list'),
     url(r'^driver/list/active/$', views.driver_list_active, name='driver_list_active'),
+    url(r'^driver/list/current/$', views.driver_list_current, name='driver_list_current'),
     url(r'^driver/list/inactive/$', views.driver_list_inactive, name='driver_list_inactive'),
     url(r'^driver/create/$', views.driver_create, name='driver_create'),
     url(r'^driver/(?P<driver_id>[0-9]+)/edit/$', views.driver_edit, name='driver_edit'),
