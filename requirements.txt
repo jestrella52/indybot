@@ -10,6 +10,7 @@ decorator==4.0.9
 Django==1.9.4
 django-bootstrap3-datetimepicker-2==2.4.2
 django-crispy-forms==1.6.0
+django-debug-toolbar==1.8
 django-slack==5.7.0
 flower==0.9.1
 future==0.15.2
@@ -29,6 +30,11 @@ python-twitter==3.1
 pytz==2016.4
 requests==2.9.1
 requests-oauthlib==0.6.1
+selenium==3.4.3
 six==1.10.0
+slackclient==1.0.6
+sqlparse==0.2.3
+static3==0.7.0
 tornado==4.2
 update-checker==0.11
+websocket-client==0.44.0
