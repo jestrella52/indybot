@@ -11,7 +11,6 @@ rrScripts/cautions.txt
 gunicorn.conf.py
 indybot/local_settings.py
 tests
-celerybeat-schedule.db
-static
+celerybeat-schedule*
 /log
 /ghostdriver.log
