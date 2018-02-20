@@ -164,18 +164,14 @@ def driver_list_inactive(request):
 
 @login_required
 def driver_list_current(request):
-    logit("In driver_list_current()")
     currentYear = datetime.date.today().year
-    logit("Year: " + str(currentYear))
     driverList = Driver.objects.order_by('last', 'first').filter(Q(active=1) | Q(result__race__season__year=currentYear)).distinct()
-    logit("Got list - " + str(len(driverList)) + " entries.")
+
     template = loader.get_template('driverList.html')
-    logit("Loaded template.")
     context = {
         'title': "Drivers - Current Season",
         'driverList': driverList,
     }
-    logit("Set context")
     return HttpResponse(template.render(context, request))
 
 
