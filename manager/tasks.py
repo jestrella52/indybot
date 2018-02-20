@@ -288,7 +288,7 @@ class RedditPostsTask(JobtasticTask):
                             username=settings.REDDIT_USERNAME,
                             password=settings.REDDIT_PASSWORD,
                             user_agent=user_agent)
-            logit("[Posts] ")
+
             if r.user == None:
                 logit("[Posts] Failed to log in. Something went wrong!")
             else:
@@ -305,8 +305,6 @@ class RedditPostsTask(JobtasticTask):
 
                 submission = sub.submit(post.title, selftext=postBody)
 
-                logit("[Posts] " + pprint.pformat(submission.flair.choices(), indent=4))
-
                 if post.flair_text and post.flair_css_class:
                     #TODO Find where these are set and update this to better work with new PRAW
                     availableFlair = submission.flair.choices()
@@ -322,7 +320,7 @@ class RedditPostsTask(JobtasticTask):
 
                 if post.stream:
                     comment = submission.reply("Please post stream links as a reply to this stickied comment.")
-                    comment.distinguish(how='yes', sticky=True)
+                    comment.mod.distinguish(how='yes', sticky=True)
 
                 post.submission = submission.id
                 post.save()
