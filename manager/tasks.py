@@ -97,11 +97,6 @@ elif settings.INDYBOT_ENV == "DEVEL":
                 'schedule': crontab(hour='*', minute='*'),
                 'kwargs': {'stamp': str(time.time())},
             },
-            'update-sidebar': {
-                'task': 'manager.tasks.UpdateRedditSidebarTask',
-                'schedule': datetime.timedelta(minutes=5),
-                'kwargs': {'stamp': str(time.time())},
-            },
             'check-posts': {
                 'task': 'manager.tasks.RedditPostsTask',
                 'schedule': datetime.timedelta(minutes=1),
@@ -288,13 +283,17 @@ class RedditPostsTask(JobtasticTask):
         logit("[Posts] " + str(len(posts)) + " posts in queue.")
 
         if len(posts) > 0:
-            r = praw.Reddit(user_agent=user_agent)
-            r.refresh_access_information()
-
+            r = praw.Reddit(client_id=settings.REDDIT_CLIENT_ID,
+                            client_secret=settings.REDDIT_CLIENT_SECRET,
+                            username=settings.REDDIT_USERNAME,
+                            password=settings.REDDIT_PASSWORD,
+                            user_agent=user_agent)
+            logit("[Posts] ")
             if r.user == None:
                 logit("[Posts] Failed to log in. Something went wrong!")
             else:
                 logit("[Posts] Logged in to reddit as " + str(r.user))
+                sub = r.subreddit(settings.SUBREDDIT)
 
             for post in posts:
                 postBody = post.body
@@ -303,21 +302,27 @@ class RedditPostsTask(JobtasticTask):
                     postBody = postBody + "\n\n" + posterCredits + str(post.author) + "\n"
 
                 postBody += indybotCredits
-                submission = r.submit(settings.SUBREDDIT, post.title, text=postBody)
+
+                submission = sub.submit(post.title, selftext=postBody)
+
+                logit("[Posts] " + pprint.pformat(submission.flair.choices(), indent=4))
 
                 if post.flair_text and post.flair_css_class:
-                    submission.set_flair(flair_text=post.flair_text,
-                                         flair_css_class=post.flair_css_class)
+                    #TODO Find where these are set and update this to better work with new PRAW
+                    availableFlair = submission.flair.choices()
+                    for flairChoice in availableFlair:
+                        if flairChoice['flair_css_class'] == "race":
+                            submission.flair.select(flairChoice['flair_template_id'], post.flair_text)
 
                 if post.sort:
-                    submission.set_suggested_sort(sort=post.sort)
+                    submission.mod.suggested_sort(sort=post.sort)
 
                 if post.sticky:
-                    submission.sticky()
+                    submission.mod.sticky()
 
                 if post.stream:
-                    comment = submission.add_comment("Please post stream links as a reply to this stickied comment.")
-                    comment.distinguish(sticky=True)
+                    comment = submission.reply("Please post stream links as a reply to this stickied comment.")
+                    comment.distinguish(how='yes', sticky=True)
 
                 post.submission = submission.id
                 post.save()
@@ -353,13 +358,20 @@ class UpdateRedditSidebarTask(JobtasticTask):
         message = ""
         percentage = float(0)
 
-        r = praw.Reddit(user_agent=user_agent)
-        r.refresh_access_information()
+        r = praw.Reddit(client_id=settings.REDDIT_CLIENT_ID,
+                        client_secret=settings.REDDIT_CLIENT_SECRET,
+                        username=settings.REDDIT_USERNAME,
+                        password=settings.REDDIT_PASSWORD,
+                        user_agent=user_agent)
+        logit("[Sidebar] r: " + str(r))
 
         if r.user == None:
-            message += "Failed to log in. Something went wrong!\n"
+            loginMessage = "Failed to log in to reddit. Something went wrong!"
         else:
-            message += "Logged in to reddit as " + str(r.user)
+            loginMessage = "Logged in to reddit as " + str(r.user)
+
+        logit("[Sidebar] " + loginMessage)
+        message += loginMessage + "\n"
         self.update_progress(20, 100)
 
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -385,15 +397,19 @@ class UpdateRedditSidebarTask(JobtasticTask):
         # sidebar = re.sub("### \[Drivers, START YOUR ENGINES!\]", countdownText, sidebar, flags=re.S)
         # sidebar = re.sub("### \[\d+ Days until the Indy 500!\]", countdownText, sidebar, flags=re.S)
 
+        logit("[Sidebar] Getting subreddit")
+        sub = r.subreddit(settings.SUBREDDIT)
+        mod = sub.mod
+        subSettings = mod.settings()
+        oldSidebar = subSettings['description']
 
-        subsettings = r.get_settings(settings.SUBREDDIT)
-        oldSidebar = subsettings['description']
         sidebar = oldSidebar
 
         start = timezone.make_aware(datetime.datetime(datetime.date.today().year, 1, 1))
         end = timezone.make_aware(datetime.datetime(datetime.date.today().year, 12, 31))
         sessions = Session.objects.filter(type_id=1).filter(starttime__gte=start).filter(starttime__lte=end).order_by('starttime').select_related()
 
+        logit("[Sidebar] Found " + str(len(sessions)) + " sessions.")
         foundNext = 0
         highlightRow = 0
         raceCount = 0
@@ -405,8 +421,8 @@ class UpdateRedditSidebarTask(JobtasticTask):
         for session in sessions:
 
             raceCount = raceCount + 1
-            coverageStart = timezone.make_naive(session.tvstarttime)
-            coverageEnd = timezone.make_naive(session.tvendtime)
+            coverageStart = timezone.make_naive(session.starttime)
+            coverageEnd = timezone.make_naive(session.endtime)
             timeNow = timezone.make_naive(timezone.now())
             if coverageEnd > timeNow and foundNext == 0:
                 highlightRow = raceCount
@@ -419,10 +435,11 @@ class UpdateRedditSidebarTask(JobtasticTask):
 
         schedTable += "\nAll times Eastern"
 
+        logit("[Sidebar] Built schedule table.")
 
-        stylesheet = r.get_stylesheet(settings.SUBREDDIT)
-        newCSS = stylesheet['stylesheet']
-        oldCSS = stylesheet['stylesheet']
+        styles = sub.stylesheet()
+        oldCSS = styles.stylesheet
+        newCSS = styles.stylesheet
 
         highlightCSS = ".side table tr:nth-of-type(" + str(highlightRow) + ") td {"
         newCSS = re.sub("\.side table tr:nth-of-type\(\d+\) td \{", highlightCSS, newCSS, flags=re.S)
@@ -432,13 +449,14 @@ class UpdateRedditSidebarTask(JobtasticTask):
 
         if newCSS != oldCSS:
             logit("[Sidebar] Stylesheet update required!")
-            r.set_stylesheet(settings.SUBREDDIT, '')
-            r.set_stylesheet(settings.SUBREDDIT, newCSS)
+            sub.stylesheet.update(newCSS)
+            logit("[Sidebar] Stylesheet updated.")
+
 
         sidebar = re.sub("### 2018 IndyCar Schedule.*All times Eastern", schedTable, sidebar, flags=re.S)
         if (sidebar != oldSidebar):
             logit("[Sidebar] Sidebar update required!\n")
-            subsettings = r.update_settings(r.get_subreddit(settings.SUBREDDIT), description=sidebar)
+            sub.mod.update(description=sidebar)
         else:
             logit("[Sidebar] No change required.\n")
         self.update_progress(100, 100)
