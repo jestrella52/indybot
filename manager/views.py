@@ -258,7 +258,7 @@ def sessiontype_list(request):
 
 @login_required
 def post_list(request):
-    postList = Post.objects.order_by('publish_time')
+    postList = Post.objects.order_by('-publish_time')
     template = loader.get_template('postList.html')
     context = {
         'postList': postList,
