@@ -97,6 +97,11 @@ elif settings.INDYBOT_ENV == "DEVEL":
                 'schedule': crontab(hour='*', minute='*'),
                 'kwargs': {'stamp': str(time.time())},
             },
+            'update-sidebar': {
+                'task': 'manager.tasks.UpdateRedditSidebarTask',
+                'schedule': datetime.timedelta(minutes=5),
+                'kwargs': {'stamp': str(time.time())},
+            },
             'check-posts': {
                 'task': 'manager.tasks.RedditPostsTask',
                 'schedule': datetime.timedelta(minutes=1),
