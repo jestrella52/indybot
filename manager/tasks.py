@@ -398,7 +398,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
         highlightRow = 0
         raceCount = 0
 
-        schedTable  = "### 2017 IndyCar Schedule\n\n"
+        schedTable  = "### 2018 IndyCar Schedule\n\n"
         schedTable += "**Date**|**Course**|**Time**|**TV**\n"
         schedTable += ":---|:---|:---|:---\n"
 
@@ -435,7 +435,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
             r.set_stylesheet(settings.SUBREDDIT, '')
             r.set_stylesheet(settings.SUBREDDIT, newCSS)
 
-        sidebar = re.sub("### 2017 IndyCar Schedule.*All times Eastern", schedTable, sidebar, flags=re.S)
+        sidebar = re.sub("### 2018 IndyCar Schedule.*All times Eastern", schedTable, sidebar, flags=re.S)
         if (sidebar != oldSidebar):
             logit("[Sidebar] Sidebar update required!\n")
             subsettings = r.update_settings(r.get_subreddit(settings.SUBREDDIT), description=sidebar)
