@@ -47,7 +47,7 @@ if settings.INDYBOT_ENV == "PROD":
             },
             'update-sidebar': {
                 'task': 'manager.tasks.UpdateRedditSidebarTask',
-                'schedule': crontab(hour='*', minute='*/5'),
+                'schedule': datetime.timedelta(minutes=5),
                 'kwargs': {'stamp': str(time.time())},
             },
             'check-posts': {
@@ -395,7 +395,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
         # sidebar = re.sub("### \[Drivers, START YOUR ENGINES!\]", countdownText, sidebar, flags=re.S)
         # sidebar = re.sub("### \[\d+ Days until the Indy 500!\]", countdownText, sidebar, flags=re.S)
 
-        logit("[Sidebar] Getting subreddit")
+        # logit("[Sidebar] Getting subreddit")
         sub = r.subreddit(settings.SUBREDDIT)
         mod = sub.mod
         subSettings = mod.settings()
@@ -407,7 +407,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
         end = timezone.make_aware(datetime.datetime(datetime.date.today().year, 12, 31))
         sessions = Session.objects.filter(type_id=1).filter(starttime__gte=start).filter(starttime__lte=end).order_by('starttime').select_related()
 
-        logit("[Sidebar] Found " + str(len(sessions)) + " sessions.")
+        # logit("[Sidebar] Found " + str(len(sessions)) + " sessions.")
         foundNext = 0
         highlightRow = 0
         raceCount = 0
@@ -433,7 +433,7 @@ class UpdateRedditSidebarTask(JobtasticTask):
 
         schedTable += "\nAll times Eastern"
 
-        logit("[Sidebar] Built schedule table.")
+        # logit("[Sidebar] Built schedule table.")
 
         styles = sub.stylesheet()
         oldCSS = styles.stylesheet
@@ -455,8 +455,8 @@ class UpdateRedditSidebarTask(JobtasticTask):
         if (sidebar != oldSidebar):
             logit("[Sidebar] Sidebar update required!\n")
             sub.mod.update(description=sidebar)
-        else:
-            logit("[Sidebar] No change required.\n")
+        # else:
+        #     logit("[Sidebar] No change required.\n")
         self.update_progress(100, 100)
         return 1
 
