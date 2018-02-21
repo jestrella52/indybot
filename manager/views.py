@@ -176,6 +176,31 @@ def driver_list_current(request):
 
 
 @login_required
+def driver_list_shared(request):
+    driverList = Driver.objects.filter(number__gte=1).order_by('number')
+    numberList = driverList.values_list('number', flat=True)
+    dupeNumberList = []
+
+    for number in numberList:
+        count = 0
+        for x in range(0, len(numberList)):
+            if numberList[x] == number:
+                count = count + 1
+
+        if count > 1 and not number in dupeNumberList:
+            dupeNumberList.append(number)
+
+    driverList = Driver.objects.filter(number__in=dupeNumberList).order_by('number')
+
+    template = loader.get_template('driverList.html')
+    context = {
+        'title': "Drivers - Shared Rides",
+        'driverList': driverList,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def driver_toggleActive(request, driver_id):
     driver = get_object_or_404(Driver, pk=driver_id)
     if driver.active:

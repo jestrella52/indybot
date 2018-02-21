@@ -31,6 +31,8 @@ urlpatterns = [
     url(r'^driver/list/current/$', views.driver_list_current, name='driver_list_current'),
     url(r'^driver/list/inactive/$', views.driver_list_inactive, name='driver_list_inactive'),
     url(r'^driver/create/$', views.driver_create, name='driver_create'),
+    url(r'^driver/list/shared/$', views.driver_list_shared, name='driver_list_shared'),
+
     url(r'^driver/(?P<driver_id>[0-9]+)/edit/$', views.driver_edit, name='driver_edit'),
     url(r'^driver/(?P<driver_id>[0-9]+)/delete/$', views.driver_delete, name='driver_delete'),
     url(r'^driver/(?P<driver_id>[0-9]+)/toggleActive/$', views.driver_toggleActive, name='driver_toggleActive'),
