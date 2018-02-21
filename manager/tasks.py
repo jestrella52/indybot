@@ -361,7 +361,6 @@ class UpdateRedditSidebarTask(JobtasticTask):
                         username=settings.REDDIT_USERNAME,
                         password=settings.REDDIT_PASSWORD,
                         user_agent=user_agent)
-        logit("[Sidebar] r: " + str(r))
 
         if r.user == None:
             loginMessage = "Failed to log in to reddit. Something went wrong!"
