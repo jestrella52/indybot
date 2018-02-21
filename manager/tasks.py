@@ -47,7 +47,7 @@ if settings.INDYBOT_ENV == "PROD":
             },
             'update-sidebar': {
                 'task': 'manager.tasks.UpdateRedditSidebarTask',
-                'schedule': crontab(hour='*', minute='5'),
+                'schedule': crontab(hour='*', minute='*/5'),
                 'kwargs': {'stamp': str(time.time())},
             },
             'check-posts': {
