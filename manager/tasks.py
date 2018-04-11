@@ -1,9 +1,11 @@
 import datetime
+import dateutil
 import requests
 import twitter
 import pycurl
 import shutil
 import django
+import arrow
 import praw
 import time
 import re
@@ -15,6 +17,8 @@ from time import sleep
 from celery import Celery
 from celery.schedules import crontab
 from celery.backends.rpc import RPCBackend
+from datetime import date, timedelta
+from ics import Calendar, Event
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'indybot.settings'
 django.setup()
@@ -26,7 +30,7 @@ from django_slack import slack_message
 
 from jobtastic import JobtasticTask
 
-from .models import Country, Driver, Post, Race, RedditAccount, Session
+from .models import Country, Driver, Post, Race, RedditAccount, Season, Session
 from .models import SessionType, Tweet
 
 from .racethread import compile
@@ -76,13 +80,18 @@ elif settings.INDYBOT_ENV == "STAGE":
     logit("Applying STAGE schedule.")
     app.conf.update(
         CELERYBEAT_SCHEDULE = {
-            'check-threads': {
-                'task': 'manager.tasks.RedditThreadTask',
-                'schedule': crontab(hour='*', minute='*'),
-                'kwargs': {'stamp': str(time.time())},
-            },
-            'check-posts': {
-                'task': 'manager.tasks.RedditPostsTask',
+            #'check-threads': {
+            #    'task': 'manager.tasks.RedditThreadTask',
+            #    'schedule': crontab(hour='*', minute='*'),
+            #    'kwargs': {'stamp': str(time.time())},
+            #},
+            #'check-posts': {
+            #    'task': 'manager.tasks.RedditPostsTask',
+            #    'schedule': datetime.timedelta(minutes=1),
+            #    'kwargs': {'stamp': str(time.time())},
+            #},
+            'generate-calendar': {
+                'task': 'manager.tasks.GenerateCalendarTask',
                 'schedule': datetime.timedelta(minutes=1),
                 'kwargs': {'stamp': str(time.time())},
             },
@@ -150,6 +159,66 @@ class TweetTask(JobtasticTask):
                 logit("TWITTER ERROR: Code: " + str(e))
 
         self.update_progress(100, 100)
+        return 1
+
+
+class GenerateCalendarTask(JobtasticTask):
+    backend = rpc_backend
+    herd_avoidance_timeout = 55
+    cache_duration = 0
+
+    significant_kwargs = [
+        ('stamp', str),
+    ]
+
+    def calculate_result(self, stamp, **kwargs):
+        logit("[Calendar] GenerateCalendarTask: starting up! - - - - - - - - - -")
+        sessionTypeValue = SessionType.objects.get(name="Race")
+        currentSeason = Season.objects.filter(year=date.today().year)
+        # logit("[Calendar] Current Season: " + str(currentSeason[0].year))
+
+        localtz = dateutil.tz.tzlocal()
+        localoffset = localtz.utcoffset(datetime.datetime.now(localtz))
+        offsetHours = localoffset.total_seconds() / 3600
+
+        # logit("[Calendar] Offset: " + str(offsetHours))
+
+        calendar = Calendar()
+        calendar.creator = unicode("IndyBot, a product of /r/INDYCAR on Reddit")
+
+        raceList = Race.objects.filter(season=currentSeason)
+        for i in xrange(len(raceList)):
+            # logit("[Calendar] ----------------------------------------------- ")
+            # logit("[Calendar] " + raceList[i].title)
+            event = Event()
+            event.name = raceList[i].title
+            event.location = raceList[i].course.name
+            event.description = "Coverage on " + raceList[i].channel
+
+            startTime = False
+            endTime = False
+            raceSession = Session.objects.get(race_id=raceList[i].id, type_id=sessionTypeValue)
+            startTime = raceSession.tvstarttime + timedelta(hours=offsetHours)
+
+            if raceSession.tvendtime == None:
+                endTime = startTime + timedelta(hours=3)
+            else:
+                endTime = raceSession.tvendtime + timedelta(hours=offsetHours)
+
+            event.begin = arrow.get(startTime, 'US/Eastern')
+            event.end = arrow.get(endTime, 'US/Eastern')
+
+            # logit("[Calendar] Start Time: " + str(event.begin.format('YYYY-MM-DD HH:mm:ss ZZ')))
+            # logit("[Calendar] End Time: " + str(event.end.format('YYYY-MM-DD HH:mm:ss ZZ')))
+
+            calendar.events.append(event)
+
+
+        with open('static/races.ics', 'w') as f:
+            f.writelines(calendar)
+
+        logit("[Calendar] Finished.")
+
         return 1
 
 

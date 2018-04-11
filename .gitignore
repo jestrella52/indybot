@@ -4,6 +4,7 @@ __pycache__
 .fuse_*
 ._expandrive
 static/liveries.png
+static/*.ics
 liveries
 logs
 praw.ini
