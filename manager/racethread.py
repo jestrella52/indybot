@@ -56,6 +56,7 @@ def footer(output="reddit"):
         se = ""
 
     footer  = hr + "\nLive timing and scoring available at " + link("http://racecontrol.indycar.com", "Verizon IndyCar Series Race Control", output) + nl
+    footer += link("https://reddit-stream.com/comments/auto", "View this thread at reddit-stream.com", output) + nl
     footer += link("http://www.indycar.com/Drivers", "Current Driver Standings", output) + nl
 
     return footer
