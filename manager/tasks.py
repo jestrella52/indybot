@@ -614,7 +614,7 @@ class GenerateLiveriesTask(JobtasticTask):
         for i in xrange(1, 99):
             shutil.copy("blank.png", image_dir + "/" + str(i) + ".png")
 
-        page = requests.get("http://www.indycar.com/Drivers")
+        page = requests.get("https://www.indycar.com/Drivers/")
         tree = html.fromstring(page.content)
         driverPageList = tree.xpath(driverXPath)
 

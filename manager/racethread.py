@@ -347,11 +347,11 @@ def winnerList(race_id, output="reddit"):
 
 
     if output == "reddit":
-        header = "|Year|Winner|Country|"
+        header = "|Year|Winner|Start|Country|"
         spacer = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
         winnerTable  = "***\n\n**PREVIOUS WINNERS**\n\n"
         winnerTable += header + spacer + header + spacer + header + "\n"
-        winnerTable += ":--:|:--|:--:|:--:|:--:|:--|:--:|:--:|:--:|:--|:--:\n"
+	winnerTable += ":--:|:--|:--:|:--:|:--:|:--:|:--|:--:|:--:|:--:|:--:|:--|:--:|:--:\n"
     else:
         winnerTable  = "<hr><br><strong>PREVIOUS WINNERS</strong><br><br>"
         winnerTable += "<table><tr>"
